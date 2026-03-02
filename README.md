@@ -33,7 +33,7 @@ three-column Markdown table:
 Run the script from the repository root:
 
 ```sh
-python3 scripts/extract_public_unsafe_stdlib.py
+python3 scripts/extract_public_unsafe.py
 ```
 
 This will:
@@ -46,8 +46,38 @@ This will:
 You can specify a custom output path:
 
 ```sh
-python3 scripts/extract_public_unsafe_stdlib.py my_output.md
+python3 scripts/extract_public_unsafe.py my_output.md
 ```
+
+### Generate docs/index.md (GitHub Pages source)
+
+To generate or refresh the site's home page locally:
+
+```sh
+python3 scripts/extract_public_unsafe.py docs/index.md
+```
+
+This is the same command the CI workflow runs automatically on every push to
+`main`. You can also trigger it manually from the **Actions** tab →
+**Generate docs/index.md** → **Run workflow**.
+
+## GitHub Pages
+
+The site is served from the `docs/` folder on the `main` branch.
+
+### Enabling Pages
+
+1. Go to **Settings → Pages** in this repository.
+2. Under **Source**, select **Deploy from a branch**.
+3. Choose branch **`main`** and folder **`/docs`**, then click **Save**.
+
+Once enabled, the site is available at:
+
+> **<https://safer-rust.github.io/audit-unsafe-doc/>**
+
+The `docs/index.md` file is regenerated automatically by the
+[Generate docs/index.md](.github/workflows/generate-docs.yml) workflow on
+every push to `main`.
 
 ## Notes / Caveats
 
