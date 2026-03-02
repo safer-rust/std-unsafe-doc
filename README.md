@@ -40,8 +40,7 @@ This will:
 1. Locate the `nightly-2025-12-06` sysroot with `rustc --print sysroot`.
 2. Run `cargo rustdoc --output-format json` for `core`, `alloc`, and `std`.
 3. Parse each JSON file and collect public unsafe items.
-4. Write the results to **`public_unsafe_api_nightly-2025-12-06.md`** in the
-   current directory.
+4. Write the results to **`std-unsafe.md`** in the repository root.
 5. Print the number of items written and the output path.
 
 You can specify a custom output path:

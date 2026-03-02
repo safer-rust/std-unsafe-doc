@@ -26,7 +26,7 @@ from pathlib import Path
 
 TOOLCHAIN = "nightly-2025-12-06"
 CRATES = ["core", "alloc", "std"]
-DEFAULT_OUTPUT = f"public_unsafe_api_{TOOLCHAIN}.md"
+DEFAULT_OUTPUT = "std-unsafe.md"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
