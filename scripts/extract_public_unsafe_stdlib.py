@@ -4,6 +4,14 @@
 Usage:
     python3 scripts/extract_public_unsafe_stdlib.py [OUTPUT_FILE]
 
+Output location:
+    The default output file is written to the repository root directory
+    (the parent of the ``scripts/`` folder), not the current working directory.
+
+    If OUTPUT_FILE is provided:
+      - A relative path is resolved relative to the repository root.
+      - An absolute path is used as-is.
+
 Prerequisites:
     rustup toolchain install nightly-2025-12-06
     rustup component add rust-src --toolchain nightly-2025-12-06
@@ -11,7 +19,6 @@ Prerequisites:
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
@@ -20,6 +27,9 @@ from pathlib import Path
 TOOLCHAIN = "nightly-2025-12-06"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = f"public_unsafe_api_{TOOLCHAIN}.md"
+
+# Repo root is one level above this script (scripts/../)
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def run(cmd, *, cwd=None, check=True):
@@ -114,9 +124,8 @@ def extract_safety_section(docs):
         return ""
     # Collapse whitespace for a compact table cell
     text = match.group(1).strip()
-    # Replace newlines / pipes to keep Markdown table valid
+    # Replace newlines with spaces (HTML table cells handle wrapping)
     text = re.sub(r"\s*\n\s*", " ", text)
-    text = text.replace("|", "\\|")
     return text
 
 
@@ -202,23 +211,53 @@ def collect_unsafe_items(json_path, lib_dir):
 
 
 def write_markdown(all_items, output_path):
-    """Write the collected items to a Markdown file."""
+    """Write the collected items to a Markdown file with an HTML table.
+
+    Rows are deduplicated by (module_path, full_path).  When duplicate rows
+    have different Safety docs they are merged with ``<br/>`` as separator.
+    Column widths: Module 18%, API 22%, Safety doc 60%.
+    """
+    # Deduplicate: key = (module_path, full_path), value = (url, [safety_docs])
+    seen: dict[tuple[str, str], tuple[str, list[str]]] = {}
+    for module_path, full_path, url, safety_doc in sorted(all_items):
+        key = (module_path, full_path)
+        if key not in seen:
+            seen[key] = (url, [safety_doc] if safety_doc else [])
+        else:
+            existing_url, docs = seen[key]
+            # Keep first non-empty URL
+            merged_url = existing_url or url
+            if safety_doc and safety_doc not in docs:
+                docs.append(safety_doc)
+            seen[key] = (merged_url, docs)
+
     lines = [
         f"# Public Unsafe APIs — {TOOLCHAIN}",
         "",
         f"Generated from crates: {', '.join(f'`{c}`' for c in CRATES)}.",
         "",
-        "| Module | API | Safety doc |",
-        "| ------ | --- | ---------- |",
+        '<table>',
+        '<colgroup>',
+        '<col style="width:18%">',
+        '<col style="width:22%">',
+        '<col style="width:60%">',
+        '</colgroup>',
+        '<thead>',
+        '<tr><th>Module</th><th>API</th><th>Safety doc</th></tr>',
+        '</thead>',
+        '<tbody>',
     ]
-    for module_path, full_path, url, safety_doc in sorted(all_items):
-        if url:
-            api_cell = f"[`{full_path}`]({url})"
-        else:
-            api_cell = f"`{full_path}`"
-        lines.append(f"| `{module_path}` | {api_cell} | {safety_doc} |")
 
-    lines.append("")
+    for (module_path, full_path), (url, docs) in seen.items():
+        module_cell = f"<code>{module_path}</code>"
+        if url:
+            api_cell = f'<a href="{url}"><code>{full_path}</code></a>'
+        else:
+            api_cell = f"<code>{full_path}</code>"
+        safety_cell = "<br/>".join(docs)
+        lines.append(f"<tr><td>{module_cell}</td><td>{api_cell}</td><td>{safety_cell}</td></tr>")
+
+    lines += ["</tbody>", "</table>", ""]
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -229,11 +268,20 @@ def main():
     parser.add_argument(
         "output",
         nargs="?",
-        default=DEFAULT_OUTPUT,
-        help=f"Output markdown file (default: {DEFAULT_OUTPUT})",
+        default=None,
+        help=(
+            f"Output markdown file (default: {DEFAULT_OUTPUT} in the repo root). "
+            "A relative path is resolved relative to the repo root; "
+            "an absolute path is used as-is."
+        ),
     )
     args = parser.parse_args()
-    output_path = Path(args.output)
+
+    if args.output is None:
+        output_path = REPO_ROOT / DEFAULT_OUTPUT
+    else:
+        p = Path(args.output)
+        output_path = p if p.is_absolute() else REPO_ROOT / p
 
     print(f"Toolchain: {TOOLCHAIN}")
     sysroot = get_sysroot()
