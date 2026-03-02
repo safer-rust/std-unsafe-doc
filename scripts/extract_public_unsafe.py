@@ -27,6 +27,7 @@ from pathlib import Path
 TOOLCHAIN = "nightly-2025-12-06"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.md"
+RUSTDOC_STABLE_BASE = "https://doc.rust-lang.org/stable"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -129,23 +130,26 @@ def extract_safety_section(docs):
     return text
 
 
-def html_url(lib_dir, crate, path_segments, kind):
-    """Return a file:// URL to the locally generated rustdoc HTML, or ''."""
+def rustdoc_stable_url(crate, path_segments, kind):
+    """Return a URL to the Rust stable documentation page, or ''.
+
+    Generates a URL of the form:
+        https://doc.rust-lang.org/stable/{crate}/{module.../}{prefix}.{name}.html
+
+    Returns '' if *kind* is unsupported or path information is insufficient.
+    """
     if len(path_segments) < 2:
         return ""
-    # module segments are everything except the last (item name)
     module_parts = path_segments[1:-1]  # strip crate prefix
     item_name = path_segments[-1]
     prefix = {"function": "fn", "trait": "trait"}.get(kind, "")
     if not prefix:
         return ""
-    # HTML is in the workspace-level target/doc directory
-    doc_dir = lib_dir / "target" / "doc" / crate
-    html_path = doc_dir.joinpath(*module_parts) / f"{prefix}.{item_name}.html"
-    return html_path.as_uri()
+    parts = [RUSTDOC_STABLE_BASE, crate] + list(module_parts) + [f"{prefix}.{item_name}.html"]
+    return "/".join(parts)
 
 
-def collect_unsafe_items(json_path, lib_dir):
+def collect_unsafe_items(json_path):
     """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs)."""
     try:
         with open(json_path, encoding="utf-8") as fh:
@@ -203,7 +207,7 @@ def collect_unsafe_items(json_path, lib_dir):
 
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
-        url = html_url(lib_dir, crate, full_path_segments, kind)
+        url = rustdoc_stable_url(crate, full_path_segments, kind)
 
         items.append((module_path, full_path, url, safety_doc))
 
@@ -215,7 +219,8 @@ def write_markdown(all_items, output_path):
 
     Rows are deduplicated by (module_path, full_path).  When duplicate rows
     have different Safety docs they are merged with ``<br/>`` as separator.
-    Column widths: Module 18%, API 22%, Safety doc 60%.
+    The table is responsive (full-width, horizontally scrollable) and all
+    three columns support drag-to-resize via inline CSS + JavaScript.
     """
     # Deduplicate: key = (module_path, full_path), value = (url, [safety_docs])
     seen: dict[tuple[str, str], tuple[str, list[str]]] = {}
@@ -236,6 +241,53 @@ def write_markdown(all_items, output_path):
         "",
         f"Generated from crates: {', '.join(f'`{c}`' for c in CRATES)}.",
         "",
+        "<style>",
+        ".unsafe-table-wrap { width: 100%; overflow-x: auto; }",
+        ".unsafe-table-wrap table { width: 100%; table-layout: fixed;"
+        " border-collapse: collapse; min-width: 600px; }",
+        ".unsafe-table-wrap th, .unsafe-table-wrap td"
+        " { padding: 4px 8px; word-break: break-word; vertical-align: top;"
+        " border: 1px solid #ddd; }",
+        ".unsafe-table-wrap th { position: relative; white-space: nowrap;"
+        " user-select: none; -webkit-user-select: none; }",
+        ".col-resize-handle { position: absolute; right: 0; top: 0; bottom: 0;"
+        " width: 5px; cursor: col-resize; }",
+        ".col-resize-handle:hover { background: rgba(0,0,0,.15); }",
+        "</style>",
+        "",
+        "<script>",
+        "(function () {",
+        "  document.addEventListener('DOMContentLoaded', function () {",
+        "    var table = document.querySelector('.unsafe-table-wrap table');",
+        "    if (!table) return;",
+        "    var cols = table.querySelectorAll('col');",
+        "    var ths  = table.querySelectorAll('thead th');",
+        "    ths.forEach(function (th, i) {",
+        "      var handle = document.createElement('div');",
+        "      handle.className = 'col-resize-handle';",
+        "      th.appendChild(handle);",
+        "      var startX = 0, startW = 0;",
+        "      handle.addEventListener('mousedown', function (e) {",
+        "        startX = e.clientX;",
+        "        startW = th.getBoundingClientRect().width;",
+        "        document.addEventListener('mousemove', onMove);",
+        "        document.addEventListener('mouseup', onUp);",
+        "        e.preventDefault();",
+        "      });",
+        "      function onMove(e) {",
+        "        var w = startW + (e.clientX - startX);",
+        "        if (w > 40) { cols[i].style.width = w + 'px'; }",
+        "      }",
+        "      function onUp() {",
+        "        document.removeEventListener('mousemove', onMove);",
+        "        document.removeEventListener('mouseup', onUp);",
+        "      }",
+        "    });",
+        "  });",
+        "}());",
+        "</script>",
+        "",
+        '<div class="unsafe-table-wrap">',
         '<table>',
         '<colgroup>',
         '<col style="width:18%">',
@@ -257,7 +309,7 @@ def write_markdown(all_items, output_path):
         safety_cell = "<br/>".join(docs)
         lines.append(f"<tr><td>{module_cell}</td><td>{api_cell}</td><td>{safety_cell}</td></tr>")
 
-    lines += ["</tbody>", "</table>", ""]
+    lines += ["</tbody>", "</table>", "</div>", ""]
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -295,7 +347,7 @@ def main():
         print(f"[{crate}]")
         json_path = generate_rustdoc_json(crate, lib_dir)
         print(f"  Parsing {json_path}")
-        items = collect_unsafe_items(json_path, lib_dir)
+        items = collect_unsafe_items(json_path)
         print(f"  Found {len(items)} public unsafe items")
         all_items.extend(items)
         print()
