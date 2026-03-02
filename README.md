@@ -73,7 +73,7 @@ The site is served from the `docs/` folder on the `main` branch.
 
 Once enabled, the site is available at:
 
-> **<https://safer-rust.github.io/audit-unsafe-doc/>**
+> **<https://safer-rust.github.io/std-unsafe-doc/>**
 
 The `docs/index.md` file is regenerated automatically by the
 [Generate docs/index.md](.github/workflows/generate-docs.yml) workflow on
