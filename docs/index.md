@@ -172,7 +172,7 @@ tr.drag-over td { border-top: 2px solid #4a9eff; }
 <col style="width:7%">
 </colgroup>
 <thead>
-<tr><th></th><th>Module</th><th>API</th><th>Safety doc</th><th>Confirmed &#10003;</th></tr>
+<tr><th></th><th>Module</th><th>API</th><th>Safety doc</th><th>Confirmed ✓</th></tr>
 </thead>
 <tbody>
 <tr data-id="alloc::as_mut_vec"><td class="drag-handle-cell" title="Drag to reorder">&#9776;</td><td><code>alloc</code></td><td><a href="https://doc.rust-lang.org/stable/alloc/fn.as_mut_vec.html"><code>alloc::as_mut_vec</code></a></td><td>This function is unsafe because the returned `&mut Vec` allows writing bytes which are not valid UTF-8. If this constraint is violated, using the original `String` after dropping the `&mut Vec` may violate memory safety, as the rest of the standard library assumes that `String`s are valid UTF-8.</td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
