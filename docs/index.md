@@ -1,4 +1,8 @@
-# Public Unsafe APIs — nightly-2025-12-06
+---
+redirect_to: index.html
+---
+The full table has moved to [index.html](index.html).
+
 
 Generated from crates: `core`, `alloc`, `std`.
 
