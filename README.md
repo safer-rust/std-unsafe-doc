@@ -83,6 +83,19 @@ This is the same command the CI workflow runs automatically on every push to
 `main`. You can also trigger it manually from the **Actions** tab →
 **Generate docs/index.html** → **Run workflow**.
 
+The generated page shows the Rust nightly version in the `<title>` and in the
+introductory paragraph (e.g. `rustc 1.xx.x-nightly (xxxxxxx YYYY-MM-DD)`).
+If the version cannot be determined the page falls back to showing `nightly`
+instead of failing.
+
+### Quick self-check
+
+Print the detected nightly version without writing any files:
+
+```sh
+python3 scripts/extract_public_unsafe.py --version-only
+```
+
 ## GitHub Pages
 
 The site is served from the `docs/` folder on the `main` branch.
