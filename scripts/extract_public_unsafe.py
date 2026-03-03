@@ -18,6 +18,7 @@ Prerequisites:
 """
 
 import argparse
+import html
 import json
 import re
 import subprocess
@@ -26,7 +27,7 @@ from pathlib import Path
 
 TOOLCHAIN = "nightly-2025-12-06"
 CRATES = ["core", "alloc", "std"]
-DEFAULT_OUTPUT = "std-unsafe.md"
+DEFAULT_OUTPUT = "std-unsafe.html"
 RUSTDOC_STABLE_BASE = "https://doc.rust-lang.org/stable"
 
 # Repo root is one level above this script (scripts/../)
@@ -214,13 +215,14 @@ def collect_unsafe_items(json_path):
     return items
 
 
-def write_markdown(all_items, output_path):
-    """Write the collected items to a Markdown file with an HTML table.
+def write_html(all_items, output_path):
+    """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path).  When duplicate rows
     have different Safety docs they are merged with ``<br/>`` as separator.
     The table is responsive (full-width, horizontally scrollable) and all
     three columns support drag-to-resize via inline CSS + JavaScript.
+    Safety doc content is HTML-escaped to prevent injection.
     """
     # Deduplicate: key = (module_path, full_path), value = (url, [safety_docs])
     seen: dict[tuple[str, str], tuple[str, list[str]]] = {}
@@ -236,12 +238,19 @@ def write_markdown(all_items, output_path):
                 docs.append(safety_doc)
             seen[key] = (merged_url, docs)
 
+    crates_html = ", ".join(f"<code>{c}</code>" for c in CRATES)
+
     lines = [
-        f"# Public Unsafe APIs — {TOOLCHAIN}",
-        "",
-        f"Generated from crates: {', '.join(f'`{c}`' for c in CRATES)}.",
-        "",
+        "<!DOCTYPE html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        f"<title>Public Unsafe APIs \u2014 {TOOLCHAIN}</title>",
         "<style>",
+        "* { box-sizing: border-box; }",
+        "body { margin: 0; font-family: system-ui, sans-serif; }",
+        ".page-wrap { width: 100%; padding: 16px 24px; }",
         ".unsafe-table-wrap { width: 100%; overflow-x: auto; }",
         ".unsafe-table-wrap table { width: 100%; table-layout: fixed;"
         " border-collapse: collapse; min-width: 600px; }",
@@ -267,6 +276,11 @@ def write_markdown(all_items, output_path):
         "tr.dragging { opacity: 0.4; }",
         "tr.drag-over td { border-top: 2px solid #4a9eff; }",
         "</style>",
+        "</head>",
+        "<body>",
+        '<div class="page-wrap">',
+        f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN}</h1>",
+        f"<p>Generated from crates: {crates_html}.</p>",
         "",
         "<script>",
         "(function () {",
@@ -425,14 +439,14 @@ def write_markdown(all_items, output_path):
     ]
 
     for (module_path, full_path), (url, docs) in seen.items():
-        module_cell = f"<code>{module_path}</code>"
+        module_cell = f"<code>{html.escape(module_path)}</code>"
         if url:
-            api_cell = f'<a href="{url}"><code>{full_path}</code></a>'
+            api_cell = f'<a href="{html.escape(url)}"><code>{html.escape(full_path)}</code></a>'
         else:
-            api_cell = f"<code>{full_path}</code>"
-        safety_cell = "<br/>".join(docs)
+            api_cell = f"<code>{html.escape(full_path)}</code>"
+        safety_cell = "<br/>".join(html.escape(d) for d in docs)
         lines.append(
-            f'<tr data-id="{full_path}">'
+            f'<tr data-id="{html.escape(full_path, quote=True)}">'
             f'<td class="drag-handle-cell" title="Drag to reorder">&#9776;</td>'
             f'<td>{module_cell}</td>'
             f'<td>{api_cell}</td>'
@@ -443,7 +457,7 @@ def write_markdown(all_items, output_path):
             f'</tr>'
         )
 
-    lines += ["</tbody>", "</table>", "</div>", ""]
+    lines += ["</tbody>", "</table>", "</div>", "</div>", "</body>", "</html>", ""]
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -456,7 +470,7 @@ def main():
         nargs="?",
         default=None,
         help=(
-            f"Output markdown file (default: {DEFAULT_OUTPUT} in the repo root). "
+            f"Output HTML file (default: {DEFAULT_OUTPUT} in the repo root). "
             "A relative path is resolved relative to the repo root; "
             "an absolute path is used as-is."
         ),
@@ -486,7 +500,7 @@ def main():
         all_items.extend(items)
         print()
 
-    write_markdown(all_items, output_path)
+    write_html(all_items, output_path)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
 
 
