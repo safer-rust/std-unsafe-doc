@@ -2,12 +2,15 @@
 """Unit tests for URL-generation logic in extract_public_unsafe.py."""
 
 import sys
+import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 # Allow importing the module without its __main__ guard running.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import extract_public_unsafe  # noqa: E402
 from extract_public_unsafe import (  # noqa: E402
     _build_path_to_kind,
     collect_unsafe_items,
@@ -316,6 +319,44 @@ class TestCollectUnsafeItems(unittest.TestCase):
         # Should not raise; as_mut_vec may be deduplicated but no crash
         items = collect_unsafe_items("alloc", index, paths)
         self.assertIsInstance(items, list)
+
+
+class TestMainEmptyItems(unittest.TestCase):
+    """Tests for the sys.exit(1) guard in main() when all_items is empty."""
+
+    def test_sys_exit_when_all_crates_fail(self):
+        """main() should exit with code 1 when all crates fail to generate rustdoc JSON."""
+        with tempfile.NamedTemporaryFile(suffix=".html") as f:
+            with mock.patch("sys.argv", ["script", f.name]), \
+                 mock.patch.object(extract_public_unsafe, "_nightly_version", return_value=""), \
+                 mock.patch.object(
+                     extract_public_unsafe,
+                     "_generate_rustdoc_json",
+                     side_effect=FileNotFoundError("no nightly"),
+                 ):
+                with self.assertRaises(SystemExit) as cm:
+                    extract_public_unsafe.main()
+                self.assertEqual(cm.exception.code, 1)
+
+    def test_sys_exit_when_collect_raises_for_all_crates(self):
+        """main() should exit with code 1 when collect_unsafe_items raises for all crates."""
+        empty_doc = {"index": {}, "paths": {}}
+        with tempfile.NamedTemporaryFile(suffix=".html") as f:
+            with mock.patch("sys.argv", ["script", f.name]), \
+                 mock.patch.object(extract_public_unsafe, "_nightly_version", return_value=""), \
+                 mock.patch.object(
+                     extract_public_unsafe,
+                     "_generate_rustdoc_json",
+                     return_value=empty_doc,
+                 ), \
+                 mock.patch.object(
+                     extract_public_unsafe,
+                     "collect_unsafe_items",
+                     side_effect=RuntimeError("parse error"),
+                 ):
+                with self.assertRaises(SystemExit) as cm:
+                    extract_public_unsafe.main()
+                self.assertEqual(cm.exception.code, 1)
 
 
 if __name__ == "__main__":

@@ -557,9 +557,26 @@ def main():
                 continue
             index = doc.get("index", {})
             paths = doc.get("paths", {})
-            items = collect_unsafe_items(crate_name, index, paths)
+            try:
+                items = collect_unsafe_items(crate_name, index, paths)
+            except Exception as exc:
+                print(
+                    f"  Warning: failed to collect unsafe items for {crate_name!r}: {exc}",
+                    file=sys.stderr,
+                )
+                continue
             all_items.extend(items)
             print(f"  {len(items)} unsafe items found")
+
+    if not all_items:
+        print(
+            "Error: no unsafe items found across all crates. "
+            "Check that the nightly toolchain and rust-src component are installed "
+            "(rustup toolchain install nightly && rustup component add rust-src --toolchain nightly), "
+            "and review the warnings printed above.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     write_html(out_path, all_items, version_str, crates)
     print(f"\nWrote {len(all_items)} items to {out_path}")
