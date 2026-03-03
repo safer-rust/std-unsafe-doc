@@ -1,4 +1,4 @@
-# audit-unsafe-doc
+# std-unsafe-doc
 
 Extract all **public unsafe APIs** (unsafe functions and unsafe traits) from the
 Rust standard library crates **core**, **alloc**, and **std**, and save the
