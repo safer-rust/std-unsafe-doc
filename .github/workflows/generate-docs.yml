@@ -1,40 +1,36 @@
-name: Generate docs/index.html
+# This is a GitHub Actions workflow that generates documentation for the std-unsafe-doc project.
+
+name: Generate Docs
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    branches:
+      - main
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Install Rust nightly-2025-12-06
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2025-12-06
+          toolchain: nightly
           components: rust-src
 
-      - name: Generate docs/index.html
-        run: |
-          mkdir -p docs
-          python3 scripts/extract_public_unsafe.py docs/index.html
+      - name: Ensure sysroot
+        run: rustup update nightly
 
-      - name: Commit and push docs/index.html
+      - name: Generate documentation
+        run: cargo doc --no-deps
+
+      - name: Commit and push docs
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "chore: regenerate docs/index.html [skip ci]"
-            git push
-          fi
+          git config --global user.email 'action@github.com'
+          git config --global user.name 'GitHub Action'
+          git add -A docs/
+          git commit -m 'Update docs [ci skip]' || echo 'No changes to commit'
+          git push
