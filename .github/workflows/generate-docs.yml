@@ -1,11 +1,14 @@
-# This is a GitHub Actions workflow that generates documentation for the std-unsafe-doc project.
+# This workflow generates docs/index.html from the Rust standard-library source
+# using the latest nightly toolchain and pushes any changes back to main.
 
-name: Generate Docs
+name: Generate docs/index.html
 
 on:
   push:
     branches:
       - main
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
 
 jobs:
   generate:
@@ -13,19 +16,25 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install Rust
+      # Install the latest nightly toolchain together with rust-src so the
+      # extract_public_unsafe.py script can find the sysroot sources.
+      - name: Install Rust nightly with rust-src
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
           components: rust-src
 
-      - name: Ensure sysroot
-        run: rustup update nightly
+      # Keep nightly up-to-date and make sure rust-src is still present after
+      # the update (rustup update can drop optional components).
+      - name: Update nightly and ensure rust-src is available
+        run: |
+          rustup update nightly
+          rustup component add rust-src --toolchain nightly
 
-      - name: Generate documentation
-        run: cargo doc --no-deps
+      - name: Generate docs/index.html
+        run: python3 scripts/extract_public_unsafe.py docs/index.html
 
       - name: Commit and push docs
         run: |
