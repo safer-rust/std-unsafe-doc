@@ -228,7 +228,7 @@ def collect_unsafe_items(json_path):
         safety_doc = extract_safety_section(docs)
         url = rustdoc_stable_url(crate, full_path_segments, kind)
 
-        items.append((module_path, full_path, url, safety_doc))
+        items.append((module_path, full_path, kind, url, safety_doc))
 
     return items
 
@@ -236,16 +236,17 @@ def collect_unsafe_items(json_path):
 def write_html(all_items, output_path):
     """Write the collected items to a static HTML file.
 
-    Rows are deduplicated by (module_path, full_path).  When duplicate rows
-    have different Safety docs they are merged with ``<br/>`` as separator.
+    Rows are deduplicated by (module_path, full_path, kind).  When duplicate
+    rows have different Safety docs they are merged with ``<br/>`` as separator.
     The table is responsive (full-width, horizontally scrollable) and all
-    three columns support drag-to-resize via inline CSS + JavaScript.
+    column headers support drag-to-resize via inline CSS + JavaScript.
     Safety doc content is HTML-escaped to prevent injection.
+    Rows are sorted ascending by module path then API name.
     """
-    # Deduplicate: key = (module_path, full_path), value = (url, [safety_docs])
-    seen: dict[tuple[str, str], tuple[str, list[str]]] = {}
-    for module_path, full_path, url, safety_doc in sorted(all_items):
-        key = (module_path, full_path)
+    # Deduplicate: key = (module_path, full_path, kind), value = (url, [safety_docs])
+    seen: dict[tuple[str, str, str], tuple[str, list[str]]] = {}
+    for module_path, full_path, kind, url, safety_doc in all_items:
+        key = (module_path, full_path, kind)
         if key not in seen:
             seen[key] = (url, [safety_doc] if safety_doc else [])
         else:
@@ -255,6 +256,14 @@ def write_html(all_items, output_path):
             if safety_doc and safety_doc not in docs:
                 docs.append(safety_doc)
             seen[key] = (merged_url, docs)
+
+    # Sort by (module_path, api_name) ascending
+    def _sort_key(entry):
+        (module_path, full_path, kind), _val = entry
+        api_name = full_path.split("::")[-1]
+        return (module_path, api_name)
+
+    sorted_items = sorted(seen.items(), key=_sort_key)
 
     crates_html = ", ".join(f"<code>{c}</code>" for c in CRATES)
 
@@ -280,19 +289,11 @@ def write_html(all_items, output_path):
         ".col-resize-handle { position: absolute; right: 0; top: 0; bottom: 0;"
         " width: 5px; cursor: col-resize; }",
         ".col-resize-handle:hover { background: rgba(0,0,0,.15); }",
-        "/* Drag-and-drop styles */",
-        ".drag-handle-cell { text-align: center; cursor: grab; color: #aaa;"
-        " user-select: none; -webkit-user-select: none; padding: 0 2px;"
-        " font-size: 1.1em; }",
-        ".drag-handle-cell:active { cursor: grabbing; }",
         "/* Checkbox column */",
         ".confirm-cell { text-align: center; }",
         ".confirm-cb { cursor: pointer; width: 16px; height: 16px; }",
         "/* Confirmed row highlight */",
         ".row-confirmed td { background-color: #f0fff4; }",
-        "/* Visual feedback during drag */",
-        "tr.dragging { opacity: 0.4; }",
-        "tr.drag-over td { border-top: 2px solid #4a9eff; }",
         "</style>",
         "</head>",
         "<body>",
@@ -302,11 +303,9 @@ def write_html(all_items, output_path):
         "",
         "<script>",
         "(function () {",
-        "  // localStorage keys include the page path to avoid cross-page conflicts.",
-        "  // Data structures:",
-        "  //   STORAGE_ORDER_KEY  -> JSON array of data-id values (= full_path, row order)",
+        "  // localStorage key includes the page path to avoid cross-page conflicts.",
+        "  // Data structure:",
         "  //   STORAGE_CHECKED_KEY -> JSON object { data-id: boolean } (checkbox state)",
-        "  var STORAGE_ORDER_KEY   = 'unsafe-doc-order:'   + location.pathname;",
         "  var STORAGE_CHECKED_KEY = 'unsafe-doc-checked:' + location.pathname;",
         "  document.addEventListener('DOMContentLoaded', function () {",
         "    var table = document.querySelector('.unsafe-table-wrap table');",
@@ -342,22 +341,6 @@ def write_html(all_items, output_path):
         "    function getRows() {",
         "      return Array.from(tbody.querySelectorAll('tr'));",
         "    }",
-        "    function saveOrder() {",
-        "      var order = getRows().map(function (r) { return r.dataset.id; });",
-        "      try { localStorage.setItem(STORAGE_ORDER_KEY, JSON.stringify(order)); }",
-        "      catch (e) {}",
-        "    }",
-        "    function loadOrder() {",
-        "      try {",
-        "        var saved = localStorage.getItem(STORAGE_ORDER_KEY);",
-        "        if (!saved) return;",
-        "        var order = JSON.parse(saved);",
-        "        var rowMap = {};",
-        "        getRows().forEach(function (r) { rowMap[r.dataset.id] = r; });",
-        "        // Append rows in saved order; unknown rows fall to the end naturally",
-        "        order.forEach(function (id) { if (rowMap[id]) tbody.appendChild(rowMap[id]); });",
-        "      } catch (e) {}",
-        "    }",
         "    function saveChecked() {",
         "      var state = {};",
         "      getRows().forEach(function (r) {",
@@ -382,48 +365,8 @@ def write_html(all_items, output_path):
         "      } catch (e) {}",
         "    }",
         "",
-        "    // ── Drag-and-drop row sorting ──────────────────────────────────────",
-        "    // Drag starts only from the drag-handle cell; drop targets are any row.",
-        "    var dragSrc = null;",
+        "    // ── Checkbox ──────────────────────────────────────────────────────",
         "    getRows().forEach(function (row) {",
-        "      var handleCell = row.querySelector('.drag-handle-cell');",
-        "      if (handleCell) {",
-        "        handleCell.setAttribute('draggable', 'true');",
-        "        handleCell.addEventListener('dragstart', function (e) {",
-        "          dragSrc = row;",
-        "          e.dataTransfer.effectAllowed = 'move';",
-        "          e.dataTransfer.setData('text/plain', row.dataset.id);",
-        "          setTimeout(function () { row.classList.add('dragging'); }, 0);",
-        "        });",
-        "        handleCell.addEventListener('dragend', function () {",
-        "          row.classList.remove('dragging');",
-        "          getRows().forEach(function (r) { r.classList.remove('drag-over'); });",
-        "          dragSrc = null;",
-        "          saveOrder();",
-        "        });",
-        "      }",
-        "      row.addEventListener('dragover', function (e) {",
-        "        if (!dragSrc || dragSrc === row) return;",
-        "        e.preventDefault();",
-        "        e.dataTransfer.dropEffect = 'move';",
-        "        getRows().forEach(function (r) { r.classList.remove('drag-over'); });",
-        "        row.classList.add('drag-over');",
-        "      });",
-        "      row.addEventListener('drop', function (e) {",
-        "        e.preventDefault();",
-        "        e.stopPropagation();",
-        "        if (!dragSrc || dragSrc === row) return;",
-        "        var all = getRows();",
-        "        var si = all.indexOf(dragSrc), ti = all.indexOf(row);",
-        "        if (si < ti) {",
-        "          tbody.insertBefore(dragSrc, row.nextSibling);",
-        "        } else {",
-        "          tbody.insertBefore(dragSrc, row);",
-        "        }",
-        "        row.classList.remove('drag-over');",
-        "      });",
-        "",
-        "      // ── Checkbox ────────────────────────────────────────────────────",
         "      var cb = row.querySelector('.confirm-cb');",
         "      if (cb) {",
         "        cb.addEventListener('change', function () {",
@@ -433,8 +376,7 @@ def write_html(all_items, output_path):
         "      }",
         "    });",
         "",
-        "    // Restore persisted state (order first, then checked)",
-        "    loadOrder();",
+        "    // Restore persisted checked state",
         "    loadChecked();",
         "  });",
         "}());",
@@ -443,31 +385,39 @@ def write_html(all_items, output_path):
         '<div class="unsafe-table-wrap">',
         '<table>',
         '<colgroup>',
-        '<col style="width:3%">',
-        '<col style="width:16%">',
-        '<col style="width:20%">',
-        '<col style="width:54%">',
+        '<col style="width:4%">',
+        '<col style="width:15%">',
+        '<col style="width:18%">',
+        '<col style="width:7%">',
+        '<col style="width:49%">',
         '<col style="width:7%">',
         '</colgroup>',
         '<thead>',
-        '<tr><th></th><th>Module</th><th>API</th><th>Safety doc</th>'
-        '<th>Confirmed ✓</th></tr>',
+        '<tr><th>序号</th><th>module 路径</th><th>API 名称</th>'
+        '<th>属性</th><th>Safety doc</th><th>Confirmed ✓</th></tr>',
         '</thead>',
         '<tbody>',
     ]
 
-    for (module_path, full_path), (url, docs) in seen.items():
+    for idx, ((module_path, full_path, kind), (url, docs)) in enumerate(sorted_items, 1):
+        api_name = full_path.split("::")[-1]
         module_cell = f"<code>{html.escape(module_path)}</code>"
         if url:
-            api_cell = f'<a href="{html.escape(url)}"><code>{html.escape(full_path)}</code></a>'
+            api_cell = (
+                f'<a href="{html.escape(url)}">'
+                f'<code>{html.escape(api_name)}</code>'
+                f'</a>'
+            )
         else:
-            api_cell = f"<code>{html.escape(full_path)}</code>"
+            api_cell = f"<code>{html.escape(api_name)}</code>"
+        kind_cell = html.escape(kind)
         safety_cell = "<br/>".join(html.escape(d) for d in docs)
         lines.append(
             f'<tr data-id="{html.escape(full_path, quote=True)}">'
-            f'<td class="drag-handle-cell" title="Drag to reorder">&#9776;</td>'
+            f'<td>{idx}</td>'
             f'<td>{module_cell}</td>'
             f'<td>{api_cell}</td>'
+            f'<td>{kind_cell}</td>'
             f'<td>{safety_cell}</td>'
             f'<td class="confirm-cell">'
             f'<input type="checkbox" class="confirm-cb" aria-label="Confirmed">'
