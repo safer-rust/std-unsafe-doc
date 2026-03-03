@@ -6,7 +6,7 @@ results to a static HTML table.
 
 ## Goal
 
-The script scans the local `nightly-2025-12-06` rust-src component via rustdoc
+The script scans the local `nightly` rust-src component via rustdoc
 JSON, collects every item that is both `pub` and `unsafe`, and writes a
 five-column HTML table:
 
@@ -20,13 +20,13 @@ five-column HTML table:
 
 ## Prerequisites
 
-1. **Rust nightly toolchain** for `nightly-2025-12-06`:
+1. **Rust nightly toolchain**:
    ```sh
-   rustup toolchain install nightly-2025-12-06
+   rustup toolchain install nightly
    ```
 2. **Rust standard-library source** for that toolchain:
    ```sh
-   rustup component add rust-src --toolchain nightly-2025-12-06
+   rustup component add rust-src --toolchain nightly
    ```
 3. **Python 3** (3.8 or newer, no extra packages required).
 
@@ -39,7 +39,7 @@ python3 scripts/extract_public_unsafe.py
 ```
 
 This will:
-1. Locate the `nightly-2025-12-06` sysroot with `rustc --print sysroot`.
+1. Locate the `nightly` sysroot with `rustc --print sysroot`.
 2. Run `cargo rustdoc --output-format json` for `core`, `alloc`, and `std`.
 3. Parse each JSON file and collect public unsafe items.
 4. Write the results to **`std-unsafe.html`** in the repository root.
@@ -125,5 +125,8 @@ location.reload();
 
 - **Nightly required**: rustdoc JSON (`--output-format json`) is a nightly-only
   unstable feature.
+- The script always uses the **latest installed `nightly`** toolchain.  Results
+  may change between nightly releases as the standard library evolves.  Run
+  `rustup update nightly` to update to the current nightly before regenerating.
 - The first run is slower because cargo compiles the crates; subsequent runs
   reuse the build cache.
