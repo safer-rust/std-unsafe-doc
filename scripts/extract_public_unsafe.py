@@ -34,6 +34,21 @@ RUSTDOC_STABLE_BASE = "https://doc.rust-lang.org/stable"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def get_nightly_version():
+    """Return the nightly toolchain version string (from rustc --version --verbose)."""
+    try:
+        result = subprocess.run(
+            ["rustc", f"+{TOOLCHAIN}", "--version", "--verbose"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except OSError:
+        pass
+    return ""
+
+
 def run(cmd, *, cwd=None, check=True):
     """Run a subprocess command and return its output."""
     result = subprocess.run(
@@ -149,21 +164,70 @@ def extract_safety_section(docs):
     return text
 
 
-def rustdoc_stable_url(crate, path_segments, kind):
+def _build_path_to_kind(paths):
+    """Build a mapping from tuple(path_segments) -> kind from the rustdoc paths map."""
+    result = {}
+    for _id, entry in paths.items():
+        if isinstance(entry, dict) and "path" in entry and "kind" in entry:
+            result[tuple(entry["path"])] = entry["kind"]
+    return result
+
+
+def rustdoc_stable_url(crate, path_segments, kind, path_to_kind=None):
     """Return a URL to the Rust stable documentation page, or ''.
 
-    Generates a URL of the form:
-        https://doc.rust-lang.org/stable/{crate}/{module.../}{prefix}.{name}.html
+    For free functions and traits, generates:
+        https://doc.rust-lang.org/stable/{crate}/{module.../}{fn|trait}.{name}.html
+
+    For methods/associated items on structs, enums, unions, or traits, generates:
+        https://doc.rust-lang.org/stable/{crate}/{module.../}{type_kind}.{Type}.html#method.{name}
+
+    The heuristic for detecting a method is whether any intermediate path segment
+    (between the crate prefix and the final item name) starts with an uppercase
+    letter — Rust's naming conventions ensure type names are UpperCamelCase while
+    module names are snake_case.
 
     Returns '' if *kind* is unsupported or path information is insufficient.
     """
     if len(path_segments) < 2:
         return ""
-    module_parts = path_segments[1:-1]  # strip crate prefix
+
     item_name = path_segments[-1]
+
+    # Detect methods: find the first intermediate segment that starts with uppercase.
+    # path_segments = [crate, module..., TypeName, item_name]  for methods
+    # path_segments = [crate, module..., item_name]            for free items
+    type_idx = None
+    for i in range(1, len(path_segments) - 1):
+        if len(path_segments[i]) > 0 and path_segments[i][0].isupper():
+            type_idx = i
+            break
+
+    if type_idx is not None:
+        # Method / associated item on a type.
+        module_parts = path_segments[1:type_idx]
+        type_name = path_segments[type_idx]
+
+        # Determine the kind of the parent type from the paths map.
+        type_path_key = tuple(path_segments[: type_idx + 1])
+        type_kind = "struct"  # safe default
+        if path_to_kind:
+            looked_up = path_to_kind.get(type_path_key)
+            if looked_up in ("struct", "enum", "union", "trait"):
+                type_kind = looked_up
+
+        parts = (
+            [RUSTDOC_STABLE_BASE, crate]
+            + list(module_parts)
+            + [f"{type_kind}.{type_name}.html"]
+        )
+        return "/".join(parts) + f"#method.{item_name}"
+
+    # Free function or unsafe trait.
     prefix = {"function": "fn", "trait": "trait"}.get(kind, "")
     if not prefix:
         return ""
+    module_parts = path_segments[1:-1]
     parts = [RUSTDOC_STABLE_BASE, crate] + list(module_parts) + [f"{prefix}.{item_name}.html"]
     return "/".join(parts)
 
@@ -189,6 +253,8 @@ def collect_unsafe_items(json_path):
     index = data["index"]
     paths = data["paths"]
     crate = json_path.stem  # filename without .json
+
+    path_to_kind = _build_path_to_kind(paths)
 
     items = []
     for item_id, item in index.items():
@@ -226,14 +292,14 @@ def collect_unsafe_items(json_path):
 
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
-        url = rustdoc_stable_url(crate, full_path_segments, kind)
+        url = rustdoc_stable_url(crate, full_path_segments, kind, path_to_kind)
 
         items.append((module_path, full_path, kind, url, safety_doc))
 
     return items
 
 
-def write_html(all_items, output_path):
+def write_html(all_items, output_path, nightly_version=""):
     """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path, kind).  When duplicate
@@ -294,12 +360,19 @@ def write_html(all_items, output_path):
         ".confirm-cb { cursor: pointer; width: 16px; height: 16px; }",
         "/* Confirmed row highlight */",
         ".row-confirmed td { background-color: #f0fff4; }",
+        "/* Nightly version info */",
+        ".version-info { font-size: 0.875rem; color: #555; }",
         "</style>",
         "</head>",
         "<body>",
         '<div class="page-wrap">',
         f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN}</h1>",
         f"<p>Generated from crates: {crates_html}.</p>",
+        *(
+            [f'<p class="version-info"><strong>Nightly version:</strong> <code>{html.escape(nightly_version)}</code></p>']
+            if nightly_version
+            else []
+        ),
         "",
         "<script>",
         "(function () {",
@@ -452,6 +525,9 @@ def main():
         output_path = p if p.is_absolute() else REPO_ROOT / p
 
     print(f"Toolchain: {TOOLCHAIN}")
+    nightly_version = get_nightly_version()
+    if nightly_version:
+        print(f"Version:   {nightly_version.splitlines()[0]}")
     sysroot = get_sysroot()
     print(f"Sysroot:   {sysroot}")
     lib_dir = library_dir(sysroot)
@@ -468,7 +544,7 @@ def main():
         all_items.extend(items)
         print()
 
-    write_html(all_items, output_path)
+    write_html(all_items, output_path, nightly_version)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
 
 
