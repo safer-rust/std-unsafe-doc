@@ -51,6 +51,26 @@ You can specify a custom output path:
 python3 scripts/extract_public_unsafe.py my_output.html
 ```
 
+### Save intermediate rustdoc JSON for debugging
+
+Pass `--debug-json-dir <DIR>` to also write the raw rustdoc JSON parsed for
+each crate to disk.  A relative path is resolved relative to the repository
+root (same convention as the output file):
+
+```sh
+python3 scripts/extract_public_unsafe.py --debug-json-dir debug/rustdoc-json
+```
+
+This generates:
+
+- `debug/rustdoc-json/core.json`
+- `debug/rustdoc-json/alloc.json`
+- `debug/rustdoc-json/std.json`
+
+The directory is created automatically if it does not exist.  When
+`--debug-json-dir` is **not** supplied (the default), no extra files are
+written and existing behaviour is unchanged.
+
 ### Generate docs/index.html (GitHub Pages source)
 
 To generate or refresh the site's home page locally:

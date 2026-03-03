@@ -168,7 +168,7 @@ def rustdoc_stable_url(crate, path_segments, kind):
     return "/".join(parts)
 
 
-def collect_unsafe_items(json_path):
+def collect_unsafe_items(json_path, debug_json_dir=None):
     """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs)."""
     try:
         with open(json_path, encoding="utf-8") as fh:
@@ -185,6 +185,11 @@ def collect_unsafe_items(json_path):
                 file=sys.stderr,
             )
             sys.exit(1)
+
+    if debug_json_dir is not None:
+        debug_json_dir.mkdir(parents=True, exist_ok=True)
+        debug_out = debug_json_dir / f"{json_path.stem}.json"
+        debug_out.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     index = data["index"]
     paths = data["paths"]
@@ -443,6 +448,16 @@ def main():
             "an absolute path is used as-is."
         ),
     )
+    parser.add_argument(
+        "--debug-json-dir",
+        default=None,
+        metavar="DIR",
+        help=(
+            "If provided, save the parsed rustdoc JSON for each crate to "
+            "DIR/{crate}.json. A relative path is resolved relative to the "
+            "repo root; an absolute path is used as-is."
+        ),
+    )
     args = parser.parse_args()
 
     if args.output is None:
@@ -450,6 +465,12 @@ def main():
     else:
         p = Path(args.output)
         output_path = p if p.is_absolute() else REPO_ROOT / p
+
+    if args.debug_json_dir is None:
+        debug_json_dir = None
+    else:
+        d = Path(args.debug_json_dir)
+        debug_json_dir = d if d.is_absolute() else REPO_ROOT / d
 
     print(f"Toolchain: {TOOLCHAIN}")
     sysroot = get_sysroot()
@@ -463,7 +484,7 @@ def main():
         print(f"[{crate}]")
         json_path = generate_rustdoc_json(crate, lib_dir)
         print(f"  Parsing {json_path}")
-        items = collect_unsafe_items(json_path)
+        items = collect_unsafe_items(json_path, debug_json_dir)
         print(f"  Found {len(items)} public unsafe items")
         all_items.extend(items)
         print()
