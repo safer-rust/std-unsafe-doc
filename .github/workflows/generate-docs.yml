@@ -10,6 +10,9 @@ on:
   # Allow manual runs from the Actions tab.
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -40,6 +43,7 @@ jobs:
         run: |
           git config --global user.email 'action@github.com'
           git config --global user.name 'GitHub Action'
+          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/safer-rust/std-unsafe-doc.git
           git add -A docs/
           git commit -m 'Update docs [ci skip]' || echo 'No changes to commit'
           git push
