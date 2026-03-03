@@ -13,8 +13,8 @@ Output location:
       - An absolute path is used as-is.
 
 Prerequisites:
-    rustup toolchain install nightly-2025-12-06
-    rustup component add rust-src --toolchain nightly-2025-12-06
+    rustup toolchain install nightly
+    rustup component add rust-src --toolchain nightly
 """
 
 import argparse
@@ -25,7 +25,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-TOOLCHAIN = "nightly-2025-12-06"
+TOOLCHAIN = "nightly"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.html"
 RUSTDOC_STABLE_BASE = "https://doc.rust-lang.org/stable"
@@ -52,6 +52,24 @@ def run(cmd, *, cwd=None, check=True):
 
 def get_sysroot():
     """Return the sysroot path for the target toolchain."""
+    # Verify the toolchain is installed before using it.
+    probe = subprocess.run(
+        ["rustup", "toolchain", "list"],
+        capture_output=True,
+        text=True,
+    )
+    toolchain_names = probe.stdout if probe.returncode == 0 else ""
+    # Accept bare "nightly" or any dated nightly when TOOLCHAIN == "nightly"
+    if not any(
+        (parts := line.split()) and parts[0].startswith(TOOLCHAIN)
+        for line in toolchain_names.splitlines()
+    ):
+        print(
+            f"ERROR: Rust toolchain '{TOOLCHAIN}' is not installed.\n"
+            f"Run: rustup toolchain install {TOOLCHAIN}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     result = run(["rustc", f"+{TOOLCHAIN}", "--print", "sysroot"])
     return Path(result.stdout.strip())
 
