@@ -87,6 +87,12 @@ def library_dir(sysroot):
     return path
 
 
+def get_rustc_version():
+    """Return rustc version string for the selected toolchain."""
+    result = run(["rustc", f"+{TOOLCHAIN}", "--version"])
+    return result.stdout.strip()
+
+
 def generate_rustdoc_json(crate, lib_dir):
     """Run cargo rustdoc to produce rustdoc JSON for *crate*.
 
@@ -387,7 +393,7 @@ def collect_unsafe_items(json_path):
     return items
 
 
-def write_html(all_items, output_path):
+def write_html(all_items, output_path, rustc_version):
     """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path, kind).  When duplicate
@@ -427,7 +433,7 @@ def write_html(all_items, output_path):
         "<head>",
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        f"<title>Public Unsafe APIs \u2014 {TOOLCHAIN}</title>",
+        f"<title>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</title>",
         "<style>",
         "* { box-sizing: border-box; }",
         "body { margin: 0; font-family: system-ui, sans-serif; }",
@@ -452,7 +458,7 @@ def write_html(all_items, output_path):
         "</head>",
         "<body>",
         '<div class="page-wrap">',
-        f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN}</h1>",
+        f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</h1>",
         f"<p>Generated from crates: {crates_html}.</p>",
         "",
         "<script>",
@@ -547,8 +553,8 @@ def write_html(all_items, output_path):
         '<col style="width:7%">',
         '</colgroup>',
         '<thead>',
-        '<tr><th>序号</th><th>module 路径</th><th>API 名称</th>'
-        '<th>属性</th><th>Safety doc</th><th>Confirmed ✓</th></tr>',
+        '<tr><th>Index</th><th>Module Path</th><th>API Name</th>'
+        '<th>Kind</th><th>Safety Doc</th><th>Confirmed ✓</th></tr>',
         '</thead>',
         '<tbody>',
     ]
@@ -606,6 +612,8 @@ def main():
         output_path = p if p.is_absolute() else REPO_ROOT / p
 
     print(f"Toolchain: {TOOLCHAIN}")
+    rustc_version = get_rustc_version()
+    print(f"Rustc:     {rustc_version}")
     sysroot = get_sysroot()
     print(f"Sysroot:   {sysroot}")
     lib_dir = library_dir(sysroot)
@@ -622,7 +630,7 @@ def main():
         all_items.extend(items)
         print()
 
-    write_html(all_items, output_path)
+    write_html(all_items, output_path, rustc_version)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
 
 
