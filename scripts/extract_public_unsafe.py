@@ -87,6 +87,12 @@ def library_dir(sysroot):
     return path
 
 
+def get_rustc_version():
+    """Return rustc version string for the selected toolchain."""
+    result = run(["rustc", f"+{TOOLCHAIN}", "--version"])
+    return result.stdout.strip()
+
+
 def generate_rustdoc_json(crate, lib_dir):
     """Run cargo rustdoc to produce rustdoc JSON for *crate*.
 
@@ -149,16 +155,49 @@ def extract_safety_section(docs):
     return text
 
 
-def rustdoc_stable_url(crate, path_segments, kind):
+def rustdoc_stable_url(
+    crate,
+    path_segments,
+    kind,
+    *,
+    path_kind="",
+    parent_kind="",
+):
     """Return a URL to the Rust stable documentation page, or ''.
 
     Generates a URL of the form:
         https://doc.rust-lang.org/stable/{crate}/{module.../}{prefix}.{name}.html
 
-    Returns '' if *kind* is unsupported or path information is insufficient.
+    Returns '' if path information is insufficient.
     """
     if len(path_segments) < 2:
         return ""
+
+    # Method items are rendered on their parent type page:
+    # .../struct.Type.html#method.method_name
+    if path_kind == "method" and len(path_segments) >= 3:
+        parent_segments = path_segments[:-1]
+        parent_name = parent_segments[-1]
+        method_name = path_segments[-1]
+        module_parts = parent_segments[1:-1]  # strip crate and parent type name
+        page_prefix = {
+            "struct": "struct",
+            "enum": "enum",
+            "trait": "trait",
+            "primitive": "primitive",
+            "union": "union",
+            "type": "type",
+        }.get(parent_kind, "")
+        if not page_prefix:
+            return ""
+        parts = [
+            RUSTDOC_STABLE_BASE,
+            crate,
+            *module_parts,
+            f"{page_prefix}.{parent_name}.html#method.{method_name}",
+        ]
+        return "/".join(parts)
+
     module_parts = path_segments[1:-1]  # strip crate prefix
     item_name = path_segments[-1]
     prefix = {"function": "fn", "trait": "trait"}.get(kind, "")
@@ -166,6 +205,93 @@ def rustdoc_stable_url(crate, path_segments, kind):
         return ""
     parts = [RUSTDOC_STABLE_BASE, crate] + list(module_parts) + [f"{prefix}.{item_name}.html"]
     return "/".join(parts)
+
+
+def _find_resolved_path(node):
+    """Best-effort search for a resolved_path {id,name} inside a type node."""
+    if isinstance(node, dict):
+        resolved = node.get("resolved_path")
+        if isinstance(resolved, dict):
+            type_id = resolved.get("id")
+            type_name = resolved.get("name") or ""
+            if type_id:
+                return type_id, type_name
+        for value in node.values():
+            result = _find_resolved_path(value)
+            if result is not None:
+                return result
+    elif isinstance(node, list):
+        for value in node:
+            result = _find_resolved_path(value)
+            if result is not None:
+                return result
+    return None
+
+
+def _method_parent_map(crate, index, paths):
+    """Return item_id -> (parent_path_segments, parent_kind) for impl methods."""
+    parent_by_item_id = {}
+
+    for impl_item in index.values():
+        impl_data = (impl_item.get("inner") or {}).get("impl")
+        if not impl_data:
+            continue
+
+        impl_items = impl_data.get("items") or []
+        if not impl_items:
+            continue
+
+        parent_path_segments = []
+        parent_kind = ""
+
+        impl_for = impl_data.get("for") or {}
+
+        if isinstance(impl_for, dict) and impl_for.get("primitive"):
+            primitive_name = impl_for.get("primitive")
+            parent_path_segments = [crate, primitive_name]
+            parent_kind = "primitive"
+        elif isinstance(impl_for, dict) and impl_for.get("raw_pointer"):
+            parent_path_segments = [crate, "pointer"]
+            parent_kind = "primitive"
+        elif isinstance(impl_for, dict) and impl_for.get("slice"):
+            parent_path_segments = [crate, "slice"]
+            parent_kind = "primitive"
+        elif isinstance(impl_for, dict) and impl_for.get("array"):
+            parent_path_segments = [crate, "array"]
+            parent_kind = "primitive"
+        else:
+            resolved = _find_resolved_path(impl_for)
+            if resolved is not None:
+                parent_type_id, _parent_name = resolved
+                parent_path_entry = paths.get(str(parent_type_id)) or {}
+                parent_path_segments = parent_path_entry.get("path") or []
+                parent_kind = parent_path_entry.get("kind") or ""
+
+        if not parent_path_segments:
+            continue
+
+        for method_item_id in impl_items:
+            parent_by_item_id[str(method_item_id)] = (parent_path_segments, parent_kind)
+
+    return parent_by_item_id
+
+
+def _infer_pathless_method_parent(crate, item_name, docs):
+    """Infer parent type for pathless method-like items.
+
+    Some rustdoc JSON entries (notably alloc Rc/Arc strong-count APIs) are
+    public unsafe functions in ``index`` with no ``paths`` and no impl linkage,
+    even though they are documented as associated methods.
+    """
+    if crate != "alloc":
+        return None
+
+    if "Rc::" in docs or "Rc<T>" in docs:
+        return ["alloc", "rc", "Rc", item_name], "struct"
+    if "Arc::" in docs or "Arc<T>" in docs:
+        return ["alloc", "sync", "Arc", item_name], "struct"
+
+    return None
 
 
 def collect_unsafe_items(json_path):
@@ -189,6 +315,14 @@ def collect_unsafe_items(json_path):
     index = data["index"]
     paths = data["paths"]
     crate = json_path.stem  # filename without .json
+    method_parents = _method_parent_map(crate, index, paths)
+
+    # Reverse lookup to resolve parent kind for method URLs.
+    path_kind_by_segments = {}
+    for _item_id, path_info in paths.items():
+        segs = path_info.get("path") or []
+        if segs:
+            path_kind_by_segments[tuple(segs)] = path_info.get("kind") or ""
 
     items = []
     for item_id, item in index.items():
@@ -211,12 +345,27 @@ def collect_unsafe_items(json_path):
 
         # Resolve full path from the paths map
         path_entry = paths.get(item_id)
-        if path_entry is None:
-            # Fall back to item name with crate prefix
+        path_kind = ""
+        parent_kind = ""
+
+        # Prefer impl-derived parent path for methods to avoid flattened
+        # crate-level paths like alloc::decrement_strong_count.
+        if item_id in method_parents and item.get("name"):
+            parent_segments, parent_kind = method_parents[item_id]
+            full_path_segments = list(parent_segments) + [item.get("name")]
+            path_kind = "method"
+        elif path_entry is None:
             name = item.get("name") or ""
-            full_path_segments = [crate, name] if name else [crate]
+            inferred = _infer_pathless_method_parent(crate, name, item.get("docs") or "")
+            if inferred is not None:
+                full_path_segments, parent_kind = inferred
+                path_kind = "method"
+            else:
+                # Fall back to item name with crate prefix
+                full_path_segments = [crate, name] if name else [crate]
         else:
             full_path_segments = path_entry.get("path") or []
+            path_kind = path_entry.get("kind") or ""
 
         if not full_path_segments:
             continue
@@ -226,14 +375,25 @@ def collect_unsafe_items(json_path):
 
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
-        url = rustdoc_stable_url(crate, full_path_segments, kind)
+        if path_kind == "method" and len(full_path_segments) >= 3:
+            parent_kind = parent_kind or path_kind_by_segments.get(
+                tuple(full_path_segments[:-1]), ""
+            )
+
+        url = rustdoc_stable_url(
+            crate,
+            full_path_segments,
+            kind,
+            path_kind=path_kind,
+            parent_kind=parent_kind,
+        )
 
         items.append((module_path, full_path, kind, url, safety_doc))
 
     return items
 
 
-def write_html(all_items, output_path):
+def write_html(all_items, output_path, rustc_version):
     """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path, kind).  When duplicate
@@ -273,7 +433,7 @@ def write_html(all_items, output_path):
         "<head>",
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        f"<title>Public Unsafe APIs \u2014 {TOOLCHAIN}</title>",
+        f"<title>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</title>",
         "<style>",
         "* { box-sizing: border-box; }",
         "body { margin: 0; font-family: system-ui, sans-serif; }",
@@ -298,7 +458,7 @@ def write_html(all_items, output_path):
         "</head>",
         "<body>",
         '<div class="page-wrap">',
-        f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN}</h1>",
+        f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</h1>",
         f"<p>Generated from crates: {crates_html}.</p>",
         "",
         "<script>",
@@ -393,8 +553,8 @@ def write_html(all_items, output_path):
         '<col style="width:7%">',
         '</colgroup>',
         '<thead>',
-        '<tr><th>序号</th><th>module 路径</th><th>API 名称</th>'
-        '<th>属性</th><th>Safety doc</th><th>Confirmed ✓</th></tr>',
+        '<tr><th>Index</th><th>Module Path</th><th>API Name</th>'
+        '<th>Kind</th><th>Safety Doc</th><th>Confirmed ✓</th></tr>',
         '</thead>',
         '<tbody>',
     ]
@@ -452,6 +612,8 @@ def main():
         output_path = p if p.is_absolute() else REPO_ROOT / p
 
     print(f"Toolchain: {TOOLCHAIN}")
+    rustc_version = get_rustc_version()
+    print(f"Rustc:     {rustc_version}")
     sysroot = get_sysroot()
     print(f"Sysroot:   {sysroot}")
     lib_dir = library_dir(sysroot)
@@ -468,7 +630,7 @@ def main():
         all_items.extend(items)
         print()
 
-    write_html(all_items, output_path)
+    write_html(all_items, output_path, rustc_version)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
 
 
