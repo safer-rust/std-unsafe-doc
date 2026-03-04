@@ -554,7 +554,7 @@ def write_html(all_items, output_path, rustc_version):
         '</colgroup>',
         '<thead>',
         '<tr><th>Index</th><th>Module Path</th><th>API Name</th>'
-        '<th>Kind</th><th>Safety Doc</th><th>Confirmed ✓</th></tr>',
+        '<th>Kind</th><th>Safety Doc</th><th> Mark </th></tr>',
         '</thead>',
         '<tbody>',
     ]
