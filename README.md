@@ -1,7 +1,7 @@
 # std-unsafe-doc
 
-Extract all **public unsafe APIs** (unsafe functions and unsafe traits) from the
-Rust standard library crates **core**, **alloc**, and **std**, and save the
+Extract all public unsafe APIs (unsafe functions and unsafe traits) from the
+Rust standard library crates `core`, `alloc`, and `std`, and save the
 results to a static HTML table.
 
 ## Goal
@@ -80,46 +80,6 @@ Once enabled, the site is available at:
 The `docs/index.html` file is regenerated automatically by the
 [Generate docs/index.html](.github/workflows/generate-docs.yml) workflow on
 every push to `main`.
-
-## Interactive Table Features
-
-The generated page (`docs/index.html`) includes two interactive front-end
-enhancements that work entirely in the browser with no backend required.
-
-### Drag-and-Drop Row Sorting
-
-Each table row has a **drag handle** (☰) in the leftmost column.  Grab the
-handle and drag a row to a new position to reorder the entries.  The new order
-is automatically saved to `localStorage` and restored the next time you open
-the page.
-
-### Confirmed Checkbox
-
-The rightmost **Confirmed ✓** column contains a checkbox for each row.  Check
-it once you have manually reviewed an API and are satisfied it is safe.
-The checked state is saved to `localStorage` and is restored on page load.
-Confirmed rows are highlighted with a subtle green background.
-
-### localStorage Details
-
-Both the row order and the checked state are stored per-page-path so that
-different pages do not interfere with each other:
-
-| Key | Value |
-|-----|-------|
-| `unsafe-doc-order:<pathname>` | JSON array of item paths (row order) |
-| `unsafe-doc-checked:<pathname>` | JSON object mapping item path → `true`/`false` |
-
-To **reset** all customizations, open your browser's DevTools → Application →
-Local Storage, and delete the two keys that start with `unsafe-doc-`.
-Alternatively, run the following in the browser console:
-
-```js
-Object.keys(localStorage)
-  .filter(k => k.startsWith('unsafe-doc-'))
-  .forEach(k => localStorage.removeItem(k));
-location.reload();
-```
 
 ## Notes / Caveats
 
