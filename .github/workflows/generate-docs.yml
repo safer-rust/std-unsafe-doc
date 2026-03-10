@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Install the latest nightly toolchain together with rust-src so the
       # extract_public_unsafe.py script can find the sysroot sources.
@@ -46,4 +48,5 @@ jobs:
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/safer-rust/std-unsafe-doc.git
           git add -A docs/
           git commit -m 'Update docs [ci skip]' || echo 'No changes to commit'
+          git pull --rebase origin main
           git push
