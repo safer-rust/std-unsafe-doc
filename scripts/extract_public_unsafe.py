@@ -28,7 +28,7 @@ from pathlib import Path
 TOOLCHAIN = "nightly"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.html"
-RUSTDOC_STABLE_BASE = "https://doc.rust-lang.org/stable"
+RUSTDOC_NIGHTLY_BASE = "https://doc.rust-lang.org/nightly"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -155,7 +155,7 @@ def extract_safety_section(docs):
     return text
 
 
-def rustdoc_stable_url(
+def rustdoc_nightly_url(
     crate,
     path_segments,
     kind,
@@ -163,10 +163,10 @@ def rustdoc_stable_url(
     path_kind="",
     parent_kind="",
 ):
-    """Return a URL to the Rust stable documentation page, or ''.
+    """Return a URL to the Rust nightly documentation page, or ''.
 
     Generates a URL of the form:
-        https://doc.rust-lang.org/stable/{crate}/{module.../}{prefix}.{name}.html
+        https://doc.rust-lang.org/nightly/{crate}/{module.../}{prefix}.{name}.html
 
     Returns '' if path information is insufficient.
     """
@@ -191,7 +191,7 @@ def rustdoc_stable_url(
         if not page_prefix:
             return ""
         parts = [
-            RUSTDOC_STABLE_BASE,
+            RUSTDOC_NIGHTLY_BASE,
             crate,
             *module_parts,
             f"{page_prefix}.{parent_name}.html#method.{method_name}",
@@ -203,7 +203,7 @@ def rustdoc_stable_url(
     prefix = {"function": "fn", "trait": "trait"}.get(kind, "")
     if not prefix:
         return ""
-    parts = [RUSTDOC_STABLE_BASE, crate] + list(module_parts) + [f"{prefix}.{item_name}.html"]
+    parts = [RUSTDOC_NIGHTLY_BASE, crate] + list(module_parts) + [f"{prefix}.{item_name}.html"]
     return "/".join(parts)
 
 
@@ -380,7 +380,7 @@ def collect_unsafe_items(json_path):
                 tuple(full_path_segments[:-1]), ""
             )
 
-        url = rustdoc_stable_url(
+        url = rustdoc_nightly_url(
             crate,
             full_path_segments,
             kind,
