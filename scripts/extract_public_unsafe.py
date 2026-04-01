@@ -294,6 +294,93 @@ def _infer_pathless_method_parent(crate, item_name, docs):
     return None
 
 
+def _normalize_json_id(raw):
+    """Normalize rustdoc JSON ``Id`` (serialized as int or str) for map lookups."""
+    if raw is None:
+        return None
+    return str(raw)
+
+
+def _parent_module_path_by_item(index, paths, root_raw):
+    """Map item id -> parent module path segments (from crate root walk).
+
+    Rustdoc often omits ``paths[import_item_id]`` for ``pub use`` rows, but those
+    ids still appear under a parent module's ``inner.module.items``. The visible
+    path is then ``parent_path + [use.name]`` (e.g. ``core::str`` + ``from_raw_parts``).
+    """
+    parent = {}
+    if root_raw is None:
+        return parent
+    root = str(root_raw)
+    root_path = (paths.get(root) or {}).get("path")
+    if not root_path:
+        return parent
+
+    def walk(mod_id_str, mod_path):
+        item = index.get(mod_id_str)
+        if not item:
+            return
+        mod_inner = (item.get("inner") or {}).get("module")
+        if not mod_inner:
+            return
+        for cid in mod_inner.get("items") or []:
+            cid_s = str(cid)
+            parent[cid_s] = list(mod_path)
+            child = index.get(cid_s)
+            if not child:
+                continue
+            if "module" in (child.get("inner") or {}):
+                child_path = (paths.get(cid_s) or {}).get("path")
+                if child_path:
+                    walk(cid_s, child_path)
+
+    walk(root, root_path)
+    return parent
+
+
+def _reexport_paths_by_target(index, paths, parent_by_item):
+    """Map definition item id -> paths where that item appears via ``pub use``.
+
+    Each ``pub use path::item`` becomes its own index entry with ``inner.use``:
+    ``use.id`` is the *definition* item's id (same id you get for the ``function``
+    / ``trait`` entry). Prefer ``paths[import_item_id]`` when present; otherwise
+    derive ``parent_module_path + use.name`` via *parent_by_item*.
+
+    See rustdoc_json_types::Use and ItemSummary path semantics in the compiler
+    sources (paths for definitions are not guaranteed to be the public path).
+    """
+    by_target = {}
+    for import_item_id, item in index.items():
+        if item.get("visibility") != "public":
+            continue
+        inner = item.get("inner") or {}
+        use_data = inner.get("use")
+        if not isinstance(use_data, dict):
+            continue
+        if use_data.get("is_glob"):
+            # Glob imports usually reference a module id, not each re-exported item.
+            continue
+        target_id = _normalize_json_id(use_data.get("id"))
+        if not target_id:
+            continue
+        path_entry = paths.get(import_item_id) or {}
+        segs = list(path_entry.get("path") or [])
+        if len(segs) < 2:
+            pub_name = use_data.get("name") or ""
+            parent_path = parent_by_item.get(import_item_id)
+            if parent_path and pub_name:
+                segs = list(parent_path) + [pub_name]
+        if len(segs) < 2:
+            continue
+        by_target.setdefault(target_id, []).append(segs)
+    return by_target
+
+
+def _shortest_reexport_path(alternatives):
+    """Pick a stable shortest path among re-export aliases (then lexicographic)."""
+    return min(alternatives, key=lambda s: (len(s), s))
+
+
 def collect_unsafe_items(json_path):
     """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs)."""
     try:
@@ -316,6 +403,8 @@ def collect_unsafe_items(json_path):
     paths = data["paths"]
     crate = json_path.stem  # filename without .json
     method_parents = _method_parent_map(crate, index, paths)
+    parent_by_item = _parent_module_path_by_item(index, paths, data.get("root"))
+    reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
 
     # Reverse lookup to resolve parent kind for method URLs.
     path_kind_by_segments = {}
@@ -366,6 +455,10 @@ def collect_unsafe_items(json_path):
         else:
             full_path_segments = path_entry.get("path") or []
             path_kind = path_entry.get("kind") or ""
+
+        reexport_alts = reexport_by_target.get(item_id)
+        if reexport_alts:
+            full_path_segments = list(_shortest_reexport_path(reexport_alts))
 
         if not full_path_segments:
             continue
