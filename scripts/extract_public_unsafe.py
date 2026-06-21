@@ -137,10 +137,9 @@ def generate_rustdoc_json(crate, lib_dir):
 
 
 def extract_safety_section(docs):
-    """Return text under the first '# Safety' heading in *docs*, or ''."""
+    """Return raw markdown text under the first '# Safety' heading, or ''."""
     if not docs:
         return ""
-    # Match any heading level: #+ Safety (case-insensitive)
     pattern = re.compile(
         r"^#+\s+Safety\b.*?$\n(.*?)(?=^#+\s|\Z)",
         re.MULTILINE | re.DOTALL | re.IGNORECASE,
@@ -148,11 +147,105 @@ def extract_safety_section(docs):
     match = pattern.search(docs)
     if not match:
         return ""
-    # Collapse whitespace for a compact table cell
-    text = match.group(1).strip()
-    # Replace newlines with spaces (HTML table cells handle wrapping)
-    text = re.sub(r"\s*\n\s*", " ", text)
+    return match.group(1).strip()
+
+
+def _inline_formatting(text):
+    r"""Convert inline markdown in *text* to HTML.
+
+    Handles `` `code` ``, `` **bold** ``, `` *italic* `` and
+    `` [text](url) ``.  Reference-style `` [`Foo`] `` links are styled
+    as plain `` <code>Foo</code> ``.  Input must already be
+    HTML-escaped for safety (`` < `` → `` &lt; `` etc.).
+    """
+    text = re.sub(r"\[`([^`]+)`\]", r"<code>\1</code>", text)
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", text)
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
     return text
+
+
+def markdown_to_html(text):
+    """Convert rustdoc-flavoured markdown Safety section text to HTML.
+
+    Block-level constructs handled:
+    * paragraphs (blank-line separated)
+    * unordered lists (`` * item `` / `` - item ``) with continuation lines
+    * ordered lists (`` 1. item ``) with continuation lines
+    * reference definitions: `` [`N`]: url `` lines are silently dropped
+
+    Inline formatting is forwarded to `` _inline_formatting() ``.
+    """
+    if not text:
+        return ""
+
+    lines = text.splitlines()
+    out = []
+    i = 0
+
+    def _flush(paras):
+        if paras:
+            escaped = html.escape(" ".join(paras))
+            out.append("<p>" + _inline_formatting(escaped) + "</p>")
+
+    def _finish_list(items, list_tag):
+        li_html = "".join(
+            "<li>"
+            + _inline_formatting(html.escape(" ".join(item_lines)))
+            + "</li>"
+            for item_lines in items
+        )
+        out.append("<" + list_tag + ">" + li_html + "</" + list_tag + ">")
+
+    while i < len(lines):
+        stripped = lines[i].strip()
+
+        if not stripped:
+            i += 1
+            continue
+
+        if re.match(r"^\[.+\]:\s*\S", stripped):
+            i += 1
+            continue
+
+        ul_match = re.match(r"^(\s*)[\-\*]\s+(.*)", lines[i])
+        if ul_match:
+            items = []
+            while i < len(lines):
+                li_m = re.match(r"^(\s*)[\-\*]\s+(.*)", lines[i])
+                if li_m:
+                    items.append([li_m.group(2).strip()])
+                elif items and lines[i].strip():
+                    items[-1].append(lines[i].strip())
+                else:
+                    break
+                i += 1
+            _finish_list(items, "ul")
+            continue
+
+        ol_match = re.match(r"^(\s*)(\d+)\.\s+(.*)", lines[i])
+        if ol_match:
+            items = []
+            while i < len(lines):
+                li_m = re.match(r"^(\s*)\d+\.\s+(.*)", lines[i])
+                if li_m:
+                    items.append([li_m.group(2).strip()])
+                elif items and lines[i].strip():
+                    items[-1].append(lines[i].strip())
+                else:
+                    break
+                i += 1
+            _finish_list(items, "ol")
+            continue
+
+        para_lines = []
+        while i < len(lines) and lines[i].strip():
+            para_lines.append(lines[i].strip())
+            i += 1
+        _flush(para_lines)
+
+    return "\n".join(out) if out else ""
 
 
 def rustdoc_nightly_url(
@@ -381,6 +474,40 @@ def _shortest_reexport_path(alternatives):
     return min(alternatives, key=lambda s: (len(s), s))
 
 
+def _container_parent_map(index, paths):
+    """Map child item_id -> (parent_path_segments, parent_kind) for all
+    container types (traits, modules, impls).
+
+    Used as fallback when an item has no entry in the JSON ``paths`` map.
+    """
+    parent_map = {}
+    for parent_id, parent_item in index.items():
+        p_inner = (parent_item.get("inner") or {}).copy()
+        for container_key in ("trait", "module", "impl"):
+            container = p_inner.get(container_key)
+            if not isinstance(container, dict):
+                continue
+            child_ids = container.get("items") or []
+            if not child_ids:
+                continue
+            parent_path_entry = paths.get(parent_id) or {}
+            parent_segs = list(parent_path_entry.get("path") or [])
+            if not parent_segs:
+                continue
+            parent_kind = parent_path_entry.get("kind") or ""
+            if container_key == "trait":
+                parent_kind = "trait"
+            elif container_key == "impl":
+                parent_kind = parent_kind or "impl"
+            elif container_key == "module":
+                parent_kind = "module"
+            for cid in child_ids:
+                cid_s = str(cid)
+                if cid_s not in parent_map:
+                    parent_map[cid_s] = (list(parent_segs), parent_kind)
+    return parent_map
+
+
 def collect_unsafe_items(json_path):
     """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs)."""
     try:
@@ -405,6 +532,7 @@ def collect_unsafe_items(json_path):
     method_parents = _method_parent_map(crate, index, paths)
     parent_by_item = _parent_module_path_by_item(index, paths, data.get("root"))
     reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
+    container_parents = _container_parent_map(index, paths)
 
     # Reverse lookup to resolve parent kind for method URLs.
     path_kind_by_segments = {}
@@ -415,7 +543,8 @@ def collect_unsafe_items(json_path):
 
     items = []
     for item_id, item in index.items():
-        if item.get("visibility") != "public":
+        visibility = item.get("visibility")
+        if visibility not in ("public", "default"):
             continue
 
         inner = item.get("inner", {})
@@ -445,13 +574,21 @@ def collect_unsafe_items(json_path):
             path_kind = "method"
         elif path_entry is None:
             name = item.get("name") or ""
-            inferred = _infer_pathless_method_parent(crate, name, item.get("docs") or "")
-            if inferred is not None:
-                full_path_segments, parent_kind = inferred
-                path_kind = "method"
+            container_info = container_parents.get(item_id)
+            if container_info is not None:
+                parent_segs, parent_pkind = container_info
+                full_path_segments = list(parent_segs) + [name]
+                path_kind = "method" if parent_pkind in (
+                    "trait", "impl", "struct", "enum", "primitive", "union",
+                ) else ""
+                parent_kind = parent_pkind
             else:
-                # Fall back to item name with crate prefix
-                full_path_segments = [crate, name] if name else [crate]
+                inferred = _infer_pathless_method_parent(crate, name, item.get("docs") or "")
+                if inferred is not None:
+                    full_path_segments, parent_kind = inferred
+                    path_kind = "method"
+                else:
+                    full_path_segments = [crate, name] if name else [crate]
         else:
             full_path_segments = path_entry.get("path") or []
             path_kind = path_entry.get("kind") or ""
@@ -473,6 +610,22 @@ def collect_unsafe_items(json_path):
                 tuple(full_path_segments[:-1]), ""
             )
 
+        # ── Refine *kind* for filter display ──────────────────────────
+        display_kind = kind
+        if kind == "function":
+            if path_kind == "method":
+                parent_seg_tuple = tuple(full_path_segments[:-1])
+                parent_pkind = path_kind_by_segments.get(parent_seg_tuple, "")
+                if parent_pkind == "trait":
+                    display_kind = "trait_method"
+                else:
+                    display_kind = "method"
+            else:
+                parent_seg_tuple = tuple(full_path_segments[:-1])
+                parent_pkind = path_kind_by_segments.get(parent_seg_tuple, "")
+                if parent_pkind == "trait":
+                    display_kind = "trait_method"
+
         url = rustdoc_nightly_url(
             crate,
             full_path_segments,
@@ -481,7 +634,7 @@ def collect_unsafe_items(json_path):
             parent_kind=parent_kind,
         )
 
-        items.append((module_path, full_path, kind, url, safety_doc))
+        items.append((module_path, full_path, display_kind, url, safety_doc))
 
     return items
 
@@ -547,12 +700,32 @@ def write_html(all_items, output_path, rustc_version):
         ".confirm-cb { cursor: pointer; width: 16px; height: 16px; }",
         "/* Confirmed row highlight */",
         ".row-confirmed td { background-color: #f0fff4; }",
+        "/* Filter controls */",
+        ".controls { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 320px); gap: 12px; margin-bottom: 14px; }",
+        ".control-box label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }",
+        ".control-box input { width: 100%; box-sizing: border-box; border: 1px solid #d0d7de; border-radius: 8px; padding: 8px 10px; font-size: 14px; }",
+        ".types { margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }",
+        ".type-list { display: flex; flex-wrap: wrap; gap: 8px 12px; }",
+        ".type-item { font-size: 13px; color: #24292f; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 999px; padding: 5px 10px; cursor: pointer; }",
+        ".safety-item { font-size: 13px; color: #24292f; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 999px; padding: 5px 10px; cursor: pointer; }",
+        ".summary { margin: 8px 0 12px; color: #57606a; font-size: 13px; }",
+        ".muted { color: #6e7781; }",
         "</style>",
         "</head>",
         "<body>",
         '<div class="page-wrap">',
         f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</h1>",
         f"<p>Generated from crates: {crates_html}.</p>",
+        "",
+        '<div class="types">',
+        '  <div class="muted" style="font-weight:600;">Filter</div>',
+        '  <div id="typeFilters" class="type-list"></div>',
+        '  <label class="safety-item">',
+        '    <input type="checkbox" id="safetyFilter" style="margin-right:6px;" />',
+        "    Only without Safety Doc",
+        "  </label>",
+        "</div>",
+        '<div id="summary" class="summary"></div>',
         "",
         "<script>",
         "(function () {",
@@ -631,6 +804,50 @@ def write_html(all_items, output_path, rustc_version):
         "",
         "    // Restore persisted checked state",
         "    loadChecked();",
+        "",
+        "    // ── Filter ──────────────────────────────────────────────────────────",
+        "    var rows = getRows();",
+        "    var safetyOnly = false;",
+        "    var typeCounts = rows.reduce(function (acc, r) {",
+        "      var t = r.dataset.type || 'unknown';",
+        "      acc[t] = (acc[t] || 0) + 1; return acc;",
+        "    }, {});",
+        "    var typeFilters = document.getElementById('typeFilters');",
+        "    var selectedTypes = new Set(Object.keys(typeCounts));",
+        "    Object.keys(typeCounts).sort().forEach(function (type) {",
+        "      var label = document.createElement('label');",
+        "      label.className = 'type-item';",
+        "      label.innerHTML = '<input type=\"checkbox\" checked data-type=\"' + type + '\" style=\"margin-right:6px;\">' + type + ' (' + typeCounts[type] + ')';",
+        "      typeFilters.appendChild(label);",
+        "    });",
+        "",
+        "    function applyFilters() {",
+        "      var visible = 0;",
+        "      for (var r = 0; r < rows.length; r++) {",
+        "        var row = rows[r];",
+        "        var type = row.dataset.type || '';",
+        "        var typeOk = selectedTypes.has(type);",
+        "        var safetyOk = !safetyOnly || row.dataset.safety === '0';",
+        "        var show = typeOk && safetyOk;",
+        "        row.style.display = show ? '' : 'none';",
+        "        if (show) visible += 1;",
+        "      }",
+        "      document.getElementById('summary').textContent = 'Showing ' + visible + ' / ' + rows.length + ' items';",
+        "    }",
+        "",
+        "    typeFilters.addEventListener('change', function (event) {",
+        "      var tgt = event.target;",
+        "      if (tgt.tagName !== 'INPUT' || tgt.type !== 'checkbox') return;",
+        "      var t = tgt.dataset.type; if (!t) return;",
+        "      if (tgt.checked) selectedTypes.add(t); else selectedTypes.delete(t);",
+        "      applyFilters();",
+        "    });",
+        "",
+        "    document.getElementById('safetyFilter').addEventListener('change', function () {",
+        "      safetyOnly = this.checked;",
+        "      applyFilters();",
+        "    });",
+        "    applyFilters();",
         "  });",
         "}());",
         "</script>",
@@ -664,9 +881,16 @@ def write_html(all_items, output_path, rustc_version):
         else:
             api_cell = f"<code>{html.escape(api_name)}</code>"
         kind_cell = html.escape(kind)
-        safety_cell = "<br/>".join(html.escape(d) for d in docs)
+        safety_cell = "<br/>".join(markdown_to_html(d) for d in docs)
+        has_safety = "1" if any(d for d in docs) else "0"
+        data_attrs = (
+            f' data-type="{html.escape(kind, quote=True)}"'
+            f' data-module="{html.escape(module_path, quote=True)}"'
+            f' data-api="{html.escape(api_name, quote=True)}"'
+            f' data-safety="{has_safety}"'
+        )
         lines.append(
-            f'<tr data-id="{html.escape(full_path, quote=True)}">'
+            f'<tr data-id="{html.escape(full_path, quote=True)}"{data_attrs}>'
             f'<td>{idx}</td>'
             f'<td>{module_cell}</td>'
             f'<td>{api_cell}</td>'
