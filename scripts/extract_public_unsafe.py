@@ -626,9 +626,9 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             full_path_segments = path_entry.get("path") or []
             path_kind = path_entry.get("kind") or ""
 
-        # Fallback: if the path is only [crate, name] with no path_kind,
-        # try to find the actual container parent (e.g. trait methods).
-        if len(full_path_segments) <= 2 and not path_kind:
+        # Fallback: if the path is only [crate, name], try to find the
+        # actual container parent (e.g. trait methods).
+        if len(full_path_segments) <= 2:
             name = item.get("name") or ""
             container_info = container_parents.get(item_id)
             if container_info is not None:
@@ -658,9 +658,17 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             impl_info = impl_trait_map.get(item_id)
             if impl_info is not None:
                 trait_path, _trait_id = impl_info
-                trait_methods = trait_safety_registry.get(trait_path, {})
-                method_name = item.get("name") or ""
-                safety_doc = trait_methods.get(method_name, "")
+                trait_methods = trait_safety_registry.get(trait_path)
+                if trait_methods is None:
+                    # Path mismatch across crates: try matching by last two
+                    # segments (module + trait name).
+                    for reg_path, reg_methods in trait_safety_registry.items():
+                        if len(reg_path) >= 2 and len(trait_path) >= 2 and reg_path[-2:] == trait_path[-2:]:
+                            trait_methods = reg_methods
+                            break
+                if trait_methods is not None:
+                    method_name = item.get("name") or ""
+                    safety_doc = trait_methods.get(method_name, "")
 
         if path_kind == "method" and len(full_path_segments) >= 3:
             parent_kind = parent_kind or path_kind_by_segments.get(
