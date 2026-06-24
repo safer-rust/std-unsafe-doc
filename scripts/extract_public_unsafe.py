@@ -596,11 +596,20 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     for item_id, item in index.items():
         if not _is_public_unsafe_fn(item):
             continue
+        # Resolve parent path: prefer paths map, fall back to container_parents.
         path_entry = paths.get(item_id)
-        if path_entry is None:
+        segs = path_entry.get("path") or [] if path_entry is not None else []
+        parent_kind = ""
+        container_info = container_parents.get(item_id)
+        if len(segs) <= 2 and container_info is not None:
+            parent_segs, parent_pkind = container_info
+            if parent_pkind == "trait":
+                segs = list(parent_segs) + [item.get("name", "")]
+                parent_kind = "trait"
+        if len(segs) <= 2:
             continue
-        segs = path_entry.get("path") or []
-        parent_kind = path_kind_by_segments.get(tuple(segs[:-1]), "")
+        if not parent_kind:
+            parent_kind = path_kind_by_segments.get(tuple(segs[:-1]), "")
         if parent_kind != "trait":
             continue
         docs = item.get("docs") or ""
