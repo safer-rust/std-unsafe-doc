@@ -56,7 +56,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     var cols = table.querySelectorAll('col');
     var ths  = table.querySelectorAll('thead th');
 
-    // ── Column resize ──────────────────────────────────────────────────
+    // ── Column resize ────────────────────────────────────────────────
     ths.forEach(function (th, i) {
       var handle = document.createElement('div');
       handle.className = 'col-resize-handle';
@@ -79,12 +79,12 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       }
     });
 
-    // ── Helpers ────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────
     function getRows() {
       return Array.from(tbody.querySelectorAll('tr'));
     }
 
-    // ── URL state ──────────────────────────────────────────────────────
+    // ── URL state ────────────────────────────────────────────────────
     function updateURL() { /* replaced below */ }
     function loadFromURL() { /* replaced below */ }
 
@@ -145,7 +145,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       }
     };
 
-    // ── localStorage ───────────────────────────────────────────────────
+    // ── localStorage ─────────────────────────────────────────────────
     function saveChecked() {
       var state = {};
       getRows().forEach(function (r) {
@@ -170,7 +170,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       } catch (e) {}
     }
 
-    // ── Checkbox ──────────────────────────────────────────────────────
+    // ── Checkbox ────────────────────────────────────────────────────
     getRows().forEach(function (row) {
       var cb = row.querySelector('.confirm-cb');
       if (cb) {
@@ -182,7 +182,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       }
     });
 
-    // ── Filter ──────────────────────────────────────────────────────────
+    // ── Filter ────────────────────────────────────────────────────────
     var rows = getRows();
     var safetyOnly = false;
     var typeCounts = rows.reduce(function (acc, r) {
@@ -229,7 +229,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       updateURL();
     });
 
-    // ── Init: URL > localStorage, then apply ─────────────────────────
+    // ── Init: URL > localStorage, then apply ───────────────────────
     loadFromURL();
     if (!(new URLSearchParams(location.search)).get('c')) {
       loadChecked();
