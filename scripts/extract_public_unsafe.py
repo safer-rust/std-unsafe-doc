@@ -508,8 +508,40 @@ def _container_parent_map(index, paths):
     return parent_map
 
 
-def collect_unsafe_items(json_path):
-    """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs)."""
+def _impl_trait_map(index, paths):
+    """Return {impl_method_id_str: (trait_path_tuple, trait_id_str)}
+    for impl methods that implement a trait."""
+    mapping = {}
+    for _impl_id, impl_item in index.items():
+        impl_data = (impl_item.get("inner") or {}).get("impl")
+        if not impl_data:
+            continue
+        trait_ref = impl_data.get("trait")
+        if not trait_ref:
+            continue
+        resolved = _find_resolved_path(trait_ref)
+        if resolved is None:
+            continue
+        trait_id, _trait_name = resolved
+        trait_id_str = str(trait_id)
+        trait_path_entry = paths.get(trait_id_str) or {}
+        trait_path = tuple(trait_path_entry.get("path") or [])
+        if not trait_path:
+            continue
+        impl_method_ids = impl_data.get("items") or []
+        for im_id in impl_method_ids:
+            mapping[str(im_id)] = (trait_path, trait_id_str)
+    return mapping
+
+
+def collect_unsafe_items(json_path, *, trait_safety_registry=None):
+    """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs).
+
+    If *trait_safety_registry* is provided it is mutated in-place to record
+    trait-method safety docs discovered in this crate.  When an impl method
+    lacks its own Safety section the registry (built from earlier crates) is
+    consulted as a fallback.
+    """
     try:
         with open(json_path, encoding="utf-8") as fh:
             data = json.load(fh)
@@ -533,6 +565,7 @@ def collect_unsafe_items(json_path):
     parent_by_item = _parent_module_path_by_item(index, paths, data.get("root"))
     reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
     container_parents = _container_parent_map(index, paths)
+    impl_trait_map = _impl_trait_map(index, paths)
 
     # Reverse lookup to resolve parent kind for method URLs.
     path_kind_by_segments = {}
@@ -593,6 +626,19 @@ def collect_unsafe_items(json_path):
             full_path_segments = path_entry.get("path") or []
             path_kind = path_entry.get("kind") or ""
 
+        # Fallback: if the path is only [crate, name] with no path_kind,
+        # try to find the actual container parent (e.g. trait methods).
+        if len(full_path_segments) <= 2 and not path_kind:
+            name = item.get("name") or ""
+            container_info = container_parents.get(item_id)
+            if container_info is not None:
+                parent_segs, parent_pkind = container_info
+                full_path_segments = list(parent_segs) + [name]
+                path_kind = "method" if parent_pkind in (
+                    "trait", "impl", "struct", "enum", "primitive", "union",
+                ) else ""
+                parent_kind = parent_pkind
+
         reexport_alts = reexport_by_target.get(item_id)
         if reexport_alts:
             full_path_segments = list(_shortest_reexport_path(reexport_alts))
@@ -605,6 +651,17 @@ def collect_unsafe_items(json_path):
 
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
+
+        # If no safety doc and this is an impl method implementing a trait,
+        # look up the trait method's safety doc from the registry.
+        if not safety_doc and trait_safety_registry is not None:
+            impl_info = impl_trait_map.get(item_id)
+            if impl_info is not None:
+                trait_path, _trait_id = impl_info
+                trait_methods = trait_safety_registry.get(trait_path, {})
+                method_name = item.get("name") or ""
+                safety_doc = trait_methods.get(method_name, "")
+
         if path_kind == "method" and len(full_path_segments) >= 3:
             parent_kind = parent_kind or path_kind_by_segments.get(
                 tuple(full_path_segments[:-1]), ""
@@ -625,6 +682,13 @@ def collect_unsafe_items(json_path):
                 parent_pkind = path_kind_by_segments.get(parent_seg_tuple, "")
                 if parent_pkind == "trait":
                     display_kind = "trait_method"
+
+        # Populate the trait safety registry for cross-crate lookups.
+        if trait_safety_registry is not None and display_kind == "trait_method" and safety_doc:
+            trait_path_tuple = tuple(full_path_segments[:-1])
+            method_name = item.get("name") or ""
+            if method_name and trait_path_tuple:
+                trait_safety_registry.setdefault(trait_path_tuple, {})[method_name] = safety_doc
 
         url = rustdoc_nightly_url(
             crate,
@@ -938,11 +1002,12 @@ def main():
     print()
 
     all_items = []
+    trait_safety_registry = {}
     for crate in CRATES:
         print(f"[{crate}]")
         json_path = generate_rustdoc_json(crate, lib_dir)
         print(f"  Parsing {json_path}")
-        items = collect_unsafe_items(json_path)
+        items = collect_unsafe_items(json_path, trait_safety_registry=trait_safety_registry)
         print(f"  Found {len(items)} public unsafe items")
         all_items.extend(items)
         print()
