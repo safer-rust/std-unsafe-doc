@@ -700,6 +700,14 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
                 if parent_pkind == "trait":
                     display_kind = "trait_method"
 
+        # Drop unresolvable items: bare [crate, name] functions that
+        # couldn't be associated with any container parent.  These are
+        # typically trait-method definitions whose parent trait is not
+        # accessible in the JSON paths map — their proper entries
+        # already appear as trait_method items.
+        if display_kind == "function" and len(full_path_segments) == 2:
+            continue
+
         # Populate the trait safety registry for cross-crate lookups.
         if trait_safety_registry is not None and display_kind == "trait_method" and safety_doc:
             trait_path_tuple = tuple(full_path_segments[:-1])
