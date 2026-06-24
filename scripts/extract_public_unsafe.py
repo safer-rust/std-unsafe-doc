@@ -655,20 +655,29 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
         # If no safety doc and this is an impl method implementing a trait,
         # look up the trait method's safety doc from the registry.
         if not safety_doc and trait_safety_registry is not None:
-            impl_info = impl_trait_map.get(item_id)
-            if impl_info is not None:
-                trait_path, _trait_id = impl_info
-                trait_methods = trait_safety_registry.get(trait_path)
-                if trait_methods is None:
-                    # Path mismatch across crates: try matching by last two
-                    # segments (module + trait name).
-                    for reg_path, reg_methods in trait_safety_registry.items():
-                        if len(reg_path) >= 2 and len(trait_path) >= 2 and reg_path[-2:] == trait_path[-2:]:
-                            trait_methods = reg_methods
+            method_name = item.get("name") or ""
+            if method_name:
+                # Try exact trait-path lookup via impl_trait_map.
+                impl_info = impl_trait_map.get(item_id)
+                if impl_info is not None:
+                    trait_path, _trait_id = impl_info
+                    trait_methods = trait_safety_registry.get(trait_path)
+                    if trait_methods is None:
+                        # Path mismatch across crates: try matching by
+                        # last two segments (module + trait name).
+                        for rp, rm in trait_safety_registry.items():
+                            if len(rp) >= 2 and len(trait_path) >= 2 and rp[-2:] == trait_path[-2:]:
+                                trait_methods = rm
+                                break
+                    if trait_methods is not None:
+                        safety_doc = trait_methods.get(method_name, "")
+                # Broad fallback: search all traits by method name.
+                if not safety_doc:
+                    for trait_methods in trait_safety_registry.values():
+                        sd = trait_methods.get(method_name, "")
+                        if sd:
+                            safety_doc = sd
                             break
-                if trait_methods is not None:
-                    method_name = item.get("name") or ""
-                    safety_doc = trait_methods.get(method_name, "")
 
         if path_kind == "method" and len(full_path_segments) >= 3:
             parent_kind = parent_kind or path_kind_by_segments.get(
