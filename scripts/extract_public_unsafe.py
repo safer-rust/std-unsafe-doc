@@ -534,6 +534,19 @@ def _impl_trait_map(index, paths):
     return mapping
 
 
+def _is_public_unsafe_fn(item):
+    """Return True if *item* is a public unsafe function."""
+    visibility = item.get("visibility")
+    if visibility not in ("public", "default"):
+        return False
+    inner = item.get("inner", {})
+    fn_data = inner.get("function")
+    if fn_data is None:
+        return False
+    header = fn_data.get("header", {})
+    return bool(header.get("is_unsafe"))
+
+
 def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     """Parse rustdoc JSON and return list of (module_path, full_path, kind, docs).
 
@@ -575,6 +588,32 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             path_kind_by_segments[tuple(segs)] = path_info.get("kind") or ""
 
     items = []
+
+    # ── Pass 1: populate trait safety registry ──────────────────────
+    # Collect trait-method safety docs before processing any items, so
+    # that same-crate impl methods processed earlier in the index can
+    # still find their trait-method safety doc.
+    for item_id, item in index.items():
+        if not _is_public_unsafe_fn(item):
+            continue
+        path_entry = paths.get(item_id)
+        if path_entry is None:
+            continue
+        segs = path_entry.get("path") or []
+        parent_kind = path_kind_by_segments.get(tuple(segs[:-1]), "")
+        if parent_kind != "trait":
+            continue
+        docs = item.get("docs") or ""
+        safety_doc = extract_safety_section(docs)
+        if not safety_doc:
+            continue
+        if trait_safety_registry is not None:
+            trait_path_tuple = tuple(segs[:-1])
+            method_name = item.get("name") or ""
+            if method_name and trait_path_tuple:
+                trait_safety_registry.setdefault(trait_path_tuple, {})[method_name] = safety_doc
+
+    # ── Pass 2: collect all unsafe items ────────────────────────────
     for item_id, item in index.items():
         visibility = item.get("visibility")
         if visibility not in ("public", "default"):
@@ -707,13 +746,6 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
         # already appear as trait_method items.
         if display_kind == "function" and len(full_path_segments) == 2:
             continue
-
-        # Populate the trait safety registry for cross-crate lookups.
-        if trait_safety_registry is not None and display_kind == "trait_method" and safety_doc:
-            trait_path_tuple = tuple(full_path_segments[:-1])
-            method_name = item.get("name") or ""
-            if method_name and trait_path_tuple:
-                trait_safety_registry.setdefault(trait_path_tuple, {})[method_name] = safety_doc
 
         url = rustdoc_nightly_url(
             crate,
