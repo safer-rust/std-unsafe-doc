@@ -230,6 +230,8 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     });
 
     // ── Init: URL > localStorage, then apply ───────────────────────
+    safetyOnly = false;
+    document.getElementById('safetyFilter').checked = false;
     loadFromURL();
     if (!(new URLSearchParams(location.search)).get('c')) {
       loadChecked();

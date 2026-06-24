@@ -1041,6 +1041,8 @@ def write_html(all_items, output_path, rustc_version):
         "    });",
         "",
         "    // ── Init: URL > localStorage, then apply ───────────────────────",
+        "    safetyOnly = false;",
+        "    document.getElementById('safetyFilter').checked = false;",
         "    loadFromURL();",
         "    if (!(new URLSearchParams(location.search)).get('c')) {",
         "      loadChecked();",
