@@ -48,9 +48,6 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 
 <script>
 (function () {
-  // localStorage key includes the page path to avoid cross-page conflicts.
-  // Data structure:
-  //   STORAGE_CHECKED_KEY -> JSON object { data-id: boolean } (checkbox state)
   var STORAGE_CHECKED_KEY = 'unsafe-doc-checked:' + location.pathname;
   document.addEventListener('DOMContentLoaded', function () {
     var table = document.querySelector('.unsafe-table-wrap table');
@@ -86,6 +83,69 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     function getRows() {
       return Array.from(tbody.querySelectorAll('tr'));
     }
+
+    // ── URL state ──────────────────────────────────────────────────────
+    function updateURL() { /* replaced below */ }
+    function loadFromURL() { /* replaced below */ }
+
+    function getCheckedIds() {
+      var ids = [];
+      getRows().forEach(function (r) {
+        var cb = r.querySelector('.confirm-cb');
+        if (cb && cb.checked) ids.push(r.dataset.id);
+      });
+      return ids;
+    }
+
+    function buildURL() {
+      var params = new URLSearchParams();
+      var checked = getCheckedIds();
+      if (checked.length > 0) params.set('c', checked.join(','));
+      if (safetyOnly) params.set('s', '1');
+      var types = [];
+      typeCheckboxes.forEach(function (cb) { if (cb.checked) types.push(cb.dataset.type); });
+      if (types.length < typeCheckboxes.length) params.set('t', types.join(','));
+      var url = location.protocol + '//' + location.host + location.pathname;
+      var qs = params.toString();
+      return qs ? url + '?' + qs : url;
+    }
+
+    updateURL = function () {
+      var newUrl = buildURL();
+      if (location.search !== '?' + new URL(newUrl).searchParams.toString()) {
+        try { history.replaceState(null, '', newUrl); } catch (e) {}
+      }
+    };
+
+    loadFromURL = function () {
+      var params = new URLSearchParams(location.search);
+      var checkedIds = params.get('c');
+      if (checkedIds) {
+        var set = {};
+        checkedIds.split(',').forEach(function (id) { set[id] = true; });
+        getRows().forEach(function (r) {
+          var cb = r.querySelector('.confirm-cb');
+          if (cb && set[r.dataset.id]) {
+            cb.checked = true;
+            r.classList.add('row-confirmed');
+          }
+        });
+      }
+      var types = params.get('t');
+      if (types) {
+        selectedTypes.clear();
+        types.split(',').forEach(function (t) { selectedTypes.add(t); });
+        typeCheckboxes.forEach(function (cb) {
+          cb.checked = selectedTypes.has(cb.dataset.type);
+        });
+      }
+      if (params.get('s') === '1') {
+        safetyOnly = true;
+        document.getElementById('safetyFilter').checked = true;
+      }
+    };
+
+    // ── localStorage ───────────────────────────────────────────────────
     function saveChecked() {
       var state = {};
       getRows().forEach(function (r) {
@@ -102,9 +162,9 @@ body { margin: 0; font-family: system-ui, sans-serif; }
         var state = JSON.parse(saved);
         getRows().forEach(function (r) {
           var cb = r.querySelector('.confirm-cb');
-          if (cb && r.dataset.id in state) {
-            cb.checked = state[r.dataset.id];
-            r.classList.toggle('row-confirmed', cb.checked);
+          if (cb && r.dataset.id in state && state[r.dataset.id]) {
+            cb.checked = true;
+            r.classList.add('row-confirmed');
           }
         });
       } catch (e) {}
@@ -117,12 +177,10 @@ body { margin: 0; font-family: system-ui, sans-serif; }
         cb.addEventListener('change', function () {
           row.classList.toggle('row-confirmed', cb.checked);
           saveChecked();
+          updateURL();
         });
       }
     });
-
-    // Restore persisted checked state
-    loadChecked();
 
     // ── Filter ──────────────────────────────────────────────────────────
     var rows = getRows();
@@ -133,10 +191,12 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     }, {});
     var typeFilters = document.getElementById('typeFilters');
     var selectedTypes = new Set(Object.keys(typeCounts));
+    var typeCheckboxes = [];
     Object.keys(typeCounts).sort().forEach(function (type) {
       var label = document.createElement('label');
       label.className = 'type-item';
       label.innerHTML = '<input type="checkbox" checked data-type="' + type + '" style="margin-right:6px;">' + type + ' (' + typeCounts[type] + ')';
+      typeCheckboxes.push(label.querySelector('input'));
       typeFilters.appendChild(label);
     });
 
@@ -160,12 +220,20 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       var t = tgt.dataset.type; if (!t) return;
       if (tgt.checked) selectedTypes.add(t); else selectedTypes.delete(t);
       applyFilters();
+      updateURL();
     });
 
     document.getElementById('safetyFilter').addEventListener('change', function () {
       safetyOnly = this.checked;
       applyFilters();
+      updateURL();
     });
+
+    // ── Init: URL > localStorage, then apply ─────────────────────────
+    loadFromURL();
+    if (!(new URLSearchParams(location.search)).get('c')) {
+      loadChecked();
+    }
     applyFilters();
   });
 }());
