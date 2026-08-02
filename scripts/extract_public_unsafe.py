@@ -769,6 +769,52 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     return items
 
 
+RUST_SAFETY_TAGS = [
+    ("NonNull",            r"non[-\s]?null|not\s+null|must\s+not\s+be\s+null|must\s+not\s+be\s+0\b"),
+    ("Align",              r"must\s+be\s+aligned|aligned\s+pointer|page\s+aligned|alignment\s+requirements|properly\s+aligned|well\s+aligned|must\s+satisfy.*alignment|alignment\s+of.*\bT\b"),
+    ("Allocated",          r"allocated\s+by|allocated\s+with|have\s+been\s+allocated|memory\s+allocation|been\s+created\s+by\s+.*allocator|allocated\s+object"),
+    ("InBound",            r"in\s+bounds|within\s+the\s+bounds|within.*\bthe\s+bound(?!s\s+of)|single\s+allocated\s+object"),
+    ("NonOverlap",         r"not\s+overlap|must\s+not\s+overlap|must\s+be\s+disjoint|no\s+overlap"),
+    ("Init",               r"must\s+be\s+initialized|fully\s+initialized|initialized\s+state|in\s+an\s+initialized|properly\s+initialized"),
+    ("Valid",              r"must\s+be\s+valid\s+(?:for|pointer|memory|instance|I/O)|valid\s+pointer|must\s+point\s+to\s+a\s+valid"),
+    ("Alive",              r"remains?\s+valid|remain\s+valid|must\s+not\s+be\s+freed|must\s+not\s+be\s+dropped|valid\s+for\s+the\s+duration|valid\s+for\s+the\s+lifetime|must\s+outlive|not\s+been\s+deallocated|not\s+be\s+deallocated|be\s+alive"),
+    ("Owning",             r"sole\s+ownership|exclusive\s+ownership|unique\s+ownership|ownership.*of.*pointer|no\s+other\s+.*\s+owns?\b"),
+    ("ValidNum",           r"valid\s+range|must\s+be\s+less\s+than\s+or\s+equal|must\s+be\s+greater\s+than|does\s+not\s+overflow|must\s+not\s+overflow|within\s+range|must\s+be\s+within\b.*(?:MAX|MIN|max|min)"),
+    ("CallOnce",           r"only\s+once|called\s+once|called\s+only\s+once|called\s+at\s+most\s+once|must\s+be\s+called\s+once"),
+    ("PostToFunc",         r"after\b.*\bhas\s+been\s+called\b|after\b.*\bbefore\b|called\s+before\b.*\bcalled\b|must\s+be\s+called\s+after"),
+    ("LockHold",           r"(?:lock|mutex)\s+(?:is|must\s+be|should\s+be|being)\s+(?:held|acquired|locked)|holding\s+the\s+(?:lock|mutex)"),
+    ("NonData_race",       r"data\s+race|must\s+not\s+cause\s+a\s+data\s+race|no\s+data\s+race"),
+    ("NonConcurrent",      r"concurrent\s+access|concurrently\s+access|must\s+not\s+be\s+(?:accessed|modified)\s+concurrently|no\s+concurrent"),
+    ("NonMutate",          r"must\s+not\s+be\s+modified|must\s+not\s+be\s+mutated|not\s+be\s+mutated|must\s+not\s+mutate|no\s+other.*\bwrites?\b"),
+    ("ValidWrite",         r"valid\s+for\s+writ(?:ing|es?)"),
+    ("ValidRead",          r"valid\s+for\s+read(?:ing|s?)"),
+    ("ValidMemory",        r"valid\s+(?:I/O|MMIO|memory\s+region|memory\s+mapped|physical\s+address|base\s+address)"),
+    ("ContainerOf",        r"container\s*_?\s*of|container\s+of|embedded\s+in.*at\s+(?:byte\s+)?offset|embed\b"),
+    ("CurThread",          r"current\s+thread|calling\s+thread|same\s+thread|on\s+the\s+current\s+CPU|only\s+this\s+thread"),
+    ("NonZero",            r"non[-\s]?zero|not\s+zero|not\s+be\s+zero|greater\s+than\s+zero"),
+    ("NonDropped",         r"not\s+(?:be\s+)?dropped|must\s+not\s+drop|while.*is\s+not\s+dropped"),
+    ("NonAccessable",      r"never\s+again\s+be\s+(?:read|accessed|written)|must\s+not\s+be\s+(?:accessed|used)\s+after|no\s+longer\s+be\s+used"),
+    ("Invariant",          r"type\s+invariant"),
+    ("Typed",              r"type\s+of\s+the\s+.*\s+must\s+be|correct\s+type|type\s+\bT\b\s+must\b|must\s+match\s+the\s+type"),
+    ("RefTransfer",        r"reference\s+count|refcount|ref\s+count|non[-\s]?zero\s+reference\s+count"),
+    ("FlagSet",            r"must\s+already\s+(?:have\s+been|be)\s+set|flag.*must\s+be|bit.*must\s+be\s+set"),
+    ("NonMutRef",          r"no\s+mutable\s+reference|must\s+not\s+create\s+(?:a\s+)?mutable\s+reference"),
+    ("Pinned",             r"not\s+be\s+moved|must\s+not\s+move|must\s+remain\s+at\s+the\s+same|pin\b"),
+    ("NonVolatile",        r"volatile\b"),
+]
+
+
+def extract_tags(full_doc: str) -> str:
+    if not full_doc:
+        return ""
+    lower = full_doc.lower()
+    matched = []
+    for tag, pattern in RUST_SAFETY_TAGS:
+        if re.search(pattern, lower):
+            matched.append(tag)
+    return ", ".join(matched)
+
+
 def write_html(all_items, output_path, rustc_version):
     """Write the collected items to a static HTML file.
 
@@ -1056,15 +1102,16 @@ def write_html(all_items, output_path, rustc_version):
         '<table>',
         '<colgroup>',
         '<col style="width:4%">',
-        '<col style="width:15%">',
-        '<col style="width:18%">',
-        '<col style="width:7%">',
-        '<col style="width:49%">',
-        '<col style="width:7%">',
+        '<col style="width:14%">',
+        '<col style="width:16%">',
+        '<col style="width:6%">',
+        '<col style="width:42%">',
+        '<col style="width:12%">',
+        '<col style="width:6%">',
         '</colgroup>',
         '<thead>',
         '<tr><th>Index</th><th>Module Path</th><th>API Name</th>'
-        '<th>Kind</th><th>Safety Doc</th><th> Mark </th></tr>',
+        '<th>Kind</th><th>Safety Doc</th><th>Tags</th><th> Mark </th></tr>',
         '</thead>',
         '<tbody>',
     ]
@@ -1082,6 +1129,8 @@ def write_html(all_items, output_path, rustc_version):
             api_cell = f"<code>{html.escape(api_name)}</code>"
         kind_cell = html.escape(kind)
         safety_cell = "<br/>".join(markdown_to_html(d) for d in docs)
+        combined_docs = " ".join(d for d in docs)
+        tags = extract_tags(combined_docs)
         has_safety = "1" if any(d for d in docs) else "0"
         data_attrs = (
             f' data-type="{html.escape(kind, quote=True)}"'
@@ -1096,6 +1145,7 @@ def write_html(all_items, output_path, rustc_version):
             f'<td>{api_cell}</td>'
             f'<td>{kind_cell}</td>'
             f'<td>{safety_cell}</td>'
+            f'<td>{html.escape(tags)}</td>'
             f'<td class="confirm-cell">'
             f'<input type="checkbox" class="confirm-cb" aria-label="Confirmed">'
             f'</td>'
