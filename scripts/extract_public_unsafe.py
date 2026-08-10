@@ -1223,7 +1223,7 @@ def write_html(all_items, output_path, rustc_version):
         "        var type = row.dataset.type || '';",
         "        var typeOk = selectedTypes.has(type);",
         "        var safetyOk = !safetyOnly || row.dataset.safety === '0';",
-        "        var moduleOk = !selectedModule || row.dataset.module === selectedModule;",
+        "        var moduleOk = !selectedModule || row.dataset.module === selectedModule || row.dataset.module.indexOf(selectedModule + '::') === 0;",
         "        var show = typeOk && safetyOk && moduleOk;",
         "        row.style.display = show ? '' : 'none';",
         "        if (show) visible += 1;",
