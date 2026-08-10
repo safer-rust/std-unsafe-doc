@@ -862,9 +862,19 @@ def _build_module_tree(sorted_items):
         f'Show All <span class="tree-count">({total})</span></span></li>'
     )
 
+    def _subtree_total(children_dict, path_parts):
+        total = 0
+        for cname, cdict in children_dict.items():
+            sub_path = "::".join(path_parts + [cname])
+            total += module_counts.get(sub_path, 0)
+            if cdict:
+                total += _subtree_total(cdict, path_parts + [cname])
+        return total
+
     def render(name, children, path_parts):
         full_path = "::".join(path_parts)
         count = module_counts.get(full_path, 0)
+        is_crate = len(path_parts) == 1
 
         has_children = any(children.values())
 
@@ -877,15 +887,17 @@ def _build_module_tree(sorted_items):
                 )
             return ""
 
+        display_count = _subtree_total(children, path_parts) if is_crate else count
+
         lines = ['<li>']
         lines.append(
             f'<span class="tree-toggle expanded" data-toggle="{html.escape(full_path)}">'
             '&#9662;</span>'
         )
-        if count > 0:
+        if display_count > 0:
             lines.append(
                 f'<span class="tree-node" data-module="{html.escape(full_path)}">'
-                f'{html.escape(name)} <span class="tree-count">({count})</span>'
+                f'{html.escape(name)} <span class="tree-count">({display_count})</span>'
                 '</span>'
             )
         else:
@@ -1203,7 +1215,7 @@ def write_html(all_items, output_path, rustc_version):
         "    Object.keys(typeCounts).sort().forEach(function (type) {",
         "      var label = document.createElement('label');",
         "      label.className = 'type-item';",
-        "      label.innerHTML = '<input type=\"checkbox\" checked data-type=\"' + type + '\" style=\"margin-right:6px;\">' + type + ' (' + typeCounts[type] + ')';",
+        "      label.innerHTML = '<input type=\"checkbox\" checked data-type=\"' + type + '\" style=\"margin-right:6px;\">' + type;",
         "      typeCheckboxes.push(label.querySelector('input'));",
         "      typeFilters.appendChild(label);",
         "    });",
