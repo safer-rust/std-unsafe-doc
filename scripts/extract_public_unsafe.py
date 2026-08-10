@@ -268,7 +268,7 @@ def rustdoc_nightly_url(
 
     # Method items are rendered on their parent type page:
     # .../struct.Type.html#method.method_name
-    if path_kind == "method" and len(path_segments) >= 3:
+    if parent_kind in ("struct", "enum", "trait", "primitive", "union", "type") and len(path_segments) >= 3:
         parent_segments = path_segments[:-1]
         parent_name = parent_segments[-1]
         method_name = path_segments[-1]
@@ -725,7 +725,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
                             safety_doc = sd
                             break
 
-        if path_kind == "method" and len(full_path_segments) >= 3:
+        if len(full_path_segments) >= 3:
             parent_kind = parent_kind or path_kind_by_segments.get(
                 tuple(full_path_segments[:-1]), ""
             )
