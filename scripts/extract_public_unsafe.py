@@ -469,6 +469,62 @@ def _reexport_paths_by_target(index, paths, parent_by_item):
     return by_target
 
 
+def _module_rename_map(index, paths, parent_by_item):
+    """Return {internal_module_path_tuple: public_module_path_tuple} for
+    module-level ``pub use`` renames including glob uses:
+    ``pub use core_arch as arch`` or ``pub use core_arch::*``.
+
+    When a module is publicly re-exported under a different name, items
+    inside it keep their definition paths (e.g. ``core::core_arch::foo``).
+    This map lets us rewrite the prefix to the public name (``core::arch::foo``).
+    """
+    renames = {}
+    for import_item_id, item in index.items():
+        if item.get("visibility") != "public":
+            continue
+        inner = item.get("inner") or {}
+        use_data = inner.get("use")
+        if not isinstance(use_data, dict):
+            continue
+
+        target_id = _normalize_json_id(use_data.get("id"))
+        if not target_id:
+            continue
+
+        target_item = index.get(target_id)
+        if target_item is None:
+            continue
+        if "module" not in (target_item.get("inner") or {}):
+            continue
+
+        target_entry = paths.get(target_id) or {}
+        target_path = tuple(target_entry.get("path") or [])
+        if not target_path:
+            continue
+
+        if use_data.get("is_glob"):
+            import_path = tuple(parent_by_item.get(import_item_id) or [])
+        else:
+            import_entry = paths.get(import_item_id) or {}
+            import_path = tuple(import_entry.get("path") or [])
+            if not import_path:
+                parent_path = parent_by_item.get(import_item_id)
+                pub_name = use_data.get("name") or ""
+                if parent_path and pub_name:
+                    import_path = tuple(parent_path + [pub_name])
+
+        if import_path and import_path != target_path:
+            renames[target_path] = import_path
+
+    # When core::core_arch::arch → core::arch, the entire core_arch
+    # module is publicly core::arch.  Items directly under
+    # core::core_arch::x86::* should use core::arch::x86::*.
+    if ("core", "core_arch", "arch") in renames:
+        renames[("core", "core_arch")] = ("core", "arch")
+
+    return renames
+
+
 def _shortest_reexport_path(alternatives):
     """Pick a stable shortest path among re-export aliases (then lexicographic)."""
     return min(alternatives, key=lambda s: (len(s), s))
@@ -579,6 +635,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
     container_parents = _container_parent_map(index, paths)
     impl_trait_map = _impl_trait_map(index, paths)
+    module_renames = _module_rename_map(index, paths, parent_by_item)
 
     # Reverse lookup to resolve parent kind for method URLs.
     path_kind_by_segments = {}
@@ -691,6 +748,20 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
 
         if not full_path_segments:
             continue
+
+        # Apply module renames iteratively to resolve chains
+        # (e.g. core_arch::x86 → core_arch::arch::x86 → arch::x86)
+        if module_renames:
+            sorted_renames = sorted(module_renames.items(), key=lambda x: -len(x[0]))
+            changed = True
+            while changed:
+                changed = False
+                for internal, public in sorted_renames:
+                    ilist = list(internal)
+                    if full_path_segments[:len(ilist)] == ilist:
+                        full_path_segments = list(public) + full_path_segments[len(ilist):]
+                        changed = True
+                        break
 
         full_path = "::".join(full_path_segments)
         module_path = "::".join(full_path_segments[:-1]) if len(full_path_segments) > 1 else crate
