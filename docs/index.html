@@ -1437,6 +1437,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 
     function applyFilters() {
       var visible = 0;
+      var visibleNeedDocs = 0;
       for (var r = 0; r < rows.length; r++) {
         var row = rows[r];
         var type = row.dataset.type || '';
@@ -1445,9 +1446,9 @@ body { margin: 0; font-family: system-ui, sans-serif; }
         var moduleOk = !selectedModule || row.dataset.module === selectedModule || row.dataset.module.indexOf(selectedModule + '::') === 0;
         var show = typeOk && safetyOk && moduleOk;
         row.style.display = show ? '' : 'none';
-        if (show) visible += 1;
+        if (show) { visible += 1; if (row.dataset.safety === '0') visibleNeedDocs += 1; }
       }
-      document.getElementById('summary').textContent = 'Showing ' + visible + ' / ' + rows.length + ' items';
+      document.getElementById('summary').textContent = 'Showing ' + visible + ' / ' + rows.length + ' items; ' + visibleNeedDocs + ' APIs need safety docs after grouping trait methods';
     }
 
     typeFilters.addEventListener('change', function (event) {
