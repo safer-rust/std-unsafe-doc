@@ -525,6 +525,24 @@ def _module_rename_map(index, paths, parent_by_item):
     return renames
 
 
+def _apply_module_renames(path_str, module_renames):
+    """Apply *module_renames* to a ``::``-separated path string."""
+    if not module_renames or not path_str:
+        return path_str
+    segs = path_str.split("::")
+    sorted_renames = sorted(module_renames.items(), key=lambda x: -len(x[0]))
+    changed = True
+    while changed:
+        changed = False
+        for internal, public in sorted_renames:
+            ilist = list(internal)
+            if segs[:len(ilist)] == ilist:
+                segs = list(public) + segs[len(ilist):]
+                changed = True
+                break
+    return "::".join(segs)
+
+
 def _shortest_reexport_path(alternatives):
     """Pick a stable shortest path among re-export aliases (then lexicographic)."""
     return min(alternatives, key=lambda s: (len(s), s))
@@ -749,8 +767,8 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
         if not full_path_segments:
             continue
 
-        # Apply module renames iteratively to resolve chains
-        # (e.g. core_arch::x86 → core_arch::arch::x86 → arch::x86)
+        # Build display path with public module names (e.g. core_arch -> arch)
+        display_path_segments = list(full_path_segments)
         if module_renames:
             sorted_renames = sorted(module_renames.items(), key=lambda x: -len(x[0]))
             changed = True
@@ -758,13 +776,13 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
                 changed = False
                 for internal, public in sorted_renames:
                     ilist = list(internal)
-                    if full_path_segments[:len(ilist)] == ilist:
-                        full_path_segments = list(public) + full_path_segments[len(ilist):]
+                    if display_path_segments[:len(ilist)] == ilist:
+                        display_path_segments = list(public) + display_path_segments[len(ilist):]
                         changed = True
                         break
 
-        full_path = "::".join(full_path_segments)
-        module_path = "::".join(full_path_segments[:-1]) if len(full_path_segments) > 1 else crate
+        full_path = "::".join(display_path_segments)
+        module_path = "::".join(display_path_segments[:-1]) if len(display_path_segments) > 1 else crate
 
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
@@ -840,7 +858,10 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             trait_path, _ = impl_info
             method_name = item.get("name") or ""
             if trait_path and method_name:
-                trait_origin = "::".join(trait_path) + "::" + method_name
+                trait_origin = _apply_module_renames(
+                    "::".join(trait_path) + "::" + method_name,
+                    module_renames,
+                )
         elif display_kind == "method" and trait_safety_registry is not None:
             method_name = item.get("name") or ""
             if method_name:
@@ -849,7 +870,10 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
                     if method_name in tmethods:
                         matches.append(tpath)
                 if len(matches) == 1:
-                    trait_origin = "::".join(matches[0]) + "::" + method_name
+                    trait_origin = _apply_module_renames(
+                        "::".join(matches[0]) + "::" + method_name,
+                        module_renames,
+                    )
 
         items.append((module_path, full_path, display_kind, url, safety_doc, trait_origin))
 
