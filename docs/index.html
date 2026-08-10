@@ -3,11 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Public Unsafe APIs — nightly (rustc 1.99.0-nightly (771916f90 2026-08-08))</title>
+<title>Public Unsafe APIs — nightly (rustc 1.99.0-nightly (969b803cb 2026-08-09))</title>
 <style>
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, sans-serif; }
-.page-wrap { width: 100%; padding: 16px 24px; }
+.layout { display: flex; height: 100vh; }
+.sidebar { width: 280px; flex-shrink: 0; border-right: 1px solid #d0d7de; overflow-y: auto; padding: 12px; background: #f6f8fa;}
+.sidebar h3 { margin: 0 0 8px; font-size: 14px; color: #57606a; }
+.tree { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+.tree ul { list-style: none; padding-left: 16px; }
+.tree li { margin: 1px 0; }
+.tree-toggle { cursor: pointer; display: inline-block; width: 16px; text-align: center; color: #6e7781; user-select: none; vertical-align: middle; font-size: 11px;}
+.tree-toggle:hover { color: #24292f; }
+.tree-toggle.collapsed { transform: rotate(-90deg); display: inline-block;}
+.tree-node { cursor: pointer; padding: 2px 6px; border-radius: 4px; display: inline-block; color: #24292f; vertical-align: middle;}
+.tree-node:hover { background: #eaeef2; }
+.tree-node.selected { background: #ddf4ff; font-weight: 600; }
+.tree-node-all { font-weight: 600; }
+.tree-count { color: #6e7781; font-size: 0.85em; }
+.main { flex: 1; min-width: 0; overflow-y: auto; padding: 16px 24px; }
+@media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; max-height: 35vh;  border-right: none; border-bottom: 1px solid #d0d7de; } .main { overflow-y: visible; }}
 .unsafe-table-wrap { width: 100%; overflow-x: auto; }
 .unsafe-table-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; min-width: 600px; }
 .unsafe-table-wrap th, .unsafe-table-wrap td { padding: 4px 8px; word-break: break-word; vertical-align: top; border: 1px solid #ddd; }
@@ -32,8 +47,384 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 </style>
 </head>
 <body>
-<div class="page-wrap">
-<h1>Public Unsafe APIs — nightly (rustc 1.99.0-nightly (771916f90 2026-08-08))</h1>
+<div class="layout">
+<div class="sidebar">
+<h3>Module Tree</h3>
+<ul class="tree">
+<li><span class="tree-node tree-node-all selected" data-module="">Show All <span class="tree-count">(6069)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core">&#9662;</span>
+<span class="tree-node" data-module="core">core</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::alloc">&#9662;</span>
+<span class="tree-node" data-module="core::alloc">alloc <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::alloc::Allocator">Allocator <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::array">&#9662;</span>
+<span class="tree-node" data-module="core::array">array <span class="tree-count">(1)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ascii">&#9662;</span>
+<span class="tree-node" data-module="core::ascii">ascii</span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::cell">cell <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::clone">clone <span class="tree-count">(2)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::convert">&#9662;</span>
+<span class="tree-node" data-module="core::convert">convert</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch">core_arch</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::aarch64">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::aarch64">aarch64</span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::neon">neon <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::mte">mte <span class="tree-count">(6)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::prefetch">prefetch <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::rand">rand <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::arm_shared">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::arm_shared">arm_shared</span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::barrier">barrier <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::hints">hints <span class="tree-count">(6)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::loongarch64">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::loongarch64">loongarch64 <span class="tree-count">(10)</span></span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::core_arch::nvptx">nvptx <span class="tree-count">(18)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc">powerpc <span class="tree-count">(1)</span></span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::altivec">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc::altivec">altivec <span class="tree-count">(110)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::endian">endian <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::vsx">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc::vsx">vsx <span class="tree-count">(3)</span></span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc64">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc64">powerpc64</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc64::vsx">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc64::vsx">vsx <span class="tree-count">(2)</span></span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::s390x">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::s390x">s390x</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::s390x::vector">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::s390x::vector">vector <span class="tree-count">(196)</span></span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::core_arch::amdgpu">amdgpu <span class="tree-count">(21)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::loongarch32">loongarch32 <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::loongarch_shared">loongarch_shared <span class="tree-count">(9)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::mips">mips <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::riscv64">riscv64 <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::riscv_shared">riscv_shared <span class="tree-count">(38)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd">core_simd</span>
+<ul>
+<li><span class="tree-node" data-module="core::core_simd::masks">masks <span class="tree-count">(1)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd::simd">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd::simd">simd</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd::simd::num">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd::simd::num">num</span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::core_simd::vector">vector <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_simd::cast">cast <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ffi">&#9662;</span>
+<span class="tree-node" data-module="core::ffi">ffi <span class="tree-count">(1)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::intrinsics">&#9662;</span>
+<span class="tree-node" data-module="core::intrinsics">intrinsics <span class="tree-count">(70)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::intrinsics::simd">simd <span class="tree-count">(75)</span></span></li>
+<li><span class="tree-node" data-module="core::intrinsics::bounds">bounds <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::io">&#9662;</span>
+<span class="tree-node" data-module="core::io">io</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::iter">&#9662;</span>
+<span class="tree-node" data-module="core::iter">iter <span class="tree-count">(2)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::mem">&#9662;</span>
+<span class="tree-node" data-module="core::mem">mem <span class="tree-count">(10)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::net">&#9662;</span>
+<span class="tree-node" data-module="core::net">net</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::num">&#9662;</span>
+<span class="tree-node" data-module="core::num">num <span class="tree-count">(1)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ops">&#9662;</span>
+<span class="tree-node" data-module="core::ops">ops <span class="tree-count">(1)</span></span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::pin">pin <span class="tree-count">(1)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ptr">&#9662;</span>
+<span class="tree-node" data-module="core::ptr">ptr <span class="tree-count">(13)</span></span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::slice">&#9662;</span>
+<span class="tree-node" data-module="core::slice">slice <span class="tree-count">(21)</span></span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::str">str <span class="tree-count">(14)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::sync">&#9662;</span>
+<span class="tree-node" data-module="core::sync">sync</span>
+<ul>
+<li><span class="tree-node" data-module="core::sync::atomic">atomic <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::task">&#9662;</span>
+<span class="tree-node" data-module="core::task">task</span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="core::bool">bool <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::char">char <span class="tree-count">(5)</span></span></li>
+<li><span class="tree-node" data-module="core::f128">f128 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::f16">f16 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::f32">f32 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::f64">f64 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::field">field <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::future">future <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::hint">hint <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::i128">i128 <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::i16">i16 <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::i32">i32 <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::i64">i64 <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::i8">i8 <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::isize">isize <span class="tree-count">(14)</span></span></li>
+<li><span class="tree-node" data-module="core::marker">marker <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::pointer">pointer <span class="tree-count">(36)</span></span></li>
+<li><span class="tree-node" data-module="core::u128">u128 <span class="tree-count">(16)</span></span></li>
+<li><span class="tree-node" data-module="core::u16">u16 <span class="tree-count">(16)</span></span></li>
+<li><span class="tree-node" data-module="core::u32">u32 <span class="tree-count">(16)</span></span></li>
+<li><span class="tree-node" data-module="core::u64">u64 <span class="tree-count">(16)</span></span></li>
+<li><span class="tree-node" data-module="core::u8">u8 <span class="tree-count">(17)</span></span></li>
+<li><span class="tree-node" data-module="core::usize">usize <span class="tree-count">(18)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc">&#9662;</span>
+<span class="tree-node" data-module="alloc">alloc</span>
+<ul>
+<li><span class="tree-node" data-module="alloc::alloc">alloc <span class="tree-count">(4)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::collections">&#9662;</span>
+<span class="tree-node" data-module="alloc::collections">collections</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::collections::btree">&#9662;</span>
+<span class="tree-node" data-module="alloc::collections::btree">btree</span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::ffi">&#9662;</span>
+<span class="tree-node" data-module="alloc::ffi">ffi</span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="alloc::str">str <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std">&#9662;</span>
+<span class="tree-node" data-module="std">std</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::collections">&#9662;</span>
+<span class="tree-node" data-module="std::collections">collections</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::collections::hash">&#9662;</span>
+<span class="tree-node" data-module="std::collections::hash">hash</span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::ffi">&#9662;</span>
+<span class="tree-node" data-module="std::ffi">ffi</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::io">&#9662;</span>
+<span class="tree-node" data-module="std::io">io</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::net">&#9662;</span>
+<span class="tree-node" data-module="std::net">net</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os">&#9662;</span>
+<span class="tree-node" data-module="std::os">os</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::fd">&#9662;</span>
+<span class="tree-node" data-module="std::os::fd">fd</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::linux">&#9662;</span>
+<span class="tree-node" data-module="std::os::linux">linux</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix">unix</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix::net">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix::net">net</span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows">windows</span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::io">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::io">io</span>
+<ul>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::net">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::net">net</span>
+<ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::thread">&#9662;</span>
+<span class="tree-node" data-module="std::thread">thread</span>
+<ul>
+</ul>
+</li>
+<li><span class="tree-node" data-module="std::char">char <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="std::env">env <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="std::f128">f128 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::f16">f16 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::f32">f32 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::f64">f64 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::i128">i128 <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::i16">i16 <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::i32">i32 <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::i64">i64 <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::i8">i8 <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::isize">isize <span class="tree-count">(10)</span></span></li>
+<li><span class="tree-node" data-module="std::str">str <span class="tree-count">(8)</span></span></li>
+<li><span class="tree-node" data-module="std::u128">u128 <span class="tree-count">(12)</span></span></li>
+<li><span class="tree-node" data-module="std::u16">u16 <span class="tree-count">(12)</span></span></li>
+<li><span class="tree-node" data-module="std::u32">u32 <span class="tree-count">(12)</span></span></li>
+<li><span class="tree-node" data-module="std::u64">u64 <span class="tree-count">(12)</span></span></li>
+<li><span class="tree-node" data-module="std::u8">u8 <span class="tree-count">(13)</span></span></li>
+<li><span class="tree-node" data-module="std::usize">usize <span class="tree-count">(12)</span></span></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="main">
+<h1>Public Unsafe APIs — nightly (rustc 1.99.0-nightly (969b803cb 2026-08-09))</h1>
 <p>Generated from crates: <code>core</code>, <code>alloc</code>, <code>std</code>.</p>
 
 <div class="types">
@@ -105,6 +496,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       var types = [];
       typeCheckboxes.forEach(function (cb) { if (cb.checked) types.push(cb.dataset.type); });
       if (types.length < typeCheckboxes.length) params.set('t', types.join(','));
+      if (selectedModule) params.set('m', selectedModule);
       var url = location.protocol + '//' + location.host + location.pathname;
       var qs = params.toString();
       return qs ? url + '?' + qs : url;
@@ -142,6 +534,14 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       if (params.get('s') === '1') {
         safetyOnly = true;
         document.getElementById('safetyFilter').checked = true;
+      }
+      var mod = params.get('m');
+      if (mod) {
+        selectedModule = mod;
+        var allNodes = document.querySelectorAll('.tree-node');
+        allNodes.forEach(function (n) {
+          n.classList.toggle('selected', n.dataset.module === mod);
+        });
       }
     };
 
@@ -185,6 +585,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     // ── Filter ────────────────────────────────────────────────────────
     var rows = getRows();
     var safetyOnly = false;
+    var selectedModule = '';
     var typeCounts = rows.reduce(function (acc, r) {
       var t = r.dataset.type || 'unknown';
       acc[t] = (acc[t] || 0) + 1; return acc;
@@ -207,7 +608,8 @@ body { margin: 0; font-family: system-ui, sans-serif; }
         var type = row.dataset.type || '';
         var typeOk = selectedTypes.has(type);
         var safetyOk = !safetyOnly || row.dataset.safety === '0';
-        var show = typeOk && safetyOk;
+        var moduleOk = !selectedModule || row.dataset.module === selectedModule;
+        var show = typeOk && safetyOk && moduleOk;
         row.style.display = show ? '' : 'none';
         if (show) visible += 1;
       }
@@ -227,6 +629,38 @@ body { margin: 0; font-family: system-ui, sans-serif; }
       safetyOnly = this.checked;
       applyFilters();
       updateURL();
+    });
+
+    // ── Module tree ───────────────────────────────────────────────────
+    var treeNodes = document.querySelectorAll('.tree-node');
+    treeNodes.forEach(function (node) {
+      node.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selectedModule = this.dataset.module;
+        treeNodes.forEach(function (n) { n.classList.remove('selected'); });
+        this.classList.add('selected');
+        applyFilters();
+        updateURL();
+      });
+    });
+
+    var treeToggles = document.querySelectorAll('.tree-toggle');
+    treeToggles.forEach(function (toggle) {
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var ul = this.parentElement.querySelector(':scope > ul');
+        if (ul) {
+          if (ul.style.display === 'none') {
+            ul.style.display = '';
+            this.classList.remove('collapsed');
+            this.classList.add('expanded');
+          } else {
+            ul.style.display = 'none';
+            this.classList.remove('expanded');
+            this.classList.add('collapsed');
+          }
+        }
+      });
     });
 
     // ── Init: URL > localStorage, then apply ───────────────────────
@@ -6064,9 +6498,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <tr data-id="core::ops::range::RangeToInclusive::get_unchecked" data-type="method" data-module="core::ops::range::RangeToInclusive" data-api="get_unchecked" data-safety="1"><td>5622</td><td><code>core::ops::range::RangeToInclusive</code></td><td><a href="https://doc.rust-lang.org/nightly/core/ops/range/struct.RangeToInclusive.html#method.get_unchecked"><code>get_unchecked</code></a></td><td>method</td><td><p>Calling this method with an out-of-bounds index or a dangling <code>slice</code> pointer is <em>[undefined behavior]</em> even if the resulting pointer is not used.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 <tr data-id="core::ops::range::RangeToInclusive::get_unchecked_mut" data-type="method" data-module="core::ops::range::RangeToInclusive" data-api="get_unchecked_mut" data-safety="1"><td>5623</td><td><code>core::ops::range::RangeToInclusive</code></td><td><a href="https://doc.rust-lang.org/nightly/core/ops/range/struct.RangeToInclusive.html#method.get_unchecked_mut"><code>get_unchecked_mut</code></a></td><td>method</td><td><p>Calling this method with an out-of-bounds index or a dangling <code>slice</code> pointer is <em>[undefined behavior]</em> even if the resulting pointer is not used.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 <tr data-id="core::option::Option::unwrap_unchecked" data-type="method" data-module="core::option::Option" data-api="unwrap_unchecked" data-safety="1"><td>5624</td><td><code>core::option::Option</code></td><td><a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap_unchecked"><code>unwrap_unchecked</code></a></td><td>method</td><td><p>Calling this method on <code>None</code> is <em>[undefined behavior]</em>.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
-<tr data-id="core::pin::PinCoerceUnsized" data-type="trait" data-module="core::pin" data-api="PinCoerceUnsized" data-safety="1"><td>5625</td><td><code>core::pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/trait.PinCoerceUnsized.html"><code>PinCoerceUnsized</code></a></td><td>trait</td><td><p>Given a pointer of this type, the concrete type returned by its <code>deref</code> method and (if it implements <code>DerefMut</code>) its <code>deref_mut</code> method must be the same type and must not change without a modification. The following operations are not considered modifications:</p>
-<ul><li>Moving the pointer.</li><li>Performing unsizing coercions on the pointer.</li><li>Performing dynamic dispatch with the pointer.</li><li>Calling <code>deref</code> or <code>deref_mut</code> on the pointer.</li></ul>
-<p>The concrete type of a trait object is the type that the vtable corresponds to. The concrete type of a slice is an array of the same element type and the length specified in the metadata. The concrete type of a sized type is the type itself.</p></td><td>Typed</td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
+<tr data-id="core::pin::PinSafePointer" data-type="trait" data-module="core::pin" data-api="PinSafePointer" data-safety="1"><td>5625</td><td><code>core::pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/trait.PinSafePointer.html"><code>PinSafePointer</code></a></td><td>trait</td><td><p>Types that implement this trait must not provide &quot;malicious&quot; implementations of any safe traits used by <code>Pin</code>.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 <tr data-id="core::pin::Pin::get_unchecked_mut" data-type="method" data-module="core::pin::Pin" data-api="get_unchecked_mut" data-safety="1"><td>5626</td><td><code>core::pin::Pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.get_unchecked_mut"><code>get_unchecked_mut</code></a></td><td>method</td><td><p>This function is unsafe. You must guarantee that you will never move the data out of the mutable reference you receive when you call this function, so that the invariants on the <code>Pin</code> type can be upheld.</p>
 <p>If the underlying data is <code>Unpin</code>, <code>Pin::get_mut</code> should be used instead.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 <tr data-id="core::pin::Pin::into_inner_unchecked" data-type="method" data-module="core::pin::Pin" data-api="into_inner_unchecked" data-safety="1"><td>5627</td><td><code>core::pin::Pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.into_inner_unchecked"><code>into_inner_unchecked</code></a></td><td>method</td><td><p>This function is unsafe. You must guarantee that you will continue to treat the pointer <code>Ptr</code> as pinned after you call this function, so that the invariants on the <code>Pin</code> type can be upheld. If the code using the resulting <code>Ptr</code> does not continue to maintain the pinning invariants that is a violation of the API contract and may lead to undefined behavior in later (safe) operations.</p>
@@ -6077,7 +6509,8 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <tr data-id="core::pin::Pin::map_unchecked_mut" data-type="method" data-module="core::pin::Pin" data-api="map_unchecked_mut" data-safety="1"><td>5629</td><td><code>core::pin::Pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut"><code>map_unchecked_mut</code></a></td><td>method</td><td><p>This function is unsafe. You must guarantee that the data you return will not move so long as the argument value does not move (for example, because it is one of the fields of that value), and also that you do not move out of the argument you receive to the interior function.</p></td><td></td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 <tr data-id="core::pin::Pin::new_unchecked" data-type="method" data-module="core::pin::Pin" data-api="new_unchecked" data-safety="1"><td>5630</td><td><code>core::pin::Pin</code></td><td><a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.new_unchecked"><code>new_unchecked</code></a></td><td>method</td><td><p>This constructor is unsafe because we cannot guarantee that the data pointed to by <code>pointer</code> is pinned. At its core, pinning a value means making the guarantee that the value&#x27;s data will not be moved nor have its storage invalidated until it gets dropped. For a more thorough explanation of pinning, see the [<code>pin</code> module docs].</p>
 <p>If the caller that is constructing this <code>Pin&lt;Ptr&gt;</code> does not ensure that the data <code>Ptr</code> points to is pinned, that is a violation of the API contract and may lead to undefined behavior in later (even safe) operations.</p>
-<p>By using this method, you are also making a promise about the <code>Deref</code>, <code>DerefMut</code>, and <code>Drop</code> implementations of <code>Ptr</code>, if they exist. Most importantly, they must not move out of their <code>self</code> arguments: <code>Pin::as_mut</code> and <code>Pin::as_ref</code> will call <code>DerefMut::deref_mut</code> and <code>Deref::deref</code> <em>on the pointer type <code>Ptr</code></em> and expect these methods to uphold the pinning invariants. Moreover, by calling this method you promise that the reference <code>Ptr</code> dereferences to will not be moved out of again; in particular, it must not be possible to obtain a <code>&amp;mut Ptr::Target</code> and then move out of that reference (using, for example <code>mem::swap</code>).</p>
+<p>By using this method, you are also making a promise about several trait implementations of <code>Ptr</code> itself, if they exist. Most importantly, they must not move out of their <code>self</code> arguments: <code>Pin::as_mut</code> and <code>Pin::as_ref</code> will call <code>DerefMut::deref_mut</code> and <code>Deref::deref</code> <em>on the pointer type <code>Ptr</code></em> and expect these methods to uphold the pinning invariants. These requirements are specified in more detail on the <code>PinSafePointer</code> trait, and <code>Ptr</code> must abide by the safety requirements of that trait.</p>
+<p>Moreover, by calling this method you promise that the reference <code>Ptr</code> dereferences to will not be moved out of again; in particular, it must not be possible to obtain a <code>&amp;mut Ptr::Target</code> and then move out of that reference (using, for example <code>mem::swap</code>).</p>
 <p>For example, calling <code>Pin::new_unchecked</code> on an <code>&amp;&#x27;a mut T</code> is unsafe because while you are able to pin it for the given lifetime <code>&#x27;a</code>, you have no control over whether it is kept pinned once <code>&#x27;a</code> ends, and therefore cannot uphold the guarantee that a value, once pinned, remains pinned until it is dropped:</p>
 <p>``` use std::mem; use std::pin::Pin;</p>
 <p>fn move_pinned_ref&lt;T&gt;(mut a: T, mut b: T) { unsafe { let p: Pin&lt;&amp;mut T&gt; = Pin::new_unchecked(&amp;mut a); // This should mean the pointee <code>a</code> can never move again. } mem::swap(&amp;mut a, &amp;mut b); // Potential UB down the road ⚠️ // The address of <code>a</code> changed to <code>b</code>&#x27;s stack slot, so <code>a</code> got moved even // though we have previously pinned it! We have violated the pinning API contract. } ``<code> A value, once pinned, must remain pinned until it is dropped (unless its type implements </code>Unpin<code>). Because </code>Pin&lt;&amp;mut T&gt;<code> does not own the value, dropping the </code>Pin<code> will not drop the value and will not end the pinning contract. So moving the value after dropping the </code>Pin&lt;&amp;mut T&gt;` is still a violation of the API contract.</p>
@@ -6751,6 +7184,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <tr data-id="std::usize::unchecked_sub" data-type="method" data-module="std::usize" data-api="unchecked_sub" data-safety="1"><td>6069</td><td><code>std::usize</code></td><td><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html#method.unchecked_sub"><code>unchecked_sub</code></a></td><td>method</td><td><p>This results in undefined behavior when <code>self - rhs &lt; usize::MIN</code>, i.e. when <code>checked_sub</code> would return <code>None</code>.</p></td><td>Unwrap</td><td class="confirm-cell"><input type="checkbox" class="confirm-cb" aria-label="Confirmed"></td></tr>
 </tbody>
 </table>
+</div>
 </div>
 </div>
 </body>
