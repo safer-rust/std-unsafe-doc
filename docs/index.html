@@ -58,29 +58,84 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::alloc">&#9662;</span>
-<span class="tree-node" data-module="core::alloc">alloc <span class="tree-count">(11)</span></span>
+<span class="tree-node" data-module="core::alloc">alloc <span class="tree-count">(14)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::alloc::global">&#9662;</span>
+<span class="tree-node" data-module="core::alloc::global">global <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::alloc::global::GlobalAlloc">GlobalAlloc <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::alloc::layout">&#9662;</span>
+<span class="tree-node" data-module="core::alloc::layout">layout <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::alloc::layout::Layout">Layout <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::alloc::Allocator">Allocator <span class="tree-count">(4)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::array">&#9662;</span>
-<span class="tree-node" data-module="core::array">array <span class="tree-count">(1)</span></span>
+<span class="tree-node" data-module="core::array">array <span class="tree-count">(2)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::array::iter">&#9662;</span>
+<span class="tree-node" data-module="core::array::iter">iter <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::array::iter::IntoIter">IntoIter <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::ascii">&#9662;</span>
 <span class="tree-node" data-module="core::ascii">ascii <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ascii::ascii_char">&#9662;</span>
+<span class="tree-node" data-module="core::ascii::ascii_char">ascii_char <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::ascii::ascii_char::AsciiChar">AsciiChar <span class="tree-count">(4)</span></span></li>
 </ul>
 </li>
-<li><span class="tree-node" data-module="core::cell">cell <span class="tree-count">(1)</span></span></li>
-<li><span class="tree-node" data-module="core::clone">clone <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::bstr">&#9662;</span>
+<span class="tree-node" data-module="core::bstr">bstr <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::bstr::ByteStr">ByteStr <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::cell">&#9662;</span>
+<span class="tree-node" data-module="core::cell">cell <span class="tree-count">(5)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::cell::RefCell">RefCell <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::cell::UnsafeCell">UnsafeCell <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::clone">&#9662;</span>
+<span class="tree-node" data-module="core::clone">clone <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::clone::CloneToUninit">CloneToUninit <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::convert">&#9662;</span>
 <span class="tree-node" data-module="core::convert">convert <span class="tree-count">(1)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::convert::num">&#9662;</span>
+<span class="tree-node" data-module="core::convert::num">num <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::convert::num::CheckedCastFromInt">CheckedCastFromInt <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
@@ -91,42 +146,201 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="core::core_arch::aarch64">&#9662;</span>
 <span class="tree-node" data-module="core::core_arch::aarch64">aarch64 <span class="tree-count">(1411)</span></span>
 <ul>
-<li><span class="tree-node" data-module="core::core_arch::aarch64::neon">neon <span class="tree-count">(4)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::aarch64::neon">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::aarch64::neon">neon <span class="tree-count">(242)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::neon::generated">generated <span class="tree-count">(238)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::aarch64::sve">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::aarch64::sve">sve <span class="tree-count">(924)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::sve::generated">generated <span class="tree-count">(924)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::aarch64::sve2">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::aarch64::sve2">sve2 <span class="tree-count">(236)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::aarch64::sve2::generated">generated <span class="tree-count">(236)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::core_arch::aarch64::mte">mte <span class="tree-count">(6)</span></span></li>
 <li><span class="tree-node" data-module="core::core_arch::aarch64::prefetch">prefetch <span class="tree-count">(1)</span></span></li>
 <li><span class="tree-node" data-module="core::core_arch::aarch64::rand">rand <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
 <li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::arm">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::arm">arm <span class="tree-count">(41)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::arm::dsp">dsp <span class="tree-count">(15)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm::sat">sat <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm::simd32">simd32 <span class="tree-count">(24)</span></span></li>
+</ul>
+</li>
+<li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::arm_shared">&#9662;</span>
 <span class="tree-node" data-module="core::core_arch::arm_shared">arm_shared <span class="tree-count">(560)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::arm_shared::neon">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::arm_shared::neon">neon <span class="tree-count">(548)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::neon::generated">generated <span class="tree-count">(547)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::neon::uint16x4_t">uint16x4_t <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::arm_shared::sealed">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::arm_shared::sealed">sealed <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::sealed::Dmb">Dmb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::sealed::Dsb">Dsb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::arm_shared::sealed::Isb">Isb <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::core_arch::arm_shared::barrier">barrier <span class="tree-count">(3)</span></span></li>
 <li><span class="tree-node" data-module="core::core_arch::arm_shared::hints">hints <span class="tree-count">(6)</span></span></li>
 </ul>
 </li>
 <li>
-<span class="tree-toggle expanded" data-toggle="core::core_arch::loongarch64">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::loongarch64">loongarch64 <span class="tree-count">(24)</span></span>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::hexagon">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::hexagon">hexagon <span class="tree-count">(1853)</span></span>
 <ul>
+<li><span class="tree-node" data-module="core::core_arch::hexagon::scalar">scalar <span class="tree-count">(901)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::hexagon::v128">v128 <span class="tree-count">(476)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::hexagon::v64">v64 <span class="tree-count">(476)</span></span></li>
 </ul>
 </li>
-<li><span class="tree-node" data-module="core::core_arch::nvptx">nvptx <span class="tree-count">(18)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::loongarch64">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::loongarch64">loongarch64 <span class="tree-count">(34)</span></span>
+<ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::loongarch64::lasx">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::loongarch64::lasx">lasx <span class="tree-count">(12)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::loongarch64::lasx::generated">generated <span class="tree-count">(8)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::loongarch64::lasx::portable">portable <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::loongarch64::lsx">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::loongarch64::lsx">lsx <span class="tree-count">(12)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::loongarch64::lsx::generated">generated <span class="tree-count">(8)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::loongarch64::lsx::portable">portable <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::nvptx">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::nvptx">nvptx <span class="tree-count">(27)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::nvptx::packed">packed <span class="tree-count">(9)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::powerpc">powerpc <span class="tree-count">(191)</span></span>
+<span class="tree-node" data-module="core::core_arch::powerpc">powerpc <span class="tree-count">(192)</span></span>
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::altivec">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::powerpc::altivec">altivec <span class="tree-count">(75)</span></span>
+<span class="tree-node" data-module="core::core_arch::powerpc::altivec">altivec <span class="tree-count">(185)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::altivec::sealed">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed">sealed <span class="tree-count">(71)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAbs">VectorAbs <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAbss">VectorAbss <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAdd">VectorAdd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAdde">VectorAdde <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAdds">VectorAdds <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAllEq">VectorAllEq <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAllGe">VectorAllGe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAllGt">VectorAllGt <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAllNe">VectorAllNe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAnd">VectorAnd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAndc">VectorAndc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAnyEq">VectorAnyEq <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAnyGe">VectorAnyGe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAnyGt">VectorAnyGt <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAnyNe">VectorAnyNe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorAvg">VectorAvg <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorCmpEq">VectorCmpEq <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorCmpGt">VectorCmpGt <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorCmpNe">VectorCmpNe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorCntlz">VectorCntlz <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorCtf">VectorCtf <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorExtract">VectorExtract <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorInsert">VectorInsert <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorLd">VectorLd <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorLde">VectorLde <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMax">VectorMax <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMergeh">VectorMergeh <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMergel">VectorMergel <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMin">VectorMin <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMladd">VectorMladd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMsum">VectorMsum <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMsums">VectorMsums <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMul">VectorMul <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMule">VectorMule <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorMulo">VectorMulo <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorNand">VectorNand <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorNeg">VectorNeg <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorNor">VectorNor <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorOr">VectorOr <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorOrc">VectorOrc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorPack">VectorPack <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorPacks">VectorPacks <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorPacksu">VectorPacksu <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorPerm">VectorPerm <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorRl">VectorRl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorRound">VectorRound <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSel">VectorSel <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSl">VectorSl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSld">VectorSld <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSll">VectorSll <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSlo">VectorSlo <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSplat">VectorSplat <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSplats">VectorSplats <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSr">VectorSr <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSra">VectorSra <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSrl">VectorSrl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSro">VectorSro <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSt">VectorSt <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSte">VectorSte <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSub">VectorSub <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSubc">VectorSubc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSubs">VectorSubs <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorSum4s">VectorSum4s <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorUnpackh">VectorUnpackh <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorUnpackl">VectorUnpackl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorXl">VectorXl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorXor">VectorXor <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::sealed::VectorXst">VectorXst <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::core_arch::powerpc::altivec::endian">endian <span class="tree-count">(4)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::vsx">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::powerpc::vsx">vsx <span class="tree-count">(3)</span></span>
+<span class="tree-node" data-module="core::core_arch::powerpc::vsx">vsx <span class="tree-count">(6)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc::vsx::sealed">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc::vsx::sealed">sealed <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::vsx::sealed::VectorMergeEo">VectorMergeEo <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc::vsx::sealed::VectorPermDI">VectorPermDI <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -137,8 +351,16 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc64::vsx">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::powerpc64::vsx">vsx <span class="tree-count">(2)</span></span>
+<span class="tree-node" data-module="core::core_arch::powerpc64::vsx">vsx <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::powerpc64::vsx::sealed">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::powerpc64::vsx::sealed">sealed <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::powerpc64::vsx::sealed::VectorXloads">VectorXloads <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::powerpc64::vsx::sealed::VectorXstores">VectorXstores <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -149,10 +371,168 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_arch::s390x::vector">&#9662;</span>
-<span class="tree-node" data-module="core::core_arch::s390x::vector">vector <span class="tree-count">(130)</span></span>
+<span class="tree-node" data-module="core::core_arch::s390x::vector">vector <span class="tree-count">(326)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::s390x::vector::sealed">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::s390x::vector::sealed">sealed <span class="tree-count">(130)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::CountBits">CountBits <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorAbs">VectorAbs <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorAdd">VectorAdd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorAnd">VectorAnd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorAndc">VectorAndc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorAvg">VectorAvg <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorCeil">VectorCeil <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorCompare">VectorCompare <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorComparePredicate">VectorComparePredicate <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorCompareRange">VectorCompareRange <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorCopyUntilZero">VectorCopyUntilZero <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorCopyUntilZeroCC">VectorCopyUntilZeroCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorDouble">VectorDouble <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorEquality">VectorEquality <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorEqualityIdx">VectorEqualityIdx <span class="tree-count">(8)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorEqv">VectorEqv <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorExtendSigned64">VectorExtendSigned64 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorExtract">VectorExtract <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEq">VectorFindAnyEq <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEqCC">VectorFindAnyEqCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEqIdx">VectorFindAnyEqIdx <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEqIdxCC">VectorFindAnyEqIdxCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEqOrZeroIdx">VectorFindAnyEqOrZeroIdx <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyEqOrZeroIdxCC">VectorFindAnyEqOrZeroIdxCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNe">VectorFindAnyNe <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNeCC">VectorFindAnyNeCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNeIdx">VectorFindAnyNeIdx <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNeIdxCC">VectorFindAnyNeIdxCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNeOrZeroIdx">VectorFindAnyNeOrZeroIdx <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFindAnyNeOrZeroIdxCC">VectorFindAnyNeOrZeroIdxCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFloat">VectorFloat <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFloor">VectorFloor <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorFpTestDataClass">VectorFpTestDataClass <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorGatherElement">VectorGatherElement <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorGfmsum">VectorGfmsum <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorGfmsumAccum">VectorGfmsumAccum <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorInsert">VectorInsert <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorInsertAndZero">VectorInsertAndZero <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorLoad">VectorLoad <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorLoadPair">VectorLoadPair <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMadd">VectorMadd <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMax">VectorMax <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMeadd">VectorMeadd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMergeh">VectorMergeh <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMergel">VectorMergel <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMhadd">VectorMhadd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMin">VectorMin <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMladd">VectorMladd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMoadd">VectorMoadd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMul">VectorMul <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMule">VectorMule <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMulh">VectorMulh <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorMulo">VectorMulo <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNabs">VectorNabs <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNand">VectorNand <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNeg">VectorNeg <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNmadd">VectorNmadd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNmsub">VectorNmsub <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorNor">VectorNor <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorOr">VectorOr <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorOrc">VectorOrc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPack">VectorPack <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPacks">VectorPacks <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPacksCC">VectorPacksCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPacksu">VectorPacksu <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPacksuCC">VectorPacksuCC <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPerm">VectorPerm <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorPromote">VectorPromote <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRevb">VectorRevb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorReve">VectorReve <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRint">VectorRint <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRl">VectorRl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRli">VectorRli <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRound">VectorRound <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorRoundc">VectorRoundc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSearchString">VectorSearchString <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSel">VectorSel <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSigned">VectorSigned <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSl">VectorSl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSlb">VectorSlb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSld">VectorSld <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSll">VectorSll <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSplat">VectorSplat <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSplats">VectorSplats <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSqrt">VectorSqrt <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSr">VectorSr <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSra">VectorSra <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSrab">VectorSrab <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSral">VectorSral <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSrb">VectorSrb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSrdb">VectorSrdb <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSrl">VectorSrl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorStore">VectorStore <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSub">VectorSub <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSubc">VectorSubc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSum2">VectorSum2 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSum4">VectorSum4 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorSumU128">VectorSumU128 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorTestMask">VectorTestMask <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorTrunc">VectorTrunc <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorUnpackh">VectorUnpackh <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorUnpackl">VectorUnpackl <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorUnsigned">VectorUnsigned <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::s390x::vector::sealed::VectorXor">VectorXor <span class="tree-count">(1)</span></span></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::wasm32">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::wasm32">wasm32 <span class="tree-count">(25)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::wasm32::atomic">atomic <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::wasm32::simd128">simd128 <span class="tree-count">(22)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::x86">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::x86">x86 <span class="tree-count">(559)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx">avx <span class="tree-count">(30)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx2">avx2 <span class="tree-count">(41)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512bw">avx512bw <span class="tree-count">(47)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512dq">avx512dq <span class="tree-count">(5)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512f">avx512f <span class="tree-count">(290)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512fp16">avx512fp16 <span class="tree-count">(17)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512vbmi2">avx512vbmi2 <span class="tree-count">(18)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avx512vp2intersect">avx512vp2intersect <span class="tree-count">(6)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::avxneconvert">avxneconvert <span class="tree-count">(12)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::bt">bt <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::clflushopt">clflushopt <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::fxsr">fxsr <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::kl">kl <span class="tree-count">(11)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::rdtsc">rdtsc <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::rtm">rtm <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::sse">sse <span class="tree-count">(23)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::sse2">sse2 <span class="tree-count">(33)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::sse3">sse3 <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::sse41">sse41 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::sse4a">sse4a <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86::xsave">xsave <span class="tree-count">(8)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_arch::x86_64">&#9662;</span>
+<span class="tree-node" data-module="core::core_arch::x86_64">x86_64 <span class="tree-count">(75)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::amx">amx <span class="tree-count">(57)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::bt">bt <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::cmpxchg16b">cmpxchg16b <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::fxsr">fxsr <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::movrs">movrs <span class="tree-count">(4)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::sse2">sse2 <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::core_arch::x86_64::xsave">xsave <span class="tree-count">(6)</span></span></li>
 </ul>
 </li>
 <li><span class="tree-node" data-module="core::core_arch::amdgpu">amdgpu <span class="tree-count">(21)</span></span></li>
@@ -167,7 +547,13 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="core::core_simd">&#9662;</span>
 <span class="tree-node" data-module="core::core_simd">core_simd <span class="tree-count">(18)</span></span>
 <ul>
-<li><span class="tree-node" data-module="core::core_simd::masks">masks <span class="tree-count">(1)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd::masks">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd::masks">masks <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_simd::masks::Mask">Mask <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::core_simd::simd">&#9662;</span>
 <span class="tree-node" data-module="core::core_simd::simd">simd <span class="tree-count">(1)</span></span>
@@ -176,25 +562,74 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="core::core_simd::simd::num">&#9662;</span>
 <span class="tree-node" data-module="core::core_simd::simd::num">num <span class="tree-count">(1)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd::simd::num::float">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd::simd::num::float">float <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_simd::simd::num::float::SimdFloat">SimdFloat <span class="tree-count">(1)</span></span></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><span class="tree-node" data-module="core::core_simd::vector">vector <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::core_simd::vector">&#9662;</span>
+<span class="tree-node" data-module="core::core_simd::vector">vector <span class="tree-count">(12)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::core_simd::vector::Simd">Simd <span class="tree-count">(11)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::core_simd::cast">cast <span class="tree-count">(1)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::ffi">&#9662;</span>
-<span class="tree-node" data-module="core::ffi">ffi <span class="tree-count">(4)</span></span>
+<span class="tree-node" data-module="core::ffi">ffi <span class="tree-count">(5)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ffi::c_str">&#9662;</span>
+<span class="tree-node" data-module="core::ffi::c_str">c_str <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::ffi::c_str::CStr">CStr <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ffi::va_list">&#9662;</span>
+<span class="tree-node" data-module="core::ffi::va_list">va_list <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::ffi::va_list::VaList">VaList <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::index">&#9662;</span>
+<span class="tree-node" data-module="core::index">index <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::index::Clamp">Clamp <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::index::Last">Last <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::intrinsics">&#9662;</span>
-<span class="tree-node" data-module="core::intrinsics">intrinsics <span class="tree-count">(85)</span></span>
+<span class="tree-node" data-module="core::intrinsics">intrinsics <span class="tree-count">(155)</span></span>
 <ul>
-<li><span class="tree-node" data-module="core::intrinsics::simd">simd <span class="tree-count">(75)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::intrinsics::fallback">&#9662;</span>
+<span class="tree-node" data-module="core::intrinsics::fallback">fallback <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::intrinsics::fallback::DisjointBitOr">DisjointBitOr <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::intrinsics::fallback::FunnelShift">FunnelShift <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::intrinsics::simd">&#9662;</span>
+<span class="tree-node" data-module="core::intrinsics::simd">simd <span class="tree-count">(80)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::intrinsics::simd::scalable">scalable <span class="tree-count">(5)</span></span></li>
+</ul>
+</li>
 <li><span class="tree-node" data-module="core::intrinsics::bounds">bounds <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
@@ -202,63 +637,205 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="core::io">&#9662;</span>
 <span class="tree-node" data-module="core::io">io <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::io::borrowed_buf">&#9662;</span>
+<span class="tree-node" data-module="core::io::borrowed_buf">borrowed_buf <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::io::borrowed_buf::BorrowedBuf">BorrowedBuf <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="core::io::borrowed_buf::BorrowedCursor">BorrowedCursor <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::iter">&#9662;</span>
-<span class="tree-node" data-module="core::iter">iter <span class="tree-count">(2)</span></span>
+<span class="tree-node" data-module="core::iter">iter <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::iter::range">&#9662;</span>
+<span class="tree-node" data-module="core::iter::range">range <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::iter::range::Step">Step <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::mem">&#9662;</span>
-<span class="tree-node" data-module="core::mem">mem <span class="tree-count">(11)</span></span>
+<span class="tree-node" data-module="core::mem">mem <span class="tree-count">(21)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::mem::alignment">&#9662;</span>
+<span class="tree-node" data-module="core::mem::alignment">alignment <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::mem::alignment::Alignment">Alignment <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::mem::manually_drop">&#9662;</span>
+<span class="tree-node" data-module="core::mem::manually_drop">manually_drop <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::mem::manually_drop::ManuallyDrop">ManuallyDrop <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::mem::maybe_uninit">&#9662;</span>
+<span class="tree-node" data-module="core::mem::maybe_uninit">maybe_uninit <span class="tree-count">(6)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::mem::maybe_uninit::MaybeUninit">MaybeUninit <span class="tree-count">(6)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::mem::transmutability">&#9662;</span>
+<span class="tree-node" data-module="core::mem::transmutability">transmutability <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::mem::transmutability::TransmuteFrom">TransmuteFrom <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::net">&#9662;</span>
 <span class="tree-node" data-module="core::net">net <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::net::ip_addr">&#9662;</span>
+<span class="tree-node" data-module="core::net::ip_addr">ip_addr <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::net::ip_addr::Ipv4Addr">Ipv4Addr <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::net::ip_addr::Ipv6Addr">Ipv6Addr <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::num">&#9662;</span>
-<span class="tree-node" data-module="core::num">num <span class="tree-count">(6)</span></span>
+<span class="tree-node" data-module="core::num">num <span class="tree-count">(7)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::num::nonzero">&#9662;</span>
+<span class="tree-node" data-module="core::num::nonzero">nonzero <span class="tree-count">(6)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::num::nonzero::NonZero">NonZero <span class="tree-count">(6)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::ops">&#9662;</span>
-<span class="tree-node" data-module="core::ops">ops <span class="tree-count">(14)</span></span>
+<span class="tree-node" data-module="core::ops">ops <span class="tree-count">(15)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ops::range">&#9662;</span>
+<span class="tree-node" data-module="core::ops::range">range <span class="tree-count">(14)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::ops::range::Bound">Bound <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::Range">Range <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::RangeFrom">RangeFrom <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::RangeFull">RangeFull <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::RangeInclusive">RangeInclusive <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::RangeTo">RangeTo <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::ops::range::RangeToInclusive">RangeToInclusive <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
-<li><span class="tree-node" data-module="core::pin">pin <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::option">&#9662;</span>
+<span class="tree-node" data-module="core::option">option <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::option::Option">Option <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::pin">&#9662;</span>
+<span class="tree-node" data-module="core::pin">pin <span class="tree-count">(6)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::pin::Pin">Pin <span class="tree-count">(5)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::prelude">&#9662;</span>
+<span class="tree-node" data-module="core::prelude">prelude <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::prelude::v1">v1 <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::ptr">&#9662;</span>
-<span class="tree-node" data-module="core::ptr">ptr <span class="tree-count">(32)</span></span>
+<span class="tree-node" data-module="core::ptr">ptr <span class="tree-count">(45)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::ptr::non_null">&#9662;</span>
+<span class="tree-node" data-module="core::ptr::non_null">non_null <span class="tree-count">(32)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::ptr::non_null::NonNull">NonNull <span class="tree-count">(32)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::range">&#9662;</span>
+<span class="tree-node" data-module="core::range">range <span class="tree-count">(8)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::range::Range">Range <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::range::RangeFrom">RangeFrom <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::range::RangeInclusive">RangeInclusive <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::range::RangeToInclusive">RangeToInclusive <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::result">&#9662;</span>
+<span class="tree-node" data-module="core::result">result <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::result::Result">Result <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::slice">&#9662;</span>
-<span class="tree-node" data-module="core::slice">slice <span class="tree-count">(2)</span></span>
+<span class="tree-node" data-module="core::slice">slice <span class="tree-count">(23)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::slice::index">&#9662;</span>
+<span class="tree-node" data-module="core::slice::index">index <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::slice::index::SliceIndex">SliceIndex <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
-<li><span class="tree-node" data-module="core::str">str <span class="tree-count">(14)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::str">&#9662;</span>
+<span class="tree-node" data-module="core::str">str <span class="tree-count">(16)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::str::pattern">pattern <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::sync">&#9662;</span>
 <span class="tree-node" data-module="core::sync">sync <span class="tree-count">(2)</span></span>
 <ul>
-<li><span class="tree-node" data-module="core::sync::atomic">atomic <span class="tree-count">(1)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::sync::atomic">&#9662;</span>
+<span class="tree-node" data-module="core::sync::atomic">atomic <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::sync::atomic::Atomic">Atomic <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::task">&#9662;</span>
 <span class="tree-node" data-module="core::task">task <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="core::task::wake">&#9662;</span>
+<span class="tree-node" data-module="core::task::wake">wake <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="core::task::wake::LocalWaker">LocalWaker <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="core::task::wake::Waker">Waker <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><span class="tree-node" data-module="core::bool">bool <span class="tree-count">(1)</span></span></li>
@@ -290,15 +867,58 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="alloc">&#9662;</span>
 <span class="tree-node" data-module="alloc">alloc <span class="tree-count">(73)</span></span>
 <ul>
-<li><span class="tree-node" data-module="alloc::alloc">alloc <span class="tree-count">(4)</span></span></li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::alloc">&#9662;</span>
+<span class="tree-node" data-module="alloc::alloc">alloc <span class="tree-count">(8)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::alloc::Global">Global <span class="tree-count">(4)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::boxed">&#9662;</span>
+<span class="tree-node" data-module="alloc::boxed">boxed <span class="tree-count">(10)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::boxed::Box">Box <span class="tree-count">(10)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::bstr">&#9662;</span>
+<span class="tree-node" data-module="alloc::bstr">bstr <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::bstr::ByteString">ByteString <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 <li>
 <span class="tree-toggle expanded" data-toggle="alloc::collections">&#9662;</span>
 <span class="tree-node" data-module="alloc::collections">collections <span class="tree-count">(12)</span></span>
 <ul>
 <li>
+<span class="tree-toggle expanded" data-toggle="alloc::collections::binary_heap">&#9662;</span>
+<span class="tree-node" data-module="alloc::collections::binary_heap">binary_heap <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::collections::binary_heap::BinaryHeap">BinaryHeap <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
 <span class="tree-toggle expanded" data-toggle="alloc::collections::btree">&#9662;</span>
 <span class="tree-node" data-module="alloc::collections::btree">btree <span class="tree-count">(10)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::collections::btree::map">&#9662;</span>
+<span class="tree-node" data-module="alloc::collections::btree::map">map <span class="tree-count">(5)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::collections::btree::map::CursorMut">CursorMut <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="alloc::collections::btree::map::CursorMutKey">CursorMutKey <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::collections::btree::set">&#9662;</span>
+<span class="tree-node" data-module="alloc::collections::btree::set">set <span class="tree-count">(5)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::collections::btree::set::CursorMut">CursorMut <span class="tree-count">(3)</span></span></li>
+<li><span class="tree-node" data-module="alloc::collections::btree::set::CursorMutKey">CursorMutKey <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -307,6 +927,43 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="alloc::ffi">&#9662;</span>
 <span class="tree-node" data-module="alloc::ffi">ffi <span class="tree-count">(3)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::ffi::c_str">&#9662;</span>
+<span class="tree-node" data-module="alloc::ffi::c_str">c_str <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::ffi::c_str::CString">CString <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::rc">&#9662;</span>
+<span class="tree-node" data-module="alloc::rc">rc <span class="tree-count">(15)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::rc::Rc">Rc <span class="tree-count">(13)</span></span></li>
+<li><span class="tree-node" data-module="alloc::rc::Weak">Weak <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::string">&#9662;</span>
+<span class="tree-node" data-module="alloc::string">string <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::string::String">String <span class="tree-count">(3)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::sync">&#9662;</span>
+<span class="tree-node" data-module="alloc::sync">sync <span class="tree-count">(15)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::sync::Arc">Arc <span class="tree-count">(13)</span></span></li>
+<li><span class="tree-node" data-module="alloc::sync::Weak">Weak <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="alloc::vec">&#9662;</span>
+<span class="tree-node" data-module="alloc::vec">vec <span class="tree-count">(5)</span></span>
+<ul>
+<li><span class="tree-node" data-module="alloc::vec::Vec">Vec <span class="tree-count">(5)</span></span></li>
 </ul>
 </li>
 <li><span class="tree-node" data-module="alloc::str">str <span class="tree-count">(1)</span></span></li>
@@ -317,6 +974,13 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-node" data-module="std">std <span class="tree-count">(202)</span></span>
 <ul>
 <li>
+<span class="tree-toggle expanded" data-toggle="std::alloc">&#9662;</span>
+<span class="tree-node" data-module="std::alloc">alloc <span class="tree-count">(8)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::alloc::System">System <span class="tree-count">(8)</span></span></li>
+</ul>
+</li>
+<li>
 <span class="tree-toggle expanded" data-toggle="std::collections">&#9662;</span>
 <span class="tree-node" data-module="std::collections">collections <span class="tree-count">(1)</span></span>
 <ul>
@@ -324,6 +988,13 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="std::collections::hash">&#9662;</span>
 <span class="tree-node" data-module="std::collections::hash">hash <span class="tree-count">(1)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::collections::hash::map">&#9662;</span>
+<span class="tree-node" data-module="std::collections::hash::map">map <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::collections::hash::map::HashMap">HashMap <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -332,18 +1003,57 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="std::ffi">&#9662;</span>
 <span class="tree-node" data-module="std::ffi">ffi <span class="tree-count">(3)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::ffi::os_str">&#9662;</span>
+<span class="tree-node" data-module="std::ffi::os_str">os_str <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::ffi::os_str::OsStr">OsStr <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="std::ffi::os_str::OsString">OsString <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::fs">&#9662;</span>
+<span class="tree-node" data-module="std::fs">fs <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::fs::Dir">Dir <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::fs::File">File <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="std::io">&#9662;</span>
 <span class="tree-node" data-module="std::io">io <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::io::pipe">&#9662;</span>
+<span class="tree-node" data-module="std::io::pipe">pipe <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::io::pipe::PipeReader">PipeReader <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="std::io::pipe::PipeWriter">PipeWriter <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="std::net">&#9662;</span>
 <span class="tree-node" data-module="std::net">net <span class="tree-count">(6)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::net::tcp">&#9662;</span>
+<span class="tree-node" data-module="std::net::tcp">tcp <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::net::tcp::TcpListener">TcpListener <span class="tree-count">(2)</span></span></li>
+<li><span class="tree-node" data-module="std::net::tcp::TcpStream">TcpStream <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::net::udp">&#9662;</span>
+<span class="tree-node" data-module="std::net::udp">udp <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::net::udp::UdpSocket">UdpSocket <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
@@ -354,12 +1064,35 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="std::os::fd">&#9662;</span>
 <span class="tree-node" data-module="std::os::fd">fd <span class="tree-count">(4)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::fd::owned">&#9662;</span>
+<span class="tree-node" data-module="std::os::fd::owned">owned <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::fd::owned::BorrowedFd">BorrowedFd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::fd::owned::OwnedFd">OwnedFd <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::fd::raw">&#9662;</span>
+<span class="tree-node" data-module="std::os::fd::raw">raw <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::fd::raw::FromRawFd">FromRawFd <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::fd::raw::RawFd">RawFd <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="std::os::linux">&#9662;</span>
 <span class="tree-node" data-module="std::os::linux">linux <span class="tree-count">(1)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::linux::process">&#9662;</span>
+<span class="tree-node" data-module="std::os::linux::process">process <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::linux::process::PidFd">PidFd <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
@@ -370,6 +1103,34 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-toggle expanded" data-toggle="std::os::unix::net">&#9662;</span>
 <span class="tree-node" data-module="std::os::unix::net">net <span class="tree-count">(3)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix::net::datagram">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix::net::datagram">datagram <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::unix::net::datagram::UnixDatagram">UnixDatagram <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix::net::listener">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix::net::listener">listener <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::unix::net::listener::UnixListener">UnixListener <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix::net::stream">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix::net::stream">stream <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::unix::net::stream::UnixStream">UnixStream <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::unix::process">&#9662;</span>
+<span class="tree-node" data-module="std::os::unix::process">process <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::unix::process::CommandExt">CommandExt <span class="tree-count">(2)</span></span></li>
 </ul>
 </li>
 </ul>
@@ -379,15 +1140,69 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <span class="tree-node" data-module="std::os::windows">windows <span class="tree-count">(12)</span></span>
 <ul>
 <li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::ffi">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::ffi">ffi <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::ffi::EncodeWide">EncodeWide <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
 <span class="tree-toggle expanded" data-toggle="std::os::windows::io">&#9662;</span>
 <span class="tree-node" data-module="std::os::windows::io">io <span class="tree-count">(8)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::io::handle">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::io::handle">handle <span class="tree-count">(4)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::io::handle::BorrowedHandle">BorrowedHandle <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::windows::io::handle::HandleOrInvalid">HandleOrInvalid <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::windows::io::handle::HandleOrNull">HandleOrNull <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::windows::io::handle::OwnedHandle">OwnedHandle <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::io::raw">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::io::raw">raw <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::io::raw::FromRawHandle">FromRawHandle <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::windows::io::raw::FromRawSocket">FromRawSocket <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::io::socket">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::io::socket">socket <span class="tree-count">(2)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::io::socket::BorrowedSocket">BorrowedSocket <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::os::windows::io::socket::OwnedSocket">OwnedSocket <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="std::os::windows::net">&#9662;</span>
 <span class="tree-node" data-module="std::os::windows::net">net <span class="tree-count">(2)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::net::listener">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::net::listener">listener <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::net::listener::UnixListener">UnixListener <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::net::stream">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::net::stream">stream <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::net::stream::UnixStream">UnixStream <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::os::windows::process">&#9662;</span>
+<span class="tree-node" data-module="std::os::windows::process">process <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::os::windows::process::ProcThreadAttributeListBuilder">ProcThreadAttributeListBuilder <span class="tree-count">(1)</span></span></li>
 </ul>
 </li>
 </ul>
@@ -395,9 +1210,38 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 </ul>
 </li>
 <li>
+<span class="tree-toggle expanded" data-toggle="std::path">&#9662;</span>
+<span class="tree-node" data-module="std::path">path <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::path::Path">Path <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::process">&#9662;</span>
+<span class="tree-node" data-module="std::process">process <span class="tree-count">(3)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::process::Command">Command <span class="tree-count">(1)</span></span></li>
+<li><span class="tree-node" data-module="std::process::Stdio">Stdio <span class="tree-count">(2)</span></span></li>
+</ul>
+</li>
+<li>
 <span class="tree-toggle expanded" data-toggle="std::thread">&#9662;</span>
 <span class="tree-node" data-module="std::thread">thread <span class="tree-count">(2)</span></span>
 <ul>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::thread::builder">&#9662;</span>
+<span class="tree-node" data-module="std::thread::builder">builder <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::thread::builder::Builder">Builder <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
+<li>
+<span class="tree-toggle expanded" data-toggle="std::thread::thread">&#9662;</span>
+<span class="tree-node" data-module="std::thread::thread">thread <span class="tree-count">(1)</span></span>
+<ul>
+<li><span class="tree-node" data-module="std::thread::thread::Thread">Thread <span class="tree-count">(1)</span></span></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><span class="tree-node" data-module="std::char">char <span class="tree-count">(2)</span></span></li>
