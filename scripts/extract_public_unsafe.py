@@ -23,12 +23,14 @@ import json
 import re
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 TOOLCHAIN = "nightly"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.html"
 RUSTDOC_NIGHTLY_BASE = "https://doc.rust-lang.org/nightly"
+CONTRACTS_URL = "https://raw.githubusercontent.com/safer-rust/RAPx/main/rapx/src/verify/source/assets/std-public-contracts.json"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -1064,6 +1066,19 @@ def write_html(all_items, output_path, rustc_version):
 
     tree_html = _build_module_tree(sorted_items)
 
+    # Fetch auto-detected tags from RAPx contracts
+    auto_tags_lookup = {}
+    try:
+        with urllib.request.urlopen(CONTRACTS_URL, timeout=15) as resp:
+            contracts = json.loads(resp.read())
+        for api_path, entries in contracts.items():
+            tags = sorted(set(e["tag"] for e in entries if e.get("tag") and e["tag"] != "any"))
+            if tags:
+                auto_tags_lookup[api_path] = ", ".join(tags)
+        print(f"  Loaded {len(auto_tags_lookup)} API tags from contracts JSON")
+    except Exception as e:
+        print(f"  Warning: could not load contracts JSON ({e})")
+
     crates_html = ", ".join(f"<code>{c}</code>" for c in CRATES)
 
     lines = [
@@ -1278,6 +1293,9 @@ def write_html(all_items, output_path, rustc_version):
         "          if (tags && data[r.dataset.id + ':t']) {",
         "            tags.value = data[r.dataset.id + ':t'];",
         "            autoResize(tags);",
+        "          } else if (tags && r.dataset.autoTags) {",
+        "            tags.value = r.dataset.autoTags;",
+        "            autoResize(tags);",
         "          }",
         "          if (notes && data[r.dataset.id + ':n']) {",
         "            notes.value = data[r.dataset.id + ':n'];",
@@ -1442,12 +1460,14 @@ def write_html(all_items, output_path, rustc_version):
         kind_cell = html.escape(kind)
         safety_cell = "<br/>".join(markdown_to_html(d) for d in docs)
         has_safety = "1" if any(d for d in docs) else "0"
+        auto_tags = auto_tags_lookup.get(full_path, "")
         data_attrs = (
             f' data-type="{html.escape(kind, quote=True)}"'
             f' data-module="{html.escape(module_path, quote=True)}"'
             f' data-api="{html.escape(api_name, quote=True)}"'
             f' data-safety="{has_safety}"'
             f' data-trait-origin="{html.escape(trait_origin, quote=True)}"'
+            f' data-auto-tags="{html.escape(auto_tags, quote=True)}"'
         )
         lines.append(
             f'<tr data-id="{html.escape(full_path, quote=True)}"{data_attrs}>'
