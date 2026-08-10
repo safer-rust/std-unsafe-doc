@@ -833,6 +833,85 @@ def extract_tags(full_doc: str) -> str:
     return ", ".join(matched)
 
 
+def _build_module_tree(sorted_items):
+    """Build and render the module hierarchy tree as HTML sidebar content."""
+    from collections import defaultdict
+
+    module_counts = defaultdict(int)
+    for (module_path, full_path, kind), (url, docs) in sorted_items:
+        module_counts[module_path] += 1
+
+    all_path_nodes = set()
+    for mp in module_counts:
+        parts = mp.split("::")
+        for i in range(len(parts)):
+            all_path_nodes.add("::".join(parts[:i + 1]))
+
+    root = {}
+    for p in sorted(all_path_nodes):
+        parts = p.split("::")
+        node = root
+        for part in parts:
+            node = node.setdefault(part, {})
+
+    html_parts = []
+
+    total = sum(module_counts.values())
+    html_parts.append(
+        '<li><span class="tree-node tree-node-all selected" data-module="">'
+        f'Show All <span class="tree-count">({total})</span></span></li>'
+    )
+
+    def render(name, children, path_parts):
+        full_path = "::".join(path_parts)
+        count = module_counts.get(full_path, 0)
+
+        has_children = any(children.values())
+
+        if not has_children:
+            if count > 0:
+                return (
+                    f'<li><span class="tree-node" data-module="{html.escape(full_path)}">'
+                    f'{html.escape(name)} <span class="tree-count">({count})</span>'
+                    '</span></li>'
+                )
+            return ""
+
+        lines = ['<li>']
+        lines.append(
+            f'<span class="tree-toggle expanded" data-toggle="{html.escape(full_path)}">'
+            '&#9662;</span>'
+        )
+        if count > 0:
+            lines.append(
+                f'<span class="tree-node" data-module="{html.escape(full_path)}">'
+                f'{html.escape(name)} <span class="tree-count">({count})</span>'
+                '</span>'
+            )
+        else:
+            lines.append(
+                f'<span class="tree-node" data-module="{html.escape(full_path)}">'
+                f'{html.escape(name)}</span>'
+            )
+        lines.append('<ul>')
+        sorted_children = sorted(
+            children.items(), key=lambda x: (not x[1], x[0].lower())
+        )
+        for cname, cdict in sorted_children:
+            child_html = render(cname, cdict, path_parts + [cname])
+            if child_html:
+                lines.append(child_html)
+        lines.append('</ul>')
+        lines.append('</li>')
+        return "\n".join(lines)
+
+    for crate in CRATES:
+        if crate in root:
+            html_parts.append(render(crate, root[crate], [crate]))
+
+    return "\n".join(html_parts)
+
+
 def write_html(all_items, output_path, rustc_version):
     """Write the collected items to a static HTML file.
 
@@ -865,6 +944,8 @@ def write_html(all_items, output_path, rustc_version):
 
     sorted_items = sorted(seen.items(), key=_sort_key)
 
+    tree_html = _build_module_tree(sorted_items)
+
     crates_html = ", ".join(f"<code>{c}</code>" for c in CRATES)
 
     lines = [
@@ -877,7 +958,42 @@ def write_html(all_items, output_path, rustc_version):
         "<style>",
         "* { box-sizing: border-box; }",
         "body { margin: 0; font-family: system-ui, sans-serif; }",
-        ".page-wrap { width: 100%; padding: 16px 24px; }",
+        ".layout { display: flex; height: 100vh; }",
+        ".sidebar {"
+        " width: 280px; flex-shrink: 0;"
+        " border-right: 1px solid #d0d7de;"
+        " overflow-y: auto; padding: 12px;"
+        " background: #f6f8fa;"
+        "}",
+        ".sidebar h3 { margin: 0 0 8px; font-size: 14px; color: #57606a; }",
+        ".tree { list-style: none; padding: 0; margin: 0; font-size: 13px; }",
+        ".tree ul { list-style: none; padding-left: 16px; }",
+        ".tree li { margin: 1px 0; }",
+        ".tree-toggle {"
+        " cursor: pointer; display: inline-block; width: 16px;"
+        " text-align: center; color: #6e7781; user-select: none;"
+        " vertical-align: middle; font-size: 11px;"
+        "}",
+        ".tree-toggle:hover { color: #24292f; }",
+        ".tree-toggle.collapsed {"
+        " transform: rotate(-90deg); display: inline-block;"
+        "}",
+        ".tree-node {"
+        " cursor: pointer; padding: 2px 6px; border-radius: 4px;"
+        " display: inline-block; color: #24292f;"
+        " vertical-align: middle;"
+        "}",
+        ".tree-node:hover { background: #eaeef2; }",
+        ".tree-node.selected { background: #ddf4ff; font-weight: 600; }",
+        ".tree-node-all { font-weight: 600; }",
+        ".tree-count { color: #6e7781; font-size: 0.85em; }",
+        ".main { flex: 1; min-width: 0; overflow-y: auto; padding: 16px 24px; }",
+        "@media (max-width: 768px) {"
+        " .layout { flex-direction: column; }"
+        " .sidebar { width: 100%; max-height: 35vh;"
+        "  border-right: none; border-bottom: 1px solid #d0d7de; }"
+        " .main { overflow-y: visible; }"
+        "}",
         ".unsafe-table-wrap { width: 100%; overflow-x: auto; }",
         ".unsafe-table-wrap table { width: 100%; table-layout: fixed;"
         " border-collapse: collapse; min-width: 600px; }",
@@ -907,7 +1023,14 @@ def write_html(all_items, output_path, rustc_version):
         "</style>",
         "</head>",
         "<body>",
-        '<div class="page-wrap">',
+        '<div class="layout">',
+        '<div class="sidebar">',
+        '<h3>Module Tree</h3>',
+        '<ul class="tree">',
+        tree_html,
+        '</ul>',
+        '</div>',
+        '<div class="main">',
         f"<h1>Public Unsafe APIs \u2014 {TOOLCHAIN} ({html.escape(rustc_version)})</h1>",
         f"<p>Generated from crates: {crates_html}.</p>",
         "",
@@ -980,6 +1103,7 @@ def write_html(all_items, output_path, rustc_version):
         "      var types = [];",
         "      typeCheckboxes.forEach(function (cb) { if (cb.checked) types.push(cb.dataset.type); });",
         "      if (types.length < typeCheckboxes.length) params.set('t', types.join(','));",
+        "      if (selectedModule) params.set('m', selectedModule);",
         "      var url = location.protocol + '//' + location.host + location.pathname;",
         "      var qs = params.toString();",
         "      return qs ? url + '?' + qs : url;",
@@ -1017,6 +1141,14 @@ def write_html(all_items, output_path, rustc_version):
         "      if (params.get('s') === '1') {",
         "        safetyOnly = true;",
         "        document.getElementById('safetyFilter').checked = true;",
+        "      }",
+        "      var mod = params.get('m');",
+        "      if (mod) {",
+        "        selectedModule = mod;",
+        "        var allNodes = document.querySelectorAll('.tree-node');",
+        "        allNodes.forEach(function (n) {",
+        "          n.classList.toggle('selected', n.dataset.module === mod);",
+        "        });",
         "      }",
         "    };",
         "",
@@ -1060,6 +1192,7 @@ def write_html(all_items, output_path, rustc_version):
         "    // ── Filter ────────────────────────────────────────────────────────",
         "    var rows = getRows();",
         "    var safetyOnly = false;",
+        "    var selectedModule = '';",
         "    var typeCounts = rows.reduce(function (acc, r) {",
         "      var t = r.dataset.type || 'unknown';",
         "      acc[t] = (acc[t] || 0) + 1; return acc;",
@@ -1082,7 +1215,8 @@ def write_html(all_items, output_path, rustc_version):
         "        var type = row.dataset.type || '';",
         "        var typeOk = selectedTypes.has(type);",
         "        var safetyOk = !safetyOnly || row.dataset.safety === '0';",
-        "        var show = typeOk && safetyOk;",
+        "        var moduleOk = !selectedModule || row.dataset.module === selectedModule;",
+        "        var show = typeOk && safetyOk && moduleOk;",
         "        row.style.display = show ? '' : 'none';",
         "        if (show) visible += 1;",
         "      }",
@@ -1102,6 +1236,38 @@ def write_html(all_items, output_path, rustc_version):
         "      safetyOnly = this.checked;",
         "      applyFilters();",
         "      updateURL();",
+        "    });",
+        "",
+        "    // ── Module tree ───────────────────────────────────────────────────",
+        "    var treeNodes = document.querySelectorAll('.tree-node');",
+        "    treeNodes.forEach(function (node) {",
+        "      node.addEventListener('click', function (e) {",
+        "        e.stopPropagation();",
+        "        selectedModule = this.dataset.module;",
+        "        treeNodes.forEach(function (n) { n.classList.remove('selected'); });",
+        "        this.classList.add('selected');",
+        "        applyFilters();",
+        "        updateURL();",
+        "      });",
+        "    });",
+        "",
+        "    var treeToggles = document.querySelectorAll('.tree-toggle');",
+        "    treeToggles.forEach(function (toggle) {",
+        "      toggle.addEventListener('click', function (e) {",
+        "        e.stopPropagation();",
+        "        var ul = this.parentElement.querySelector(':scope > ul');",
+        "        if (ul) {",
+        "          if (ul.style.display === 'none') {",
+        "            ul.style.display = '';",
+        "            this.classList.remove('collapsed');",
+        "            this.classList.add('expanded');",
+        "          } else {",
+        "            ul.style.display = 'none';",
+        "            this.classList.remove('expanded');",
+        "            this.classList.add('collapsed');",
+        "          }",
+        "        }",
+        "      });",
         "    });",
         "",
         "    // ── Init: URL > localStorage, then apply ───────────────────────",
@@ -1170,7 +1336,7 @@ def write_html(all_items, output_path, rustc_version):
             f'</tr>'
         )
 
-    lines += ["</tbody>", "</table>", "</div>", "</div>", "</body>", "</html>", ""]
+    lines += ["</tbody>", "</table>", "</div>", "</div>", "</div>", "</body>", "</html>", ""]
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
