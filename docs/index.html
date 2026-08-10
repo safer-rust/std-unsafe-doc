@@ -54,7 +54,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 <li><span class="tree-node tree-node-all selected" data-module="">Show All <span class="tree-count">(6069)</span></span></li>
 <li>
 <span class="tree-toggle expanded" data-toggle="core">&#9662;</span>
-<span class="tree-node" data-module="core">core</span>
+<span class="tree-node" data-module="core">core <span class="tree-count">(5794)</span></span>
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="core::alloc">&#9662;</span>
@@ -288,7 +288,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="alloc">&#9662;</span>
-<span class="tree-node" data-module="alloc">alloc</span>
+<span class="tree-node" data-module="alloc">alloc <span class="tree-count">(73)</span></span>
 <ul>
 <li><span class="tree-node" data-module="alloc::alloc">alloc <span class="tree-count">(4)</span></span></li>
 <li>
@@ -314,7 +314,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 </li>
 <li>
 <span class="tree-toggle expanded" data-toggle="std">&#9662;</span>
-<span class="tree-node" data-module="std">std</span>
+<span class="tree-node" data-module="std">std <span class="tree-count">(202)</span></span>
 <ul>
 <li>
 <span class="tree-toggle expanded" data-toggle="std::collections">&#9662;</span>
@@ -596,7 +596,7 @@ body { margin: 0; font-family: system-ui, sans-serif; }
     Object.keys(typeCounts).sort().forEach(function (type) {
       var label = document.createElement('label');
       label.className = 'type-item';
-      label.innerHTML = '<input type="checkbox" checked data-type="' + type + '" style="margin-right:6px;">' + type + ' (' + typeCounts[type] + ')';
+      label.innerHTML = '<input type="checkbox" checked data-type="' + type + '" style="margin-right:6px;">' + type;
       typeCheckboxes.push(label.querySelector('input'));
       typeFilters.appendChild(label);
     });
