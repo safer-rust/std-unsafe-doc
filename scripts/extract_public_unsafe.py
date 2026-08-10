@@ -875,7 +875,7 @@ def _build_module_tree(sorted_items):
         full_path = "::".join(path_parts)
         count = module_counts.get(full_path, 0)
 
-        has_children = any(children.values())
+        has_children = bool(children)
 
         if not has_children:
             if count > 0:
@@ -886,7 +886,7 @@ def _build_module_tree(sorted_items):
                 )
             return ""
 
-        subtree_total = _subtree_total(children, path_parts)
+        subtree_total = count + _subtree_total(children, path_parts)
 
         if subtree_total == 0:
             return ""
