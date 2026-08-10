@@ -1329,7 +1329,7 @@ def write_html(all_items, output_path, rustc_version):
             f'<td>{api_cell}</td>'
             f'<td>{kind_cell}</td>'
             f'<td>{safety_cell}</td>'
-            f'<td><input type="text" class="tags-input" placeholder="tags"></td>'
+            f'<td><textarea class="tags-input" placeholder="tags" rows="1"></textarea></td>'
             f'<td><input type="text" class="notes-input" placeholder="notes"></td>'
             f'</tr>'
         )
