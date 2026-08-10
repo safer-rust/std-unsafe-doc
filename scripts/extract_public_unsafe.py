@@ -614,13 +614,11 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             continue
         docs = item.get("docs") or ""
         safety_doc = extract_safety_section(docs)
-        if not safety_doc:
-            continue
         if trait_safety_registry is not None:
             trait_path_tuple = tuple(segs[:-1])
             method_name = item.get("name") or ""
             if method_name and trait_path_tuple:
-                trait_safety_registry.setdefault(trait_path_tuple, {})[method_name] = safety_doc
+                trait_safety_registry.setdefault(trait_path_tuple, {})[method_name] = safety_doc or ""
 
     # ── Pass 2: collect all unsafe items ────────────────────────────
     for item_id, item in index.items():
@@ -764,7 +762,25 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             parent_kind=parent_kind,
         )
 
-        items.append((module_path, full_path, display_kind, url, safety_doc))
+        trait_origin = full_path
+        if display_kind == "trait_method":
+            trait_origin = full_path
+        elif impl_info := impl_trait_map.get(item_id):
+            trait_path, _ = impl_info
+            method_name = item.get("name") or ""
+            if trait_path and method_name:
+                trait_origin = "::".join(trait_path) + "::" + method_name
+        elif display_kind == "method" and trait_safety_registry is not None:
+            method_name = item.get("name") or ""
+            if method_name:
+                matches = []
+                for tpath, tmethods in trait_safety_registry.items():
+                    if method_name in tmethods:
+                        matches.append(tpath)
+                if len(matches) == 1:
+                    trait_origin = "::".join(matches[0]) + "::" + method_name
+
+        items.append((module_path, full_path, display_kind, url, safety_doc, trait_origin))
 
     return items
 
@@ -838,7 +854,7 @@ def _build_module_tree(sorted_items):
     from collections import defaultdict
 
     module_counts = defaultdict(int)
-    for (module_path, full_path, kind), (url, docs) in sorted_items:
+    for (module_path, full_path, kind), (_url_docs) in sorted_items:
         module_counts[module_path] += 1
 
     all_path_nodes = set()
@@ -930,19 +946,18 @@ def write_html(all_items, output_path, rustc_version):
     Safety doc content is HTML-escaped to prevent injection.
     Rows are sorted ascending by module path then API name.
     """
-    # Deduplicate: key = (module_path, full_path, kind), value = (url, [safety_docs])
-    seen: dict[tuple[str, str, str], tuple[str, list[str]]] = {}
-    for module_path, full_path, kind, url, safety_doc in all_items:
+    # Deduplicate: key = (module_path, full_path, kind), value = (url, [safety_docs], trait_origin)
+    seen: dict[tuple[str, str, str], tuple[str, list[str], str]] = {}
+    for module_path, full_path, kind, url, safety_doc, trait_origin in all_items:
         key = (module_path, full_path, kind)
         if key not in seen:
-            seen[key] = (url, [safety_doc] if safety_doc else [])
+            seen[key] = (url, [safety_doc] if safety_doc else [], trait_origin)
         else:
-            existing_url, docs = seen[key]
-            # Keep first non-empty URL
+            existing_url, docs, _to = seen[key]
             merged_url = existing_url or url
             if safety_doc and safety_doc not in docs:
                 docs.append(safety_doc)
-            seen[key] = (merged_url, docs)
+            seen[key] = (merged_url, docs, trait_origin)
 
     # Sort by (module_path, api_name) ascending
     def _sort_key(entry):
@@ -1019,6 +1034,7 @@ def write_html(all_items, output_path, rustc_version):
         ".tags-input, .notes-input {"
         " width: 100%; border: 1px solid #d0d7de; border-radius: 4px;"
         " padding: 2px 4px; font-size: 12px; box-sizing: border-box;"
+        " resize: none; overflow: hidden; font-family: inherit;"
         "}",
         ".tags-input:focus, .notes-input:focus {"
         " outline: 2px solid #0969da; outline-offset: -1px;"
@@ -1166,10 +1182,12 @@ def write_html(all_items, output_path, rustc_version):
         "          var notes = r.querySelector('.notes-input');",
         "          if (tags && data[r.dataset.id + ':t']) {",
         "            tags.value = data[r.dataset.id + ':t'];",
+        "            autoResize(tags);",
         "          }",
         "          if (notes && data[r.dataset.id + ':n']) {",
         "            notes.value = data[r.dataset.id + ':n'];",
         "            r.classList.add('row-confirmed');",
+        "            autoResize(notes);",
         "          }",
         "        });",
         "      } catch (e) {}",
@@ -1181,16 +1199,22 @@ def write_html(all_items, output_path, rustc_version):
         "      var notes = row.querySelector('.notes-input');",
         "      if (tags) {",
         "        tags.addEventListener('input', function () {",
+        "          autoResize(this);",
         "          saveData();",
         "        });",
         "      }",
         "      if (notes) {",
         "        notes.addEventListener('input', function () {",
+        "          autoResize(this);",
         "          row.classList.toggle('row-confirmed', notes.value.trim() !== '');",
         "          saveData();",
         "        });",
         "      }",
         "    });",
+        "    function autoResize(ta) {",
+        "      ta.style.height = 'auto';",
+        "      ta.style.height = ta.scrollHeight + 'px';",
+        "    }",
         "",
         "    // ── Filter ────────────────────────────────────────────────────────",
         "    var rows = getRows();",
@@ -1213,7 +1237,7 @@ def write_html(all_items, output_path, rustc_version):
         "",
         "    function applyFilters() {",
         "      var visible = 0;",
-        "      var visibleNeedDocs = 0;",
+        "      var grouped = {};",
         "      for (var r = 0; r < rows.length; r++) {",
         "        var row = rows[r];",
         "        var type = row.dataset.type || '';",
@@ -1222,9 +1246,16 @@ def write_html(all_items, output_path, rustc_version):
         "        var moduleOk = !selectedModule || row.dataset.module === selectedModule || row.dataset.module.indexOf(selectedModule + '::') === 0;",
         "        var show = typeOk && safetyOk && moduleOk;",
         "        row.style.display = show ? '' : 'none';",
-        "        if (show) { visible += 1; if (row.dataset.safety === '0') visibleNeedDocs += 1; }",
+        "        if (show) {",
+        "          visible += 1;",
+        "          var origin = row.dataset.traitOrigin || row.dataset.id;",
+        "          if (grouped[origin] === undefined) grouped[origin] = true;",
+        "          if (row.dataset.safety === '1') grouped[origin] = false;",
+        "        }",
         "      }",
-        "      document.getElementById('summary').textContent = 'Showing ' + visible + ' / ' + rows.length + ' items; ' + visibleNeedDocs + ' APIs need safety docs after grouping trait methods';",
+        "      var needDocs = 0;",
+        "      for (var k in grouped) { if (grouped[k]) needDocs++; }",
+        "      document.getElementById('summary').textContent = 'Showing ' + visible + ' / ' + rows.length + ' items; ' + needDocs + ' APIs need safety docs after grouping trait methods';",
         "    }",
         "",
         "    typeFilters.addEventListener('change', function (event) {",
@@ -1302,7 +1333,7 @@ def write_html(all_items, output_path, rustc_version):
         '<tbody>',
     ]
 
-    for idx, ((module_path, full_path, kind), (url, docs)) in enumerate(sorted_items, 1):
+    for idx, ((module_path, full_path, kind), (url, docs, trait_origin)) in enumerate(sorted_items, 1):
         api_name = full_path.split("::")[-1]
         module_cell = f"<code>{html.escape(module_path)}</code>"
         if url:
@@ -1321,6 +1352,7 @@ def write_html(all_items, output_path, rustc_version):
             f' data-module="{html.escape(module_path, quote=True)}"'
             f' data-api="{html.escape(api_name, quote=True)}"'
             f' data-safety="{has_safety}"'
+            f' data-trait-origin="{html.escape(trait_origin, quote=True)}"'
         )
         lines.append(
             f'<tr data-id="{html.escape(full_path, quote=True)}"{data_attrs}>'
