@@ -874,7 +874,6 @@ def _build_module_tree(sorted_items):
     def render(name, children, path_parts):
         full_path = "::".join(path_parts)
         count = module_counts.get(full_path, 0)
-        is_crate = len(path_parts) == 1
 
         has_children = any(children.values())
 
@@ -887,24 +886,21 @@ def _build_module_tree(sorted_items):
                 )
             return ""
 
-        display_count = _subtree_total(children, path_parts) if is_crate else count
+        subtree_total = _subtree_total(children, path_parts)
+
+        if subtree_total == 0:
+            return ""
 
         lines = ['<li>']
         lines.append(
             f'<span class="tree-toggle expanded" data-toggle="{html.escape(full_path)}">'
             '&#9662;</span>'
         )
-        if display_count > 0:
-            lines.append(
-                f'<span class="tree-node" data-module="{html.escape(full_path)}">'
-                f'{html.escape(name)} <span class="tree-count">({display_count})</span>'
-                '</span>'
-            )
-        else:
-            lines.append(
-                f'<span class="tree-node" data-module="{html.escape(full_path)}">'
-                f'{html.escape(name)}</span>'
-            )
+        lines.append(
+            f'<span class="tree-node" data-module="{html.escape(full_path)}">'
+            f'{html.escape(name)} <span class="tree-count">({subtree_total})</span>'
+            '</span>'
+        )
         lines.append('<ul>')
         sorted_children = sorted(
             children.items(), key=lambda x: (not x[1], x[0].lower())
