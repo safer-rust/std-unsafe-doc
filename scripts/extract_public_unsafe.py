@@ -271,7 +271,7 @@ def rustdoc_nightly_url(
 
     # Method items are rendered on their parent type page:
     # .../struct.Type.html#method.method_name
-    if parent_kind in ("struct", "enum", "trait", "primitive", "union", "type") and len(path_segments) >= 3:
+    if parent_kind in ("struct", "enum", "trait", "primitive", "union", "type", "type_alias") and len(path_segments) >= 3:
         parent_segments = path_segments[:-1]
         parent_name = parent_segments[-1]
         method_name = path_segments[-1]
@@ -283,6 +283,7 @@ def rustdoc_nightly_url(
             "primitive": "primitive",
             "union": "union",
             "type": "type",
+            "type_alias": "type",
         }.get(parent_kind, "")
         if not page_prefix:
             return ""
@@ -332,6 +333,114 @@ def _inner_dict(item):
     """
     inner = item.get("inner")
     return inner if isinstance(inner, dict) else {}
+
+
+def _reachable_item_ids(index, root_raw):
+    """Return the set of item ids publicly reachable from the crate root.
+
+    Mirrors rustdoc's visibility rules: items are reachable when they sit in a
+    public module, or are pulled in via a (named or glob) re-export from one.
+    This excludes ``pub`` items that live in private modules (e.g. the
+    ``sealed`` traits behind the arch intrinsics or ``intrinsics::bounds``),
+    which have no rustdoc page and are not real public API.
+    """
+    from collections import deque
+
+    module_children = {}
+    parent_module = {}
+    container_children = {}
+    use_items = []
+    impl_for_type = {}
+    always_public_impls = set()
+
+    for iid, it in index.items():
+        ik = _inner_dict(it)
+        m = ik.get("module")
+        if isinstance(m, dict):
+            kids = [str(x) for x in (m.get("items") or [])]
+            module_children[iid] = kids
+            for c in kids:
+                parent_module.setdefault(c, iid)
+        else:
+            for ck in ("trait", "impl", "struct", "enum", "union", "type_alias"):
+                c = ik.get(ck)
+                if not isinstance(c, dict):
+                    continue
+                kids = c.get("items") or []
+                if kids:
+                    container_children.setdefault(iid, []).extend(str(x) for x in kids)
+                if ck == "impl":
+                    for_ty = c.get("for")
+                    if isinstance(for_ty, dict) and any(
+                        k in for_ty for k in ("primitive", "raw_pointer", "slice", "array")
+                    ):
+                        always_public_impls.add(iid)
+                    else:
+                        resolved = _find_resolved_path(for_ty)
+                        if resolved is not None:
+                            impl_for_type[iid] = str(resolved[0])
+                break
+        u = ik.get("use")
+        if isinstance(u, dict) and u.get("id") is not None:
+            use_items.append((iid, u))
+
+    glob_reexports = {}
+    named_reexports = {}
+    for iid, u in use_items:
+        src = parent_module.get(iid)
+        if src is None:
+            continue
+        tgt = str(u.get("id"))
+        if u.get("is_glob"):
+            glob_reexports.setdefault(src, []).append(tgt)
+        else:
+            named_reexports.setdefault(src, []).append(tgt)
+
+    reachable = set()
+    queue = deque([str(root_raw)])
+    reachable.add(str(root_raw))
+    while queue:
+        cur = queue.popleft()
+        for child in module_children.get(cur, []):
+            if child not in reachable:
+                reachable.add(child)
+                queue.append(child)
+        for child in container_children.get(cur, []):
+            if child not in reachable:
+                reachable.add(child)
+                queue.append(child)
+        for tgt in named_reexports.get(cur, []):
+            if tgt not in reachable:
+                reachable.add(tgt)
+                queue.append(tgt)
+        for tgt_mod in glob_reexports.get(cur, []):
+            if tgt_mod not in reachable:
+                reachable.add(tgt_mod)
+                queue.append(tgt_mod)
+
+    # Impls (and their methods) are documented when their self type is
+    # reachable.  Built-in self types (primitives, slices, arrays, raw
+    # pointers) are always public.  Iterate to a fixed point since impls are
+    # not module children.
+    for impl_id in always_public_impls:
+        if impl_id not in reachable:
+            reachable.add(impl_id)
+            for mid in container_children.get(impl_id, []):
+                reachable.add(mid)
+
+    changed = True
+    while changed:
+        changed = False
+        for impl_id, for_id in impl_for_type.items():
+            if impl_id in reachable or for_id not in reachable:
+                continue
+            reachable.add(impl_id)
+            for mid in container_children.get(impl_id, []):
+                if mid not in reachable:
+                    reachable.add(mid)
+            changed = True
+
+    return reachable
 
 
 def _method_parent_map(crate, index, paths):
@@ -661,6 +770,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     index = data["index"]
     paths = data["paths"]
     crate = json_path.stem  # filename without .json
+    reachable = _reachable_item_ids(index, data.get("root"))
     method_parents = _method_parent_map(crate, index, paths)
     parent_by_item = _parent_module_path_by_item(index, paths, data.get("root"))
     reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
@@ -683,6 +793,8 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     # still find their trait-method safety doc.
     for item_id, item in index.items():
         if not _is_public_unsafe_fn(item):
+            continue
+        if item_id not in reachable:
             continue
         # Resolve parent path: prefer paths map, fall back to container_parents.
         path_entry = paths.get(item_id)
@@ -712,6 +824,8 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     for item_id, item in index.items():
         visibility = item.get("visibility")
         if visibility not in ("public", "default"):
+            continue
+        if item_id not in reachable:
             continue
 
         inner = _inner_dict(item)
@@ -775,7 +889,13 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
 
         reexport_alts = reexport_by_target.get(item_id)
         if reexport_alts:
-            full_path_segments = list(_shortest_reexport_path(reexport_alts))
+            # Prefer the shortest path among re-exports *and* the definition
+            # path, so items like core::marker::Send aren't shown via a
+            # longer prelude re-export (whose URL rustdoc does not serve).
+            alternatives = [tuple(a) for a in reexport_alts]
+            if full_path_segments:
+                alternatives.append(tuple(full_path_segments))
+            full_path_segments = list(_shortest_reexport_path(alternatives))
 
         if not full_path_segments:
             continue
