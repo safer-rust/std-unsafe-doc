@@ -323,12 +323,22 @@ def _find_resolved_path(node):
     return None
 
 
+def _inner_dict(item):
+    """Return item['inner'] as a dict, or {} if missing or a bare variant name.
+
+    rustdoc JSON format v61+ serializes payload-less variants (e.g. an
+    ``extern_type``) as a bare string instead of ``{"extern_type": {}}``.
+    """
+    inner = item.get("inner")
+    return inner if isinstance(inner, dict) else {}
+
+
 def _method_parent_map(crate, index, paths):
     """Return item_id -> (parent_path_segments, parent_kind) for impl methods."""
     parent_by_item_id = {}
 
     for impl_item in index.values():
-        impl_data = (impl_item.get("inner") or {}).get("impl")
+        impl_data = _inner_dict(impl_item).get("impl")
         if not impl_data:
             continue
 
@@ -415,7 +425,7 @@ def _parent_module_path_by_item(index, paths, root_raw):
         item = index.get(mod_id_str)
         if not item:
             return
-        mod_inner = (item.get("inner") or {}).get("module")
+        mod_inner = _inner_dict(item).get("module")
         if not mod_inner:
             return
         for cid in mod_inner.get("items") or []:
@@ -424,7 +434,7 @@ def _parent_module_path_by_item(index, paths, root_raw):
             child = index.get(cid_s)
             if not child:
                 continue
-            if "module" in (child.get("inner") or {}):
+            if "module" in _inner_dict(child):
                 child_path = (paths.get(cid_s) or {}).get("path")
                 if child_path:
                     walk(cid_s, child_path)
@@ -448,7 +458,7 @@ def _reexport_paths_by_target(index, paths, parent_by_item):
     for import_item_id, item in index.items():
         if item.get("visibility") != "public":
             continue
-        inner = item.get("inner") or {}
+        inner = _inner_dict(item)
         use_data = inner.get("use")
         if not isinstance(use_data, dict):
             continue
@@ -484,7 +494,7 @@ def _module_rename_map(index, paths, parent_by_item):
     for import_item_id, item in index.items():
         if item.get("visibility") != "public":
             continue
-        inner = item.get("inner") or {}
+        inner = _inner_dict(item)
         use_data = inner.get("use")
         if not isinstance(use_data, dict):
             continue
@@ -496,7 +506,7 @@ def _module_rename_map(index, paths, parent_by_item):
         target_item = index.get(target_id)
         if target_item is None:
             continue
-        if "module" not in (target_item.get("inner") or {}):
+        if "module" not in _inner_dict(target_item):
             continue
 
         target_entry = paths.get(target_id) or {}
@@ -558,7 +568,7 @@ def _container_parent_map(index, paths):
     """
     parent_map = {}
     for parent_id, parent_item in index.items():
-        p_inner = (parent_item.get("inner") or {}).copy()
+        p_inner = _inner_dict(parent_item).copy()
         for container_key in ("trait", "module", "impl"):
             container = p_inner.get(container_key)
             if not isinstance(container, dict):
@@ -589,7 +599,7 @@ def _impl_trait_map(index, paths):
     for impl methods that implement a trait."""
     mapping = {}
     for _impl_id, impl_item in index.items():
-        impl_data = (impl_item.get("inner") or {}).get("impl")
+        impl_data = _inner_dict(impl_item).get("impl")
         if not impl_data:
             continue
         trait_ref = impl_data.get("trait")
@@ -615,7 +625,7 @@ def _is_public_unsafe_fn(item):
     visibility = item.get("visibility")
     if visibility not in ("public", "default"):
         return False
-    inner = item.get("inner", {})
+    inner = _inner_dict(item)
     fn_data = inner.get("function")
     if fn_data is None:
         return False
@@ -703,7 +713,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
         if visibility not in ("public", "default"):
             continue
 
-        inner = item.get("inner", {})
+        inner = _inner_dict(item)
         kind = None
 
         if "function" in inner:
