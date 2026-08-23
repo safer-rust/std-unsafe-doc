@@ -30,7 +30,8 @@ TOOLCHAIN = "nightly"
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.html"
 RUSTDOC_NIGHTLY_BASE = "https://doc.rust-lang.org/nightly"
-CONTRACTS_URL = "https://raw.githubusercontent.com/safer-rust/RAPx/main/rapx/src/verify/source/assets/std-public-contracts.json"
+CONTRACTS_URL = "https://raw.githubusercontent.com/safer-rust/RAPx/main/rapx/src/verify/contract/assets/std-public-contracts.json"
+CONTRACTS_CACHE_PATH = Path(__file__).resolve().parent / "std-public-contracts.cache.json"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -1043,6 +1044,56 @@ def _build_module_tree(sorted_items):
     return "\n".join(html_parts)
 
 
+def _build_auto_tags(contracts):
+    """Build {api_path: "tag, tag"} lookup from the RAPx contracts JSON."""
+    lookup = {}
+    for api_path, entries in contracts.items():
+        tags = sorted(set(e["tag"] for e in entries if e.get("tag") and e["tag"] != "any"))
+        if tags:
+            lookup[api_path] = ", ".join(tags)
+    return lookup
+
+
+def _load_auto_tags():
+    """Load RAPx contract tags, falling back to a cached copy on failure.
+
+    On a successful fetch the raw response is written to
+    ``scripts/std-public-contracts.cache.json`` so a future run can still
+    populate tags even when the RAPx repo (or network) is unavailable.
+    """
+    try:
+        with urllib.request.urlopen(CONTRACTS_URL, timeout=15) as resp:
+            raw = resp.read()
+        auto_tags = _build_auto_tags(json.loads(raw))
+        print(f"  Loaded {len(auto_tags)} API tags from contracts JSON")
+        try:
+            existing = (
+                CONTRACTS_CACHE_PATH.read_bytes()
+                if CONTRACTS_CACHE_PATH.exists()
+                else b""
+            )
+            if existing != raw:
+                CONTRACTS_CACHE_PATH.write_bytes(raw)
+                print(f"  Cached contracts JSON to {CONTRACTS_CACHE_PATH}")
+        except OSError as e:
+            print(f"  Warning: could not write contracts cache ({e})")
+        return auto_tags
+    except Exception as e:
+        print(f"  Warning: could not load contracts JSON ({e})")
+        if CONTRACTS_CACHE_PATH.exists():
+            try:
+                cached = json.loads(CONTRACTS_CACHE_PATH.read_text(encoding="utf-8"))
+                auto_tags = _build_auto_tags(cached)
+                print(
+                    f"  Using cached {len(auto_tags)} API tags from "
+                    f"{CONTRACTS_CACHE_PATH}"
+                )
+                return auto_tags
+            except (OSError, json.JSONDecodeError) as e2:
+                print(f"  Warning: could not load contracts cache ({e2})")
+        return {}
+
+
 def write_html(all_items, output_path, rustc_version):
     """Write the collected items to a static HTML file.
 
@@ -1077,17 +1128,7 @@ def write_html(all_items, output_path, rustc_version):
     tree_html = _build_module_tree(sorted_items)
 
     # Fetch auto-detected tags from RAPx contracts
-    auto_tags_lookup = {}
-    try:
-        with urllib.request.urlopen(CONTRACTS_URL, timeout=15) as resp:
-            contracts = json.loads(resp.read())
-        for api_path, entries in contracts.items():
-            tags = sorted(set(e["tag"] for e in entries if e.get("tag") and e["tag"] != "any"))
-            if tags:
-                auto_tags_lookup[api_path] = ", ".join(tags)
-        print(f"  Loaded {len(auto_tags_lookup)} API tags from contracts JSON")
-    except Exception as e:
-        print(f"  Warning: could not load contracts JSON ({e})")
+    auto_tags_lookup = _load_auto_tags()
 
     crates_html = ", ".join(f"<code>{c}</code>" for c in CRATES)
 
