@@ -1054,6 +1054,26 @@ def _build_auto_tags(contracts):
     return lookup
 
 
+def _resolve_auto_tags(full_path, kind, lookup):
+    """Return the auto-tags for *full_path*, tolerating RAPx path conventions.
+
+    RAPx contracts record inherent methods without their impl type segment
+    (e.g. ``core::mem::maybe_uninit::assume_init``) whereas the docs table uses
+    the full path (``core::mem::maybe_uninit::MaybeUninit::assume_init``). For
+    method rows we fall back to the type-stripped path when the exact path is
+    absent from *lookup*.
+    """
+    if full_path in lookup:
+        return lookup[full_path]
+    if kind == "method":
+        segs = full_path.split("::")
+        if len(segs) >= 3:
+            candidate = "::".join(segs[:-2] + segs[-1:])
+            if candidate in lookup:
+                return lookup[candidate]
+    return ""
+
+
 def _load_auto_tags():
     """Load RAPx contract tags, falling back to a cached copy on failure.
 
@@ -1402,27 +1422,27 @@ def write_html(all_items, output_path, rustc_version):
         "      catch (e) {}",
         "    }",
         "    function loadData() {",
+        "      var data = {};",
         "      try {",
         "        var saved = localStorage.getItem(STORAGE_DATA_KEY);",
-        "        if (!saved) return;",
-        "        var data = JSON.parse(saved);",
-        "        getRows().forEach(function (r) {",
-        "          var tags = r.querySelector('.tags-input');",
-        "          var notes = r.querySelector('.notes-input');",
-        "          if (tags && data[r.dataset.id + ':t']) {",
-        "            tags.value = data[r.dataset.id + ':t'];",
-        "            autoResize(tags);",
-        "          } else if (tags && r.dataset.autoTags) {",
-        "            tags.value = r.dataset.autoTags;",
-        "            autoResize(tags);",
-        "          }",
-        "          if (notes && data[r.dataset.id + ':n']) {",
-        "            notes.value = data[r.dataset.id + ':n'];",
-        "            r.classList.add('row-confirmed');",
-        "            autoResize(notes);",
-        "          }",
-        "        });",
+        "        if (saved) data = JSON.parse(saved);",
         "      } catch (e) {}",
+        "      getRows().forEach(function (r) {",
+        "        var tags = r.querySelector('.tags-input');",
+        "        var notes = r.querySelector('.notes-input');",
+        "        if (tags && data[r.dataset.id + ':t']) {",
+        "          tags.value = data[r.dataset.id + ':t'];",
+        "          autoResize(tags);",
+        "        } else if (tags && r.dataset.autoTags) {",
+        "          tags.value = r.dataset.autoTags;",
+        "          autoResize(tags);",
+        "        }",
+        "        if (notes && data[r.dataset.id + ':n']) {",
+        "          notes.value = data[r.dataset.id + ':n'];",
+        "          r.classList.add('row-confirmed');",
+        "          autoResize(notes);",
+        "        }",
+        "      });",
         "    }",
         "",
         "    // ── Tags & Notes inputs ─────────────────────────────────────────────",
@@ -1579,7 +1599,7 @@ def write_html(all_items, output_path, rustc_version):
         kind_cell = html.escape(kind)
         safety_cell = "<br/>".join(markdown_to_html(d) for d in docs)
         has_safety = "1" if any(d for d in docs) else "0"
-        auto_tags = auto_tags_lookup.get(full_path, "")
+        auto_tags = _resolve_auto_tags(full_path, kind, auto_tags_lookup)
         data_attrs = (
             f' data-type="{html.escape(kind, quote=True)}"'
             f' data-module="{html.escape(module_path, quote=True)}"'
