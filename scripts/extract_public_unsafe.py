@@ -107,17 +107,24 @@ def generate_rustdoc_json(crate, lib_dir):
         sys.exit(1)
 
     print(f"  Generating rustdoc JSON for {crate}...")
+    args = [
+        "cargo",
+        f"+{TOOLCHAIN}",
+        "rustdoc",
+        "--lib",
+        "-Z",
+        "unstable-options",
+        "--output-format",
+        "json",
+    ]
+    # std links the panic runtime via #![needs_panic_runtime]; on recent
+    # nightlies rustdoc no longer resolves it from the sysroot, so enable the
+    # explicit panic_unwind dependency to avoid pulling the sysroot core/alloc
+    # in addition to the freshly-built copies (E0152 duplicate lang item).
+    if crate == "std":
+        args[3:3] = ["-F", "panic-unwind"]
     run(
-        [
-            "cargo",
-            f"+{TOOLCHAIN}",
-            "rustdoc",
-            "--lib",
-            "-Z",
-            "unstable-options",
-            "--output-format",
-            "json",
-        ],
+        args,
         cwd=str(crate_dir),
     )
 
