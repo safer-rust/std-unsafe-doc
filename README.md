@@ -7,16 +7,20 @@ results to a static HTML table.
 ## Goal
 
 The script scans the local `nightly` rust-src component via rustdoc
-JSON, collects every item that is both `pub` and `unsafe`, and writes a
-five-column HTML table:
+JSON, collects every item that is both `pub` and `unsafe`, and writes an
+HTML table:
 
 | Column | Content |
 |--------|---------|
-| (drag handle) | grab handle for reordering rows |
-| Module | module path, e.g. `core::ptr` |
-| API    | full item path linked to stable rustdoc |
+| Index | generated row number |
+| Module Path | module path, e.g. `core::ptr` |
+| API Name | item name linked to nightly rustdoc |
+| Kind | function, method, trait method, or trait |
 | Safety doc | text from the `# Safety` section of the item's docs |
-| Confirmed ✓ | checkbox to mark an API as reviewed |
+| LLM Review Comment | `gpt-5.6-sol` comment generated from the current Rust snapshot with RAPx full context |
+| Diff | independent LLM semantic correctness judgment against the original `# Safety` section |
+| Tags | RAPx-derived and manually editable contract tags |
+| Notes | locally persisted audit notes |
 
 ## Prerequisites
 
@@ -56,12 +60,29 @@ python3 scripts/extract_public_unsafe.py my_output.html
 To generate or refresh the site's home page locally:
 
 ```sh
-python3 scripts/extract_public_unsafe.py docs/index.html
+RUST_UNSAFE_DOC_TOOLCHAIN=nightly-2026-08-27 \
+  python3 scripts/extract_public_unsafe.py docs/index.html
 ```
 
 This is the same command the CI workflow runs automatically on every push to
 `main`. You can also trigger it manually from the **Actions** tab →
 **Generate docs/index.html** → **Run workflow**.
+
+The generator loads `data/core_current_review_data.json` when present. This
+artifact contains 427 unique `core` APIs with Safety documentation, excluding
+`core::arch` and its descendants, from `rustc 1.100.0-nightly
+(bff8e12ff 2026-08-26)`. Stage 2 uses the `full` context preset: source and
+signature plus RAPx unsafe callees, call graph, unsafe operations, related
+types/helpers, and trait/macro context. Records use exact rustdoc public API paths, so comments
+are never assigned by API name alone. The page provides filters for generated
+comments and Diff entries. The Diff column reports an independent LLM judgment
+based only on the original and generated Safety text. It labels semantically
+equivalent comments as Correct and reports Missing and Additional requirements
+for Incorrect comments. If a corresponding condition is generated incorrectly,
+the original correct condition is Missing and the generated incorrect condition
+is Additional. These are automatic
+judgments, not human-review labels. The Diff cell is displayed inline and is
+organized as `Missing` and `Additional` numbered lists.
 
 ## GitHub Pages
 
@@ -85,8 +106,7 @@ every push to `main`.
 
 - **Nightly required**: rustdoc JSON (`--output-format json`) is a nightly-only
   unstable feature.
-- The script always uses the **latest installed `nightly`** toolchain.  Results
-  may change between nightly releases as the standard library evolves.  Run
-  `rustup update nightly` to update to the current nightly before regenerating.
+- The script uses `nightly` by default. Set `RUST_UNSAFE_DOC_TOOLCHAIN` to pin a
+  dated nightly when the page must match an experiment snapshot.
 - The first run is slower because cargo compiles the crates; subsequent runs
   reuse the build cache.

@@ -19,6 +19,7 @@ Prerequisites:
 
 import argparse
 import html
+import os
 import json
 import re
 import subprocess
@@ -26,9 +27,10 @@ import sys
 import urllib.request
 from pathlib import Path
 
-TOOLCHAIN = "nightly"
+TOOLCHAIN = os.environ.get("RUST_UNSAFE_DOC_TOOLCHAIN", "nightly")
 CRATES = ["core", "alloc", "std"]
 DEFAULT_OUTPUT = "std-unsafe.html"
+DEFAULT_REVIEW_DATA = "data/core_current_review_data.json"
 RUSTDOC_NIGHTLY_BASE = "https://doc.rust-lang.org/nightly"
 CONTRACTS_URL = "https://raw.githubusercontent.com/safer-rust/RAPx/main/rapx/src/verify/contract/assets/std-public-contracts.json"
 CONTRACTS_CACHE_PATH = Path(__file__).resolve().parent / "std-public-contracts.cache.json"
@@ -1241,16 +1243,87 @@ def _load_auto_tags():
         return {}
 
 
-def write_html(all_items, output_path, rustc_version):
+def load_review_comments(path=None):
+    """Load LLM-generated review comments keyed by rustdoc public API path."""
+    review_path = Path(path) if path else REPO_ROOT / DEFAULT_REVIEW_DATA
+    if not review_path.exists():
+        return {}
+    payload = json.loads(review_path.read_text(encoding="utf-8"))
+    comments = {}
+    for record in payload.get("records", []):
+        target_path = record.get("target_api_path", "")
+        if target_path:
+            comments.setdefault(target_path, []).append(record)
+    return comments
+
+
+def _has_review_comment(records):
+    return bool(records) and any(
+        record.get("llm_generated_comment", "").strip() for record in records
+    )
+
+
+def _review_comment_html(records):
+    if not records:
+        return ""
+    if not _has_review_comment(records):
+        return '<span class="llm-review-missing">No generated comment recorded.</span>'
+    rendered = []
+    show_sources = len(records) > 1
+    for record in records:
+        comment = record.get("llm_generated_comment", "")
+        if not comment.strip():
+            continue
+        prefix = ""
+        if show_sources:
+            source = html.escape(record.get("source_api_path", ""))
+            prefix = f'<strong class="llm-review-source">{source}</strong><br>'
+        body = html.escape(comment).replace("\n", "<br>")
+        rendered.append(f'<div class="llm-review-entry">{prefix}{body}</div>')
+    return "".join(rendered)
+
+
+def _diff_html(records):
+    rendered = []
+    for record in records or []:
+        judgment = record.get("semantic_judgment")
+        if judgment:
+            equivalent = judgment.get("semantic_equivalent") is True
+            status = "Correct" if equivalent else "Incorrect"
+
+            def section(label, values):
+                values = [str(value).strip() for value in (values or []) if str(value).strip()]
+                if not values:
+                    return f'<div><strong>{label}:</strong> None</div>'
+                items = "".join(f"<li>{html.escape(value)}</li>" for value in values)
+                return f'<div><strong>{label}:</strong><ol>{items}</ol></div>'
+
+            body = (
+                f'<div class="semantic-status {"semantic-correct" if equivalent else "semantic-incorrect"}"><strong>{status}</strong></div>'
+                + section("Missing", judgment.get("missing_requirements"))
+                + section("Additional", judgment.get("additional_requirements"))
+            )
+            rendered.append(f'<div class="llm-diff semantic-judgment">{body}</div>')
+            continue
+        diff = record.get("diff", "")
+        if diff:
+            body = html.escape(diff).replace("\n", "<br>")
+            rendered.append(f'<div class="llm-diff">{body}</div>')
+    return "".join(rendered)
+
+
+def write_html(all_items, output_path, rustc_version, review_comments=None):
     """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path, kind).  When duplicate
     rows have different Safety docs they are merged with ``<br/>`` as separator.
     The table is responsive (full-width, horizontally scrollable) and all
     column headers support drag-to-resize via inline CSS + JavaScript.
-    Safety doc content is HTML-escaped to prevent injection.
+    Safety doc and LLM review content are HTML-escaped to prevent injection.
     Rows are sorted ascending by module path then API name.
     """
+    review_comments = review_comments or {}
+
     # Deduplicate: key = (module_path, full_path, kind), value = (url, [safety_docs], trait_origin)
     seen: dict[tuple[str, str, str], tuple[str, list[str], str]] = {}
     for module_path, full_path, kind, url, safety_doc, trait_origin in all_items:
@@ -1337,7 +1410,7 @@ def write_html(all_items, output_path, rustc_version):
         "}",
         ".unsafe-table-wrap { width: 100%; overflow-x: auto; }",
         ".unsafe-table-wrap table { width: 100%; table-layout: fixed;"
-        " border-collapse: collapse; min-width: 600px; }",
+        " border-collapse: collapse; min-width: 1300px; }",
         ".unsafe-table-wrap th, .unsafe-table-wrap td"
         " { padding: 4px 8px; word-break: break-word; vertical-align: top;"
         " border: 1px solid #ddd; }",
@@ -1359,6 +1432,15 @@ def write_html(all_items, output_path, rustc_version):
         "}",
         "/* Confirmed row highlight */",
         ".row-confirmed td { background-color: #f0fff4; }",
+        ".llm-review-entry + .llm-review-entry { margin-top: 12px;"
+        " padding-top: 12px; border-top: 1px solid #ddd; }",
+        ".llm-review-source { font-family: ui-monospace, monospace; font-size: .85em; }",
+        ".llm-review-missing { color: #8a3b12; font-style: italic; }",
+        ".llm-diff { font-size: 11px; line-height: 1.35; }",
+        ".semantic-status { margin-bottom: 5px; }",
+        ".semantic-correct { color: #1a7f37; }",
+        ".semantic-incorrect { color: #cf222e; }",
+        ".semantic-judgment ol { margin: 2px 0 5px 18px; padding: 0; }",
         "/* Filter controls */",
         ".controls { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 320px); gap: 12px; margin-bottom: 14px; }",
         ".control-box label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }",
@@ -1394,6 +1476,14 @@ def write_html(all_items, output_path, rustc_version):
         '  <label class="safety-item">',
         '    <input type="checkbox" id="safetyFilter" style="margin-right:6px;" />',
         "    Only without Safety Doc",
+        "  </label>",
+        '  <label class="safety-item">',
+        '    <input type="checkbox" id="llmReviewFilter" style="margin-right:6px;" />',
+        "    Only with LLM Review Comment",
+        "  </label>",
+        '  <label class="safety-item">',
+        '    <input type="checkbox" id="diffFilter" style="margin-right:6px;" />',
+        "    Only with Diff",
         "  </label>",
         "</div>",
         '<div id="summary" class="summary"></div>',
@@ -1496,6 +1586,7 @@ def write_html(all_items, output_path, rustc_version):
         "    function buildURL() {",
         "      var params = new URLSearchParams();",
         "      if (safetyOnly) params.set('s', '1');",
+        "      if (llmReviewOnly) params.set('l', '1');",
         "      var types = [];",
         "      typeCheckboxes.forEach(function (cb) { if (cb.checked) types.push(cb.dataset.type); });",
         "      if (types.length < typeCheckboxes.length) params.set('t', types.join(','));",
@@ -1525,6 +1616,10 @@ def write_html(all_items, output_path, rustc_version):
         "      if (params.get('s') === '1') {",
         "        safetyOnly = true;",
         "        document.getElementById('safetyFilter').checked = true;",
+        "      }",
+        "      if (params.get('l') === '1') {",
+        "        llmReviewOnly = true;",
+        "        document.getElementById('llmReviewFilter').checked = true;",
         "      }",
         "      var mod = params.get('m');",
         "      if (mod) {",
@@ -1598,6 +1693,8 @@ def write_html(all_items, output_path, rustc_version):
         "    // ── Filter ────────────────────────────────────────────────────────",
         "    var rows = getRows();",
         "    var safetyOnly = false;",
+        "    var llmReviewOnly = false;",
+        "    var diffOnly = false;",
         "    var selectedModule = '';",
         "    var typeCounts = rows.reduce(function (acc, r) {",
         "      var t = r.dataset.type || 'unknown';",
@@ -1622,8 +1719,10 @@ def write_html(all_items, output_path, rustc_version):
         "        var type = row.dataset.type || '';",
         "        var typeOk = selectedTypes.has(type);",
         "        var safetyOk = !safetyOnly || row.dataset.safety === '0';",
+        "        var reviewOk = !llmReviewOnly || row.dataset.llmReview === '1';",
+        "        var diffOk = !diffOnly || row.dataset.diff === '1';",
         "        var moduleOk = !selectedModule || row.dataset.module === selectedModule || row.dataset.module.indexOf(selectedModule + '::') === 0;",
-        "        var show = typeOk && safetyOk && moduleOk;",
+        "        var show = typeOk && safetyOk && reviewOk && diffOk && moduleOk;",
         "        row.style.display = show ? '' : 'none';",
         "        if (show) {",
         "          visible += 1;",
@@ -1645,9 +1744,17 @@ def write_html(all_items, output_path, rustc_version):
         "      applyFilters();",
         "      updateURL();",
         "    });",
+        "    document.getElementById('diffFilter').addEventListener('change', function () {",
+        "      diffOnly = this.checked; applyFilters(); updateURL();",
+        "    });",
         "",
         "    document.getElementById('safetyFilter').addEventListener('change', function () {",
         "      safetyOnly = this.checked;",
+        "      applyFilters();",
+        "      updateURL();",
+        "    });",
+        "    document.getElementById('llmReviewFilter').addEventListener('change', function () {",
+        "      llmReviewOnly = this.checked;",
         "      applyFilters();",
         "      updateURL();",
         "    });",
@@ -1686,7 +1793,9 @@ def write_html(all_items, output_path, rustc_version):
         "",
         "    // ── Init: URL > localStorage, then apply ───────────────────────",
         "    safetyOnly = false;",
+        "    llmReviewOnly = false;",
         "    document.getElementById('safetyFilter').checked = false;",
+        "    document.getElementById('llmReviewFilter').checked = false;",
         "    loadFromURL();",
         "    loadData();",
         "    applyFilters();",
@@ -1698,16 +1807,18 @@ def write_html(all_items, output_path, rustc_version):
         '<table>',
         '<colgroup>',
         '<col style="width:3%">',
+        '<col style="width:11%">',
         '<col style="width:13%">',
-        '<col style="width:15%">',
         '<col style="width:5%">',
-        '<col style="width:34%">',
-        '<col style="width:15%">',
-        '<col style="width:15%">',
+        '<col style="width:25%">',
+        '<col style="width:23%">',
+        '<col style="width:10%">',
+        '<col style="width:10%">',
         '</colgroup>',
         '<thead>',
         '<tr><th>Index</th><th>Module Path</th><th>API Name</th>'
-        '<th>Kind</th><th>Safety Doc</th><th>Tags</th><th>Notes</th></tr>',
+        '<th>Kind</th><th>Safety Doc</th><th>LLM Review Comment</th>'
+        '<th>Diff</th><th>Tags</th><th>Notes</th></tr>',
         '</thead>',
         '<tbody>',
     ]
@@ -1726,12 +1837,19 @@ def write_html(all_items, output_path, rustc_version):
         kind_cell = html.escape(kind)
         safety_cell = "<br/>".join(markdown_to_html(d) for d in docs)
         has_safety = "1" if any(d for d in docs) else "0"
+        review_records = review_comments.get(full_path, [])
+        review_cell = _review_comment_html(review_records)
+        has_review = "1" if _has_review_comment(review_records) else "0"
+        diff_cell = _diff_html(review_records)
+        has_diff = "1" if any(record.get("diff", "").strip() for record in review_records) else "0"
         auto_tags = _resolve_auto_tags(full_path, kind, auto_tags_lookup)
         data_attrs = (
             f' data-type="{html.escape(kind, quote=True)}"'
             f' data-module="{html.escape(module_path, quote=True)}"'
             f' data-api="{html.escape(api_name, quote=True)}"'
             f' data-safety="{has_safety}"'
+            f' data-llm-review="{has_review}"'
+            f' data-diff="{has_diff}"'
             f' data-trait-origin="{html.escape(trait_origin, quote=True)}"'
             f' data-auto-tags="{html.escape(auto_tags, quote=True)}"'
         )
@@ -1742,6 +1860,8 @@ def write_html(all_items, output_path, rustc_version):
             f'<td>{api_cell}</td>'
             f'<td>{kind_cell}</td>'
             f'<td>{safety_cell}</td>'
+            f'<td class="llm-review-cell">{review_cell}</td>'
+            f'<td class="llm-diff-cell">{diff_cell}</td>'
             f'<td><textarea class="tags-input" placeholder="tags" rows="1"></textarea></td>'
             f'<td><textarea class="notes-input" placeholder="notes" rows="1"></textarea></td>'
             f'</tr>'
@@ -1793,7 +1913,8 @@ def main():
         all_items.extend(items)
         print()
 
-    write_html(all_items, output_path, rustc_version)
+    review_comments = load_review_comments()
+    write_html(all_items, output_path, rustc_version, review_comments)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
 
 
