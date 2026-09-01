@@ -1288,22 +1288,40 @@ def _diff_html(records):
     for record in records or []:
         judgment = record.get("semantic_judgment")
         if judgment:
-            equivalent = judgment.get("semantic_equivalent") is True
-            status = "Correct" if equivalent else "Incorrect"
-
-            def section(label, values):
-                values = [str(value).strip() for value in (values or []) if str(value).strip()]
-                if not values:
-                    return f'<div><strong>{label}:</strong> None</div>'
-                items = "".join(f"<li>{html.escape(value)}</li>" for value in values)
-                return f'<div><strong>{label}:</strong><ol>{items}</ol></div>'
-
-            body = (
-                f'<div class="semantic-status {"semantic-correct" if equivalent else "semantic-incorrect"}"><strong>{status}</strong></div>'
-                + section("Missing", judgment.get("missing_requirements"))
-                + section("Additional", judgment.get("additional_requirements"))
+            classification = judgment.get("classification", "Correct")
+            items = judgment.get("items") or []
+            # Read the previous two-set artifact while newer three-class data is
+            # being regenerated. Any generated extra condition is Incorrect.
+            if "classification" not in judgment:
+                if judgment.get("semantic_equivalent") is True:
+                    classification, items = "Correct", []
+                elif judgment.get("additional_requirements"):
+                    classification, items = "Incorrect", judgment["additional_requirements"]
+                else:
+                    classification, items = "Missing", judgment.get("missing_requirements") or []
+            if classification not in {"Missing", "Incorrect", "Correct"}:
+                classification = "Incorrect"
+            options = "".join(
+                f'<option value="{value}"{" selected" if value == classification else ""}>{value}</option>'
+                for value in ("Missing", "Incorrect", "Correct")
             )
-            rendered.append(f'<div class="llm-diff semantic-judgment">{body}</div>')
+            formatted_items = []
+            for index, value in enumerate(items, 1):
+                if isinstance(value, dict):
+                    formatted_items.append(
+                        f"{index}. LLM Review Comment: {value.get('llm_review_comment', '')}\n"
+                        f"   Original Safety Doc: {value.get('original_safety_doc', '')}"
+                    )
+                else:
+                    formatted_items.append(f"{index}. {value}")
+            items = "\n".join(formatted_items)
+            rendered.append(
+                '<div class="llm-diff diff-editor">'
+                f'<select class="diff-classification" aria-label="Diff classification">{options}</select>'
+                f'<textarea class="diff-items" rows="3" aria-label="{classification} items"'
+                f' placeholder="List {classification.lower()} items, one per line">{html.escape(items)}</textarea>'
+                '</div>'
+            )
             continue
         diff = record.get("diff", "")
         if diff:
@@ -1437,10 +1455,11 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         ".llm-review-source { font-family: ui-monospace, monospace; font-size: .85em; }",
         ".llm-review-missing { color: #8a3b12; font-style: italic; }",
         ".llm-diff { font-size: 11px; line-height: 1.35; }",
-        ".semantic-status { margin-bottom: 5px; }",
-        ".semantic-correct { color: #1a7f37; }",
-        ".semantic-incorrect { color: #cf222e; }",
-        ".semantic-judgment ol { margin: 2px 0 5px 18px; padding: 0; }",
+        ".diff-classification { width: 100%; padding: 4px 6px; border: 1px solid #8c959f; border-radius: 4px; background: #fff; font-weight: 600; }",
+        ".diff-classification.diff-incorrect { border-color: #a40e26; background: #cf222e; color: #fff; }",
+        ".diff-classification.diff-missing { border-color: #9a6700; background: #fff2cc; color: #5c4100; }",
+        ".diff-items { width: 100%; min-height: 54px; margin-top: 6px; padding: 5px 6px; border: 1px solid #d0d7de; border-radius: 4px; box-sizing: border-box; resize: vertical; font: inherit; line-height: 1.4; }",
+        ".diff-items[hidden] { display: none; }",
         "/* Filter controls */",
         ".controls { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 320px); gap: 12px; margin-bottom: 14px; }",
         ".control-box label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }",
@@ -1637,8 +1656,12 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         "      getRows().forEach(function (r) {",
         "        var tags = r.querySelector('.tags-input');",
         "        var notes = r.querySelector('.notes-input');",
+        "        var diffClass = r.querySelector('.diff-classification');",
+        "        var diffItems = r.querySelector('.diff-items');",
         "        if (tags && tags.value.trim()) data[r.dataset.id + ':t'] = tags.value;",
         "        if (notes && notes.value.trim()) data[r.dataset.id + ':n'] = notes.value;",
+        "        if (diffClass && diffClass.value !== diffClass.dataset.initial) data[r.dataset.id + ':dc'] = diffClass.value;",
+        "        if (diffItems && diffItems.value !== diffItems.dataset.initial) data[r.dataset.id + ':di'] = diffItems.value;",
         "      });",
         "      try { localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(data)); }",
         "      catch (e) {}",
@@ -1652,6 +1675,8 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         "      getRows().forEach(function (r) {",
         "        var tags = r.querySelector('.tags-input');",
         "        var notes = r.querySelector('.notes-input');",
+        "        var diffClass = r.querySelector('.diff-classification');",
+        "        var diffItems = r.querySelector('.diff-items');",
         "        if (tags && data[r.dataset.id + ':t']) {",
         "          tags.value = data[r.dataset.id + ':t'];",
         "          autoResize(tags);",
@@ -1664,13 +1689,20 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         "          r.classList.add('row-confirmed');",
         "          autoResize(notes);",
         "        }",
+        "        if (diffClass && data[r.dataset.id + ':dc']) diffClass.value = data[r.dataset.id + ':dc'];",
+        "        if (diffItems && data[r.dataset.id + ':di'] !== undefined) diffItems.value = data[r.dataset.id + ':di'];",
+        "        updateDiffEditor(r);",
         "      });",
         "    }",
         "",
-        "    // ── Tags & Notes inputs ─────────────────────────────────────────────",
+        "    // ── Editable row inputs ────────────────────────────────────────────",
         "    getRows().forEach(function (row) {",
         "      var tags = row.querySelector('.tags-input');",
         "      var notes = row.querySelector('.notes-input');",
+        "      var diffClass = row.querySelector('.diff-classification');",
+        "      var diffItems = row.querySelector('.diff-items');",
+        "      if (diffClass) diffClass.dataset.initial = diffClass.value;",
+        "      if (diffItems) diffItems.dataset.initial = diffItems.value;",
         "      if (tags) {",
         "        tags.addEventListener('input', function () {",
         "          autoResize(this);",
@@ -1684,7 +1716,27 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         "          saveData();",
         "        });",
         "      }",
+        "      if (diffClass) {",
+        "        diffClass.addEventListener('change', function () { updateDiffEditor(row); saveData(); });",
+        "      }",
+        "      if (diffItems) {",
+        "        diffItems.addEventListener('input', function () { autoResize(this); saveData(); });",
+        "      }",
+        "      updateDiffEditor(row);",
         "    });",
+        "    function updateDiffEditor(row) {",
+        "      var select = row.querySelector('.diff-classification');",
+        "      var items = row.querySelector('.diff-items');",
+        "      if (!select || !items) return;",
+        "      var showItems = select.value !== 'Correct';",
+        "      select.classList.remove('diff-incorrect', 'diff-missing');",
+        "      if (select.value === 'Incorrect') select.classList.add('diff-incorrect');",
+        "      if (select.value === 'Missing') select.classList.add('diff-missing');",
+        "      items.hidden = !showItems;",
+        "      items.setAttribute('aria-label', select.value + ' items');",
+        "      items.placeholder = 'List ' + select.value.toLowerCase() + ' items, one per line';",
+        "      if (showItems) autoResize(items);",
+        "    }",
         "    function autoResize(ta) {",
         "      ta.style.height = 'auto';",
         "      ta.style.height = ta.scrollHeight + 'px';",

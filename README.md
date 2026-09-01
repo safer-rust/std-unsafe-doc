@@ -76,13 +76,17 @@ signature plus RAPx unsafe callees, call graph, unsafe operations, related
 types/helpers, and trait/macro context. Records use exact rustdoc public API paths, so comments
 are never assigned by API name alone. The page provides filters for generated
 comments and Diff entries. The Diff column reports an independent LLM judgment
-based only on the original and generated Safety text. It labels semantically
-equivalent comments as Correct and reports Missing and Additional requirements
-for Incorrect comments. If a corresponding condition is generated incorrectly,
-the original correct condition is Missing and the generated incorrect condition
-is Additional. These are automatic
-judgments, not human-review labels. The Diff cell is displayed inline and is
-organized as `Missing` and `Additional` numbered lists.
+based only on the original and generated Safety text. It provides an editable
+classification with three values: `Correct`, `Missing`, and `Incorrect`.
+`Missing` is used only when the generated comment is a semantically correct
+strict subset of the original safety requirements; omitted original
+requirements are listed in the editable text area. Any other semantic mismatch,
+including an added, weakened, strengthened, contradictory, or otherwise wrong
+condition, is `Incorrect`. Each Incorrect item is a concise sentence stating
+the generated condition and its semantic difference from the original Safety
+Doc, without a long explanation or reasoning trace. `Correct` hides the detail editor. These are automatic judgments,
+not human-review labels. Changes made in the page are stored locally with the
+existing audit data and do not modify the generated artifact.
 
 ## GitHub Pages
 
