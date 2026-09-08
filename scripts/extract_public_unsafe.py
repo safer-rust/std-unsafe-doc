@@ -34,6 +34,7 @@ DEFAULT_REVIEW_DATA = "data/core_current_review_data.json"
 RUSTDOC_NIGHTLY_BASE = "https://doc.rust-lang.org/nightly"
 CONTRACTS_URL = "https://raw.githubusercontent.com/safer-rust/RAPx/main/rapx/src/verify/contract/assets/std-public-contracts.json"
 CONTRACTS_CACHE_PATH = Path(__file__).resolve().parent / "std-public-contracts.cache.json"
+APP_SCRIPT_PATH = Path(__file__).resolve().parent / "unsafe_doc_app.js"
 
 # Repo root is one level above this script (scripts/../)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -46,6 +47,8 @@ def run(cmd, *, cwd=None, check=True):
         cwd=cwd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if check and result.returncode != 0:
         print(f"ERROR: command {' '.join(cmd)} failed (exit {result.returncode})",
@@ -62,6 +65,8 @@ def get_sysroot():
         ["rustup", "toolchain", "list"],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     toolchain_names = probe.stdout if probe.returncode == 0 else ""
     # Accept bare "nightly" or any dated nightly when TOOLCHAIN == "nightly"
@@ -1330,7 +1335,7 @@ def _diff_html(records):
     return "".join(rendered)
 
 
-def write_html(all_items, output_path, rustc_version, review_comments=None):
+def _write_legacy_html(all_items, output_path, rustc_version, review_comments=None):
     """Write the collected items to a static HTML file.
 
     Rows are deduplicated by (module_path, full_path, kind).  When duplicate
@@ -1923,6 +1928,186 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def write_html(all_items, output_path, rustc_version, review_comments=None):
+    """Write a lightweight HTML shell plus JSON data for paginated rendering."""
+    review_comments = review_comments or {}
+
+    # Keep the same de-duplication and ordering rules as the legacy renderer.
+    seen: dict[tuple[str, str, str], tuple[str, list[str], str]] = {}
+    for module_path, full_path, kind, url, safety_doc, trait_origin in all_items:
+        key = (module_path, full_path, kind)
+        if key not in seen:
+            seen[key] = (url, [safety_doc] if safety_doc else [], trait_origin)
+        else:
+            existing_url, docs, _ = seen[key]
+            if safety_doc and safety_doc not in docs:
+                docs.append(safety_doc)
+            seen[key] = (existing_url or url, docs, trait_origin)
+
+    sorted_items = sorted(
+        seen.items(),
+        key=lambda entry: (entry[0][0], entry[0][1].split("::")[-1]),
+    )
+    auto_tags_lookup = _load_auto_tags()
+
+    records = []
+    module_counts: dict[str, int] = {}
+    for idx, ((module_path, full_path, kind), (url, docs, trait_origin)) in enumerate(sorted_items, 1):
+        safety_html = "<br/>".join(markdown_to_html(doc) for doc in docs)
+        records.append({
+            "index": idx,
+            "id": full_path,
+            "module_path": module_path,
+            "api_name": full_path.split("::")[-1],
+            "kind": kind,
+            "url": url,
+            "safety_html": safety_html,
+            "has_safety": any(bool(doc) for doc in docs),
+        })
+
+    # Fill fields separately to keep the record construction easy to audit.
+    for record, ((module_path, full_path, kind), (_url, docs, trait_origin)) in zip(records, sorted_items):
+        review_records = review_comments.get(full_path, [])
+        record.update({
+            "has_safety": any(bool(doc) for doc in docs),
+            "review_html": _review_comment_html(review_records),
+            "has_review": _has_review_comment(review_records),
+            "diff_html": _diff_html(review_records),
+            "has_diff": any(item.get("diff", "").strip() for item in review_records),
+            "trait_origin": trait_origin,
+            "auto_tags": _resolve_auto_tags(full_path, kind, auto_tags_lookup),
+        })
+        parts = module_path.split("::")
+        for depth in range(1, len(parts) + 1):
+            prefix = "::".join(parts[:depth])
+            module_counts[prefix] = module_counts.get(prefix, 0) + 1
+
+    data_path = output_path.with_name("unsafe-apis.json")
+    data_payload = {
+        "schema_version": 1,
+        "toolchain": TOOLCHAIN,
+        "rustc_version": rustc_version,
+        "crates": CRATES,
+        "total": len(records),
+        "module_counts": module_counts,
+        "records": records,
+    }
+    data_path.write_text(
+        json.dumps(data_payload, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+
+    if not APP_SCRIPT_PATH.exists():
+        raise FileNotFoundError(f"Browser application script not found: {APP_SCRIPT_PATH}")
+    app_output_path = output_path.with_name("app.js")
+    app_output_path.write_text(APP_SCRIPT_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+
+    title = f"Public Unsafe APIs — {TOOLCHAIN} ({rustc_version})"
+    crates_html = ", ".join(f"<code>{html.escape(crate)}</code>" for crate in CRATES)
+    page = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: #24292f; }
+.layout { display: flex; height: 100vh; }
+.sidebar { width: 280px; flex-shrink: 0; border-right: 1px solid #d0d7de; overflow-y: auto; padding: 12px; background: #f6f8fa; }
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sidebar h3 { margin: 0; font-size: 14px; color: #57606a; }
+.sidebar-toggle { cursor: pointer; border: 1px solid #d0d7de; background: #fff; border-radius: 4px; padding: 1px 7px; }
+.sidebar-resizer { width: 5px; flex-shrink: 0; cursor: col-resize; }
+.sidebar-resizer:hover, .sidebar-resizer.dragging { background: rgba(9,105,218,.25); }
+.layout.sidebar-hidden .sidebar, .layout.sidebar-hidden .sidebar-resizer { display: none; }
+.sidebar-fab { display: none; position: fixed; top: 12px; left: 12px; z-index: 20; cursor: pointer; }
+.layout.sidebar-hidden .sidebar-fab { display: block; }
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.tree ul { padding-left: 16px; }
+.tree li { margin: 1px 0; }
+.tree-toggle { cursor: pointer; display: inline-block; width: 16px; text-align: center; color: #6e7781; user-select: none; }
+.tree-toggle.collapsed { transform: rotate(-90deg); }
+.tree-node { cursor: pointer; display: inline-block; padding: 2px 5px; border-radius: 4px; }
+.tree-node:hover { background: #eaeef2; }
+.tree-node.selected { color: #fff; background: #0969da; }
+.tree-count { color: #6e7781; font-size: 11px; }
+.tree-node.selected .tree-count { color: #fff; }
+.main { flex: 1; min-width: 0; overflow-y: auto; padding: 16px 24px; }
+h1 { margin: 0 0 8px; font-size: 24px; }
+.types { margin: 12px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.type-list { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.type-item, .safety-item { font-size: 13px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.summary, .loading { margin: 8px 0 12px; color: #57606a; font-size: 13px; }
+.loading.error { color: #cf222e; }
+.unsafe-table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
+th, td { border: 1px solid #d0d7de; padding: 6px 8px; vertical-align: top; overflow-wrap: anywhere; }
+th { position: relative; white-space: nowrap; background: #f6f8fa; }
+.col-resize-handle { position: absolute; top: 0; right: -3px; width: 6px; height: 100%; cursor: col-resize; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+td p:first-child { margin-top: 0; }
+td p:last-child { margin-bottom: 0; }
+.tags-input, .notes-input, .diff-items { width: 100%; min-height: 32px; padding: 5px 6px; border: 1px solid #d0d7de; border-radius: 4px; resize: vertical; font: inherit; }
+.row-confirmed td { background-color: #f0fff4; }
+.llm-review-entry + .llm-review-entry { margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; }
+.llm-review-source { font-family: ui-monospace, monospace; font-size: .85em; }
+.llm-review-missing { color: #8a3b12; font-style: italic; }
+.llm-diff { font-size: 11px; line-height: 1.35; }
+.diff-classification { width: 100%; padding: 4px 6px; border: 1px solid #8c959f; border-radius: 4px; background: #fff; font-weight: 600; }
+.diff-classification.diff-incorrect { border-color: #a40e26; background: #cf222e; color: #fff; }
+.diff-classification.diff-missing { border-color: #9a6700; background: #fff2cc; color: #5c4100; }
+.diff-items { min-height: 54px; margin-top: 6px; }
+.diff-items[hidden] { display: none; }
+.pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; font-size: 13px; }
+.pager button, .pager select { border: 1px solid #d0d7de; border-radius: 5px; background: #fff; padding: 4px 8px; }
+.pager button { cursor: pointer; }
+.pager button.active { color: #fff; background: #0969da; border-color: #0969da; }
+.pager button:disabled { cursor: default; opacity: .45; }
+.pager-spacer { margin-left: 8px; }
+@media (max-width: 800px) { .sidebar { width: 220px; } .main { padding: 12px; } h1 { font-size: 19px; } }
+</style>
+<script src="app.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-header"><h3>Module Tree</h3><button class="sidebar-toggle" id="sidebarToggle" title="Hide sidebar">«</button></div>
+    <ul class="tree" id="moduleTree"><li class="loading">Loading modules…</li></ul>
+  </aside>
+  <div class="sidebar-resizer"></div>
+  <main class="main">
+    <button class="sidebar-fab" id="sidebarFab" title="Show sidebar">☰</button>
+    <h1>__TITLE__</h1>
+    <p>Generated from crates: __CRATES__.</p>
+    <div class="types">
+      <div style="font-weight:600;color:#57606a">Filter</div>
+      <div id="typeFilters" class="type-list"></div>
+      <label class="safety-item"><input type="checkbox" id="safetyFilter"> Only without Safety Doc</label>
+      <label class="safety-item"><input type="checkbox" id="llmReviewFilter"> Only with LLM Review Comment</label>
+      <label class="safety-item"><input type="checkbox" id="diffFilter"> Only with Diff</label>
+    </div>
+    <div id="loading" class="loading">Loading API data…</div>
+    <div id="summary" class="summary" hidden></div>
+    <div id="pagerTop" class="pager" hidden></div>
+    <div class="unsafe-table-wrap" hidden>
+      <table>
+        <colgroup><col style="width:4%"><col style="width:12%"><col style="width:12%"><col style="width:6%"><col style="width:22%"><col style="width:20%"><col style="width:10%"><col style="width:7%"><col style="width:7%"></colgroup>
+        <thead><tr><th>Index</th><th>Module Path</th><th>API Name</th><th>Kind</th><th>Safety Doc</th><th>LLM Review Comment</th><th>Diff</th><th>Tags</th><th>Notes</th></tr></thead>
+        <tbody id="apiRows"></tbody>
+      </table>
+    </div>
+    <div id="pagerBottom" class="pager" hidden></div>
+  </main>
+</div>
+</body>
+</html>
+"""
+    page = page.replace("__TITLE__", html.escape(title)).replace("__CRATES__", crates_html)
+    output_path.write_text(page, encoding="utf-8")
+    return data_path, app_output_path
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Extract public unsafe APIs from Rust stdlib (core/alloc/std)."
@@ -1966,8 +2151,10 @@ def main():
         print()
 
     review_comments = load_review_comments()
-    write_html(all_items, output_path, rustc_version, review_comments)
+    data_path, app_path = write_html(all_items, output_path, rustc_version, review_comments)
     print(f"Wrote {len(all_items)} items to {output_path.resolve()}")
+    print(f"Wrote page data to {data_path.resolve()}")
+    print(f"Wrote browser app to {app_path.resolve()}")
 
 
 if __name__ == "__main__":

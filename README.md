@@ -46,8 +46,9 @@ This will:
 1. Locate the `nightly` sysroot with `rustc --print sysroot`.
 2. Run `cargo rustdoc --output-format json` for `core`, `alloc`, and `std`.
 3. Parse each JSON file and collect public unsafe items.
-4. Write the results to **`std-unsafe.html`** in the repository root.
-5. Print the number of items written and the output path.
+4. Write a lightweight **`std-unsafe.html`** shell, **`unsafe-apis.json`** data,
+   and **`app.js`** browser application in the repository root.
+5. Print the number of items written and the output paths.
 
 You can specify a custom output path:
 
@@ -67,6 +68,16 @@ RUST_UNSAFE_DOC_TOOLCHAIN=nightly-2026-08-27 \
 This is the same command the CI workflow runs automatically on every push to
 `main`. You can also trigger it manually from the **Actions** tab →
 **Generate docs/index.html** → **Run workflow**.
+
+The generated page fetches `unsafe-apis.json`, filters the full dataset in the
+browser, and renders only the current page of rows (100 by default). Module-tree
+counts always describe the complete dataset and are not affected by pagination
+or filters. Because browsers block `fetch()` for local `file://` pages, preview
+the generated site through a local HTTP server:
+
+```sh
+python3 -m http.server 8000 --directory docs
+```
 
 The generator loads `data/core_current_review_data.json` when present. This
 artifact contains 427 unique `core` APIs with Safety documentation, excluding
