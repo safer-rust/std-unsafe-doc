@@ -744,6 +744,17 @@ def _impl_trait_map(index, paths):
     return mapping
 
 
+def _trait_impl_method_ids(index):
+    """Return method ids from trait impls, even when trait paths are missing."""
+    method_ids = set()
+    for item in index.values():
+        impl_data = _inner_dict(item).get("impl")
+        if not impl_data or impl_data.get("trait") is None:
+            continue
+        method_ids.update(str(item_id) for item_id in (impl_data.get("items") or []))
+    return method_ids
+
+
 def _is_public_unsafe_fn(item):
     """Return True if *item* is a public unsafe function."""
     visibility = item.get("visibility")
@@ -790,6 +801,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
     reexport_by_target = _reexport_paths_by_target(index, paths, parent_by_item)
     container_parents = _container_parent_map(index, paths)
     impl_trait_map = _impl_trait_map(index, paths)
+    trait_impl_methods = _trait_impl_method_ids(index)
     module_renames = _module_rename_map(index, paths, parent_by_item)
 
     # Reverse lookup to resolve parent kind for method URLs.
@@ -854,6 +866,11 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
                 kind = "trait"
 
         if kind is None:
+            continue
+
+        # Represent a trait method once, at its declaration, rather than once
+        # per implementing type. Inherent methods remain separate APIs.
+        if kind == "function" and item_id in trait_impl_methods:
             continue
 
         # Resolve full path from the paths map

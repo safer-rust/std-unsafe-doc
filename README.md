@@ -50,6 +50,10 @@ This will:
    and **`app.js`** browser application in the repository root.
 5. Print the number of items written and the output paths.
 
+Unsafe trait methods are listed at their trait declarations. Methods in
+`impl Trait for Type` blocks are omitted; public unsafe methods in inherent
+`impl Type` blocks are retained, even when they share a trait method's name.
+
 You can specify a custom output path:
 
 ```sh
