@@ -272,6 +272,7 @@ def rustdoc_nightly_url(
     *,
     path_kind="",
     parent_kind="",
+    has_body=None,
 ):
     """Return a URL to the Rust nightly documentation page, or ''.
 
@@ -285,6 +286,7 @@ def rustdoc_nightly_url(
 
     # Method items are rendered on their parent type page:
     # .../struct.Type.html#method.method_name
+    # Required trait methods use #tymethod.name; provided methods use #method.name.
     if parent_kind in ("struct", "enum", "trait", "primitive", "union", "type", "type_alias") and len(path_segments) >= 3:
         parent_segments = path_segments[:-1]
         parent_name = parent_segments[-1]
@@ -301,11 +303,12 @@ def rustdoc_nightly_url(
         }.get(parent_kind, "")
         if not page_prefix:
             return ""
+        anchor_kind = "tymethod" if parent_kind == "trait" and has_body is False else "method"
         parts = [
             RUSTDOC_NIGHTLY_BASE,
             crate,
             *module_parts,
-            f"{page_prefix}.{parent_name}.html#method.{method_name}",
+            f"{page_prefix}.{parent_name}.html#{anchor_kind}.{method_name}",
         ]
         return "/".join(parts)
 
@@ -1013,6 +1016,7 @@ def collect_unsafe_items(json_path, *, trait_safety_registry=None):
             kind,
             path_kind=path_kind,
             parent_kind=parent_kind,
+            has_body=inner.get("function", {}).get("has_body"),
         )
 
         trait_origin = full_path
