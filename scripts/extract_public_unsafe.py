@@ -1993,7 +1993,7 @@ def write_html(all_items, output_path, rustc_version, review_comments=None):
         "records": records,
     }
     data_path.write_text(
-        json.dumps(data_payload, ensure_ascii=False, separators=(",", ":")),
+        json.dumps(data_payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
 
