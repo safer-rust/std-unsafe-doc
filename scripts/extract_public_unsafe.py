@@ -141,6 +141,8 @@ def generate_rustdoc_json(crate, lib_dir):
         crate_dir / "target" / "doc" / f"{crate}.json",
         lib_dir / "target" / "doc" / f"{crate}.json",
     ]
+    if target_dir := os.environ.get("CARGO_TARGET_DIR"):
+        candidates.insert(0, Path(target_dir).resolve() / "doc" / f"{crate}.json")
     for candidate in candidates:
         if candidate.exists():
             return candidate
@@ -652,7 +654,9 @@ def _module_rename_map(index, paths, parent_by_item):
                 if parent_path and pub_name:
                     import_path = tuple(parent_path + [pub_name])
 
-        if import_path and import_path != target_path:
+        # A re-export inside the module itself is not a rename of the module.
+        # Rewriting that prefix would append it again on every iteration.
+        if import_path and import_path[:len(target_path)] != target_path:
             renames[target_path] = import_path
 
     # When core::core_arch::arch → core::arch, the entire core_arch
