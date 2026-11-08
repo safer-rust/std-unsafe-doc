@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "toolchain": "nightly",
-  "rustc_version": "rustc 1.101.0-nightly (c980177d8 2026-11-06)",
+  "rustc_version": "rustc 1.102.0-nightly (f5cedb83a 2026-11-07)",
   "crates": [
     "core",
     "alloc",
     "std"
   ],
-  "total": 5736,
+  "total": 5741,
   "module_counts": {
     "alloc": 60,
     "alloc::alloc": 4,
@@ -40,7 +40,7 @@
     "alloc::string::String": 3,
     "alloc::vec": 5,
     "alloc::vec::Vec": 5,
-    "core": 5500,
+    "core": 5502,
     "core::alloc": 16,
     "core::alloc::Allocator": 4,
     "core::alloc::global": 4,
@@ -214,7 +214,7 @@
     "core::slice": 22,
     "core::slice::index": 2,
     "core::slice::index::SliceIndex": 2,
-    "core::str": 15,
+    "core::str": 17,
     "core::str::pattern": 2,
     "core::sync": 4,
     "core::sync::atomic": 4,
@@ -229,7 +229,7 @@
     "core::u64": 12,
     "core::u8": 13,
     "core::usize": 12,
-    "std": 176,
+    "std": 179,
     "std::bool": 1,
     "std::char": 2,
     "std::collections": 1,
@@ -241,9 +241,9 @@
     "std::f16": 1,
     "std::f32": 1,
     "std::f64": 1,
-    "std::ffi": 2,
-    "std::ffi::os_str": 2,
-    "std::ffi::os_str::OsStr": 1,
+    "std::ffi": 3,
+    "std::ffi::os_str": 3,
+    "std::ffi::os_str::OsStr": 2,
     "std::ffi::os_str::OsString": 1,
     "std::i128": 11,
     "std::i16": 11,
@@ -252,14 +252,15 @@
     "std::i8": 11,
     "std::isize": 11,
     "std::os": 11,
-    "std::os::unix": 4,
-    "std::os::unix::io": 2,
-    "std::os::unix::io::owned": 1,
-    "std::os::unix::io::owned::BorrowedFd": 1,
-    "std::os::unix::io::raw": 1,
-    "std::os::unix::io::raw::FromRawFd": 1,
+    "std::os::unix": 2,
     "std::os::unix::process": 2,
     "std::os::unix::process::CommandExt": 2,
+    "std::os::wasi": 2,
+    "std::os::wasi::io": 2,
+    "std::os::wasi::io::owned": 1,
+    "std::os::wasi::io::owned::BorrowedFd": 1,
+    "std::os::wasi::io::raw": 1,
+    "std::os::wasi::io::raw::FromRawFd": 1,
     "std::os::windows": 7,
     "std::os::windows::io": 6,
     "std::os::windows::io::handle": 3,
@@ -273,7 +274,7 @@
     "std::os::windows::io::socket::BorrowedSocket": 1,
     "std::os::windows::process": 1,
     "std::os::windows::process::ProcThreadAttributeListBuilder": 1,
-    "std::str": 8,
+    "std::str": 10,
     "std::sync": 4,
     "std::sync::lazy_lock": 2,
     "std::sync::lazy_lock::LazyLock": 2,
@@ -87926,6 +87927,38 @@
     },
     {
       "index": 5478,
+      "id": "core::str::split_at_mut_unchecked",
+      "module_path": "core::str",
+      "api_name": "split_at_mut_unchecked",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/core/primitive.str.html#method.split_at_mut_unchecked",
+      "safety_html": "<p>The caller must ensure that <code>mid</code> is a valid byte offset from the start of the string and falls on the boundary of a UTF-8 code point.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "core::str::split_at_mut_unchecked",
+      "auto_tags": ""
+    },
+    {
+      "index": 5479,
+      "id": "core::str::split_at_unchecked",
+      "module_path": "core::str",
+      "api_name": "split_at_unchecked",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/core/primitive.str.html#method.split_at_unchecked",
+      "safety_html": "<p>The caller must ensure that <code>mid</code> is a valid byte offset from the start of the string and falls on the boundary of a UTF-8 code point.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "core::str::split_at_unchecked",
+      "auto_tags": ""
+    },
+    {
+      "index": 5480,
       "id": "core::str::pattern::ReverseSearcher",
       "module_path": "core::str::pattern",
       "api_name": "ReverseSearcher",
@@ -87941,7 +87974,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5479,
+      "index": 5481,
       "id": "core::str::pattern::Searcher",
       "module_path": "core::str::pattern",
       "api_name": "Searcher",
@@ -87957,7 +87990,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5480,
+      "index": 5482,
       "id": "core::sync::atomic::AtomicPrimitive",
       "module_path": "core::sync::atomic",
       "api_name": "AtomicPrimitive",
@@ -87973,7 +88006,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5481,
+      "index": 5483,
       "id": "core::sync::atomic::Atomic::from_ptr",
       "module_path": "core::sync::atomic::Atomic",
       "api_name": "from_ptr",
@@ -87989,7 +88022,7 @@
       "auto_tags": "Alias, Align, Alive, ValidPtr"
     },
     {
-      "index": 5482,
+      "index": 5484,
       "id": "core::sync::atomic::Atomic::load_volatile",
       "module_path": "core::sync::atomic::Atomic",
       "api_name": "load_volatile",
@@ -88005,7 +88038,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5483,
+      "index": 5485,
       "id": "core::sync::atomic::Atomic::store_volatile",
       "module_path": "core::sync::atomic::Atomic",
       "api_name": "store_volatile",
@@ -88021,7 +88054,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5484,
+      "index": 5486,
       "id": "core::task::wake::LocalWaker::from_raw",
       "module_path": "core::task::wake::LocalWaker",
       "api_name": "from_raw",
@@ -88037,7 +88070,7 @@
       "auto_tags": "Allocated"
     },
     {
-      "index": 5485,
+      "index": 5487,
       "id": "core::task::wake::LocalWaker::new",
       "module_path": "core::task::wake::LocalWaker",
       "api_name": "new",
@@ -88053,7 +88086,7 @@
       "auto_tags": "TobeSpecified"
     },
     {
-      "index": 5486,
+      "index": 5488,
       "id": "core::task::wake::Waker::from_raw",
       "module_path": "core::task::wake::Waker",
       "api_name": "from_raw",
@@ -88069,7 +88102,7 @@
       "auto_tags": "Allocated"
     },
     {
-      "index": 5487,
+      "index": 5489,
       "id": "core::task::wake::Waker::new",
       "module_path": "core::task::wake::Waker",
       "api_name": "new",
@@ -88085,7 +88118,7 @@
       "auto_tags": "TobeSpecified"
     },
     {
-      "index": 5488,
+      "index": 5490,
       "id": "core::u128::unchecked_add",
       "module_path": "core::u128",
       "api_name": "unchecked_add",
@@ -88101,7 +88134,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5489,
+      "index": 5491,
       "id": "core::u128::unchecked_cast",
       "module_path": "core::u128",
       "api_name": "unchecked_cast",
@@ -88117,7 +88150,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5490,
+      "index": 5492,
       "id": "core::u128::unchecked_disjoint_bitor",
       "module_path": "core::u128",
       "api_name": "unchecked_disjoint_bitor",
@@ -88133,7 +88166,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5491,
+      "index": 5493,
       "id": "core::u128::unchecked_div_exact",
       "module_path": "core::u128",
       "api_name": "unchecked_div_exact",
@@ -88149,7 +88182,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5492,
+      "index": 5494,
       "id": "core::u128::unchecked_funnel_shl",
       "module_path": "core::u128",
       "api_name": "unchecked_funnel_shl",
@@ -88165,7 +88198,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5493,
+      "index": 5495,
       "id": "core::u128::unchecked_funnel_shr",
       "module_path": "core::u128",
       "api_name": "unchecked_funnel_shr",
@@ -88181,7 +88214,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5494,
+      "index": 5496,
       "id": "core::u128::unchecked_mul",
       "module_path": "core::u128",
       "api_name": "unchecked_mul",
@@ -88197,7 +88230,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5495,
+      "index": 5497,
       "id": "core::u128::unchecked_shl",
       "module_path": "core::u128",
       "api_name": "unchecked_shl",
@@ -88213,7 +88246,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5496,
+      "index": 5498,
       "id": "core::u128::unchecked_shl_exact",
       "module_path": "core::u128",
       "api_name": "unchecked_shl_exact",
@@ -88229,7 +88262,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5497,
+      "index": 5499,
       "id": "core::u128::unchecked_shr",
       "module_path": "core::u128",
       "api_name": "unchecked_shr",
@@ -88245,7 +88278,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5498,
+      "index": 5500,
       "id": "core::u128::unchecked_shr_exact",
       "module_path": "core::u128",
       "api_name": "unchecked_shr_exact",
@@ -88261,7 +88294,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5499,
+      "index": 5501,
       "id": "core::u128::unchecked_sub",
       "module_path": "core::u128",
       "api_name": "unchecked_sub",
@@ -88277,7 +88310,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5500,
+      "index": 5502,
       "id": "core::u16::unchecked_add",
       "module_path": "core::u16",
       "api_name": "unchecked_add",
@@ -88293,7 +88326,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5501,
+      "index": 5503,
       "id": "core::u16::unchecked_cast",
       "module_path": "core::u16",
       "api_name": "unchecked_cast",
@@ -88309,7 +88342,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5502,
+      "index": 5504,
       "id": "core::u16::unchecked_disjoint_bitor",
       "module_path": "core::u16",
       "api_name": "unchecked_disjoint_bitor",
@@ -88325,7 +88358,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5503,
+      "index": 5505,
       "id": "core::u16::unchecked_div_exact",
       "module_path": "core::u16",
       "api_name": "unchecked_div_exact",
@@ -88341,7 +88374,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5504,
+      "index": 5506,
       "id": "core::u16::unchecked_funnel_shl",
       "module_path": "core::u16",
       "api_name": "unchecked_funnel_shl",
@@ -88357,7 +88390,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5505,
+      "index": 5507,
       "id": "core::u16::unchecked_funnel_shr",
       "module_path": "core::u16",
       "api_name": "unchecked_funnel_shr",
@@ -88373,7 +88406,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5506,
+      "index": 5508,
       "id": "core::u16::unchecked_mul",
       "module_path": "core::u16",
       "api_name": "unchecked_mul",
@@ -88389,7 +88422,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5507,
+      "index": 5509,
       "id": "core::u16::unchecked_shl",
       "module_path": "core::u16",
       "api_name": "unchecked_shl",
@@ -88405,7 +88438,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5508,
+      "index": 5510,
       "id": "core::u16::unchecked_shl_exact",
       "module_path": "core::u16",
       "api_name": "unchecked_shl_exact",
@@ -88421,7 +88454,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5509,
+      "index": 5511,
       "id": "core::u16::unchecked_shr",
       "module_path": "core::u16",
       "api_name": "unchecked_shr",
@@ -88437,7 +88470,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5510,
+      "index": 5512,
       "id": "core::u16::unchecked_shr_exact",
       "module_path": "core::u16",
       "api_name": "unchecked_shr_exact",
@@ -88453,7 +88486,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5511,
+      "index": 5513,
       "id": "core::u16::unchecked_sub",
       "module_path": "core::u16",
       "api_name": "unchecked_sub",
@@ -88469,7 +88502,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5512,
+      "index": 5514,
       "id": "core::u32::unchecked_add",
       "module_path": "core::u32",
       "api_name": "unchecked_add",
@@ -88485,7 +88518,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5513,
+      "index": 5515,
       "id": "core::u32::unchecked_cast",
       "module_path": "core::u32",
       "api_name": "unchecked_cast",
@@ -88501,7 +88534,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5514,
+      "index": 5516,
       "id": "core::u32::unchecked_disjoint_bitor",
       "module_path": "core::u32",
       "api_name": "unchecked_disjoint_bitor",
@@ -88517,7 +88550,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5515,
+      "index": 5517,
       "id": "core::u32::unchecked_div_exact",
       "module_path": "core::u32",
       "api_name": "unchecked_div_exact",
@@ -88533,7 +88566,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5516,
+      "index": 5518,
       "id": "core::u32::unchecked_funnel_shl",
       "module_path": "core::u32",
       "api_name": "unchecked_funnel_shl",
@@ -88549,7 +88582,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5517,
+      "index": 5519,
       "id": "core::u32::unchecked_funnel_shr",
       "module_path": "core::u32",
       "api_name": "unchecked_funnel_shr",
@@ -88565,7 +88598,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5518,
+      "index": 5520,
       "id": "core::u32::unchecked_mul",
       "module_path": "core::u32",
       "api_name": "unchecked_mul",
@@ -88581,7 +88614,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5519,
+      "index": 5521,
       "id": "core::u32::unchecked_shl",
       "module_path": "core::u32",
       "api_name": "unchecked_shl",
@@ -88597,7 +88630,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5520,
+      "index": 5522,
       "id": "core::u32::unchecked_shl_exact",
       "module_path": "core::u32",
       "api_name": "unchecked_shl_exact",
@@ -88613,7 +88646,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5521,
+      "index": 5523,
       "id": "core::u32::unchecked_shr",
       "module_path": "core::u32",
       "api_name": "unchecked_shr",
@@ -88629,7 +88662,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5522,
+      "index": 5524,
       "id": "core::u32::unchecked_shr_exact",
       "module_path": "core::u32",
       "api_name": "unchecked_shr_exact",
@@ -88645,7 +88678,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5523,
+      "index": 5525,
       "id": "core::u32::unchecked_sub",
       "module_path": "core::u32",
       "api_name": "unchecked_sub",
@@ -88661,7 +88694,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5524,
+      "index": 5526,
       "id": "core::u64::unchecked_add",
       "module_path": "core::u64",
       "api_name": "unchecked_add",
@@ -88677,7 +88710,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5525,
+      "index": 5527,
       "id": "core::u64::unchecked_cast",
       "module_path": "core::u64",
       "api_name": "unchecked_cast",
@@ -88693,7 +88726,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5526,
+      "index": 5528,
       "id": "core::u64::unchecked_disjoint_bitor",
       "module_path": "core::u64",
       "api_name": "unchecked_disjoint_bitor",
@@ -88709,7 +88742,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5527,
+      "index": 5529,
       "id": "core::u64::unchecked_div_exact",
       "module_path": "core::u64",
       "api_name": "unchecked_div_exact",
@@ -88725,7 +88758,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5528,
+      "index": 5530,
       "id": "core::u64::unchecked_funnel_shl",
       "module_path": "core::u64",
       "api_name": "unchecked_funnel_shl",
@@ -88741,7 +88774,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5529,
+      "index": 5531,
       "id": "core::u64::unchecked_funnel_shr",
       "module_path": "core::u64",
       "api_name": "unchecked_funnel_shr",
@@ -88757,7 +88790,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5530,
+      "index": 5532,
       "id": "core::u64::unchecked_mul",
       "module_path": "core::u64",
       "api_name": "unchecked_mul",
@@ -88773,7 +88806,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5531,
+      "index": 5533,
       "id": "core::u64::unchecked_shl",
       "module_path": "core::u64",
       "api_name": "unchecked_shl",
@@ -88789,7 +88822,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5532,
+      "index": 5534,
       "id": "core::u64::unchecked_shl_exact",
       "module_path": "core::u64",
       "api_name": "unchecked_shl_exact",
@@ -88805,7 +88838,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5533,
+      "index": 5535,
       "id": "core::u64::unchecked_shr",
       "module_path": "core::u64",
       "api_name": "unchecked_shr",
@@ -88821,7 +88854,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5534,
+      "index": 5536,
       "id": "core::u64::unchecked_shr_exact",
       "module_path": "core::u64",
       "api_name": "unchecked_shr_exact",
@@ -88837,7 +88870,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5535,
+      "index": 5537,
       "id": "core::u64::unchecked_sub",
       "module_path": "core::u64",
       "api_name": "unchecked_sub",
@@ -88853,7 +88886,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5536,
+      "index": 5538,
       "id": "core::u8::as_ascii_unchecked",
       "module_path": "core::u8",
       "api_name": "as_ascii_unchecked",
@@ -88869,7 +88902,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5537,
+      "index": 5539,
       "id": "core::u8::unchecked_add",
       "module_path": "core::u8",
       "api_name": "unchecked_add",
@@ -88885,7 +88918,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5538,
+      "index": 5540,
       "id": "core::u8::unchecked_cast",
       "module_path": "core::u8",
       "api_name": "unchecked_cast",
@@ -88901,7 +88934,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5539,
+      "index": 5541,
       "id": "core::u8::unchecked_disjoint_bitor",
       "module_path": "core::u8",
       "api_name": "unchecked_disjoint_bitor",
@@ -88917,7 +88950,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5540,
+      "index": 5542,
       "id": "core::u8::unchecked_div_exact",
       "module_path": "core::u8",
       "api_name": "unchecked_div_exact",
@@ -88933,7 +88966,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5541,
+      "index": 5543,
       "id": "core::u8::unchecked_funnel_shl",
       "module_path": "core::u8",
       "api_name": "unchecked_funnel_shl",
@@ -88949,7 +88982,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5542,
+      "index": 5544,
       "id": "core::u8::unchecked_funnel_shr",
       "module_path": "core::u8",
       "api_name": "unchecked_funnel_shr",
@@ -88965,7 +88998,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5543,
+      "index": 5545,
       "id": "core::u8::unchecked_mul",
       "module_path": "core::u8",
       "api_name": "unchecked_mul",
@@ -88981,7 +89014,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5544,
+      "index": 5546,
       "id": "core::u8::unchecked_shl",
       "module_path": "core::u8",
       "api_name": "unchecked_shl",
@@ -88997,7 +89030,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5545,
+      "index": 5547,
       "id": "core::u8::unchecked_shl_exact",
       "module_path": "core::u8",
       "api_name": "unchecked_shl_exact",
@@ -89013,7 +89046,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5546,
+      "index": 5548,
       "id": "core::u8::unchecked_shr",
       "module_path": "core::u8",
       "api_name": "unchecked_shr",
@@ -89029,7 +89062,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5547,
+      "index": 5549,
       "id": "core::u8::unchecked_shr_exact",
       "module_path": "core::u8",
       "api_name": "unchecked_shr_exact",
@@ -89045,7 +89078,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5548,
+      "index": 5550,
       "id": "core::u8::unchecked_sub",
       "module_path": "core::u8",
       "api_name": "unchecked_sub",
@@ -89061,7 +89094,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5549,
+      "index": 5551,
       "id": "core::usize::unchecked_add",
       "module_path": "core::usize",
       "api_name": "unchecked_add",
@@ -89077,7 +89110,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5550,
+      "index": 5552,
       "id": "core::usize::unchecked_cast",
       "module_path": "core::usize",
       "api_name": "unchecked_cast",
@@ -89093,7 +89126,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5551,
+      "index": 5553,
       "id": "core::usize::unchecked_disjoint_bitor",
       "module_path": "core::usize",
       "api_name": "unchecked_disjoint_bitor",
@@ -89109,7 +89142,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5552,
+      "index": 5554,
       "id": "core::usize::unchecked_div_exact",
       "module_path": "core::usize",
       "api_name": "unchecked_div_exact",
@@ -89125,7 +89158,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5553,
+      "index": 5555,
       "id": "core::usize::unchecked_funnel_shl",
       "module_path": "core::usize",
       "api_name": "unchecked_funnel_shl",
@@ -89141,7 +89174,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5554,
+      "index": 5556,
       "id": "core::usize::unchecked_funnel_shr",
       "module_path": "core::usize",
       "api_name": "unchecked_funnel_shr",
@@ -89157,7 +89190,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5555,
+      "index": 5557,
       "id": "core::usize::unchecked_mul",
       "module_path": "core::usize",
       "api_name": "unchecked_mul",
@@ -89173,7 +89206,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5556,
+      "index": 5558,
       "id": "core::usize::unchecked_shl",
       "module_path": "core::usize",
       "api_name": "unchecked_shl",
@@ -89189,7 +89222,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5557,
+      "index": 5559,
       "id": "core::usize::unchecked_shl_exact",
       "module_path": "core::usize",
       "api_name": "unchecked_shl_exact",
@@ -89205,7 +89238,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5558,
+      "index": 5560,
       "id": "core::usize::unchecked_shr",
       "module_path": "core::usize",
       "api_name": "unchecked_shr",
@@ -89221,7 +89254,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5559,
+      "index": 5561,
       "id": "core::usize::unchecked_shr_exact",
       "module_path": "core::usize",
       "api_name": "unchecked_shr_exact",
@@ -89237,7 +89270,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5560,
+      "index": 5562,
       "id": "core::usize::unchecked_sub",
       "module_path": "core::usize",
       "api_name": "unchecked_sub",
@@ -89253,7 +89286,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5561,
+      "index": 5563,
       "id": "std::bool::unchecked_disjoint_bitor",
       "module_path": "std::bool",
       "api_name": "unchecked_disjoint_bitor",
@@ -89269,7 +89302,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5562,
+      "index": 5564,
       "id": "std::char::as_ascii_unchecked",
       "module_path": "std::char",
       "api_name": "as_ascii_unchecked",
@@ -89285,7 +89318,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5563,
+      "index": 5565,
       "id": "std::char::from_u32_unchecked",
       "module_path": "std::char",
       "api_name": "from_u32_unchecked",
@@ -89301,7 +89334,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5564,
+      "index": 5566,
       "id": "std::collections::hash::map::HashMap::get_disjoint_unchecked_mut",
       "module_path": "std::collections::hash::map::HashMap",
       "api_name": "get_disjoint_unchecked_mut",
@@ -89317,7 +89350,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5565,
+      "index": 5567,
       "id": "std::env::remove_var",
       "module_path": "std::env",
       "api_name": "remove_var",
@@ -89333,7 +89366,7 @@
       "auto_tags": "TobeSpecified"
     },
     {
-      "index": 5566,
+      "index": 5568,
       "id": "std::env::set_var",
       "module_path": "std::env",
       "api_name": "set_var",
@@ -89349,7 +89382,7 @@
       "auto_tags": "TobeSpecified"
     },
     {
-      "index": 5567,
+      "index": 5569,
       "id": "std::f128::to_int_unchecked",
       "module_path": "std::f128",
       "api_name": "to_int_unchecked",
@@ -89365,7 +89398,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5568,
+      "index": 5570,
       "id": "std::f16::to_int_unchecked",
       "module_path": "std::f16",
       "api_name": "to_int_unchecked",
@@ -89381,7 +89414,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5569,
+      "index": 5571,
       "id": "std::f32::to_int_unchecked",
       "module_path": "std::f32",
       "api_name": "to_int_unchecked",
@@ -89397,7 +89430,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5570,
+      "index": 5572,
       "id": "std::f64::to_int_unchecked",
       "module_path": "std::f64",
       "api_name": "to_int_unchecked",
@@ -89413,7 +89446,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5571,
+      "index": 5573,
       "id": "std::ffi::os_str::OsStr::from_encoded_bytes_unchecked",
       "module_path": "std::ffi::os_str::OsStr",
       "api_name": "from_encoded_bytes_unchecked",
@@ -89429,7 +89462,23 @@
       "auto_tags": "ValidString"
     },
     {
-      "index": 5572,
+      "index": 5574,
+      "id": "std::ffi::os_str::OsStr::split_at_unchecked",
+      "module_path": "std::ffi::os_str::OsStr",
+      "api_name": "split_at_unchecked",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/std/ffi/os_str/struct.OsStr.html#method.split_at_unchecked",
+      "safety_html": "<p>Any caller must ensure <code>mid</code> is within bounds and lies on a valid <code>OsStr</code> boundary for the platform.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "std::ffi::os_str::OsStr::split_at_unchecked",
+      "auto_tags": ""
+    },
+    {
+      "index": 5575,
       "id": "std::ffi::os_str::OsString::from_encoded_bytes_unchecked",
       "module_path": "std::ffi::os_str::OsString",
       "api_name": "from_encoded_bytes_unchecked",
@@ -89445,7 +89494,7 @@
       "auto_tags": "ValidString"
     },
     {
-      "index": 5573,
+      "index": 5576,
       "id": "std::i128::unchecked_add",
       "module_path": "std::i128",
       "api_name": "unchecked_add",
@@ -89461,7 +89510,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5574,
+      "index": 5577,
       "id": "std::i128::unchecked_cast",
       "module_path": "std::i128",
       "api_name": "unchecked_cast",
@@ -89477,7 +89526,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5575,
+      "index": 5578,
       "id": "std::i128::unchecked_disjoint_bitor",
       "module_path": "std::i128",
       "api_name": "unchecked_disjoint_bitor",
@@ -89493,7 +89542,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5576,
+      "index": 5579,
       "id": "std::i128::unchecked_div_exact",
       "module_path": "std::i128",
       "api_name": "unchecked_div_exact",
@@ -89509,7 +89558,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5577,
+      "index": 5580,
       "id": "std::i128::unchecked_mul",
       "module_path": "std::i128",
       "api_name": "unchecked_mul",
@@ -89525,7 +89574,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5578,
+      "index": 5581,
       "id": "std::i128::unchecked_neg",
       "module_path": "std::i128",
       "api_name": "unchecked_neg",
@@ -89541,7 +89590,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5579,
+      "index": 5582,
       "id": "std::i128::unchecked_shl",
       "module_path": "std::i128",
       "api_name": "unchecked_shl",
@@ -89557,7 +89606,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5580,
+      "index": 5583,
       "id": "std::i128::unchecked_shl_exact",
       "module_path": "std::i128",
       "api_name": "unchecked_shl_exact",
@@ -89573,7 +89622,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5581,
+      "index": 5584,
       "id": "std::i128::unchecked_shr",
       "module_path": "std::i128",
       "api_name": "unchecked_shr",
@@ -89589,7 +89638,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5582,
+      "index": 5585,
       "id": "std::i128::unchecked_shr_exact",
       "module_path": "std::i128",
       "api_name": "unchecked_shr_exact",
@@ -89605,7 +89654,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5583,
+      "index": 5586,
       "id": "std::i128::unchecked_sub",
       "module_path": "std::i128",
       "api_name": "unchecked_sub",
@@ -89621,7 +89670,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5584,
+      "index": 5587,
       "id": "std::i16::unchecked_add",
       "module_path": "std::i16",
       "api_name": "unchecked_add",
@@ -89637,7 +89686,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5585,
+      "index": 5588,
       "id": "std::i16::unchecked_cast",
       "module_path": "std::i16",
       "api_name": "unchecked_cast",
@@ -89653,7 +89702,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5586,
+      "index": 5589,
       "id": "std::i16::unchecked_disjoint_bitor",
       "module_path": "std::i16",
       "api_name": "unchecked_disjoint_bitor",
@@ -89669,7 +89718,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5587,
+      "index": 5590,
       "id": "std::i16::unchecked_div_exact",
       "module_path": "std::i16",
       "api_name": "unchecked_div_exact",
@@ -89685,7 +89734,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5588,
+      "index": 5591,
       "id": "std::i16::unchecked_mul",
       "module_path": "std::i16",
       "api_name": "unchecked_mul",
@@ -89701,7 +89750,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5589,
+      "index": 5592,
       "id": "std::i16::unchecked_neg",
       "module_path": "std::i16",
       "api_name": "unchecked_neg",
@@ -89717,7 +89766,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5590,
+      "index": 5593,
       "id": "std::i16::unchecked_shl",
       "module_path": "std::i16",
       "api_name": "unchecked_shl",
@@ -89733,7 +89782,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5591,
+      "index": 5594,
       "id": "std::i16::unchecked_shl_exact",
       "module_path": "std::i16",
       "api_name": "unchecked_shl_exact",
@@ -89749,7 +89798,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5592,
+      "index": 5595,
       "id": "std::i16::unchecked_shr",
       "module_path": "std::i16",
       "api_name": "unchecked_shr",
@@ -89765,7 +89814,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5593,
+      "index": 5596,
       "id": "std::i16::unchecked_shr_exact",
       "module_path": "std::i16",
       "api_name": "unchecked_shr_exact",
@@ -89781,7 +89830,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5594,
+      "index": 5597,
       "id": "std::i16::unchecked_sub",
       "module_path": "std::i16",
       "api_name": "unchecked_sub",
@@ -89797,7 +89846,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5595,
+      "index": 5598,
       "id": "std::i32::unchecked_add",
       "module_path": "std::i32",
       "api_name": "unchecked_add",
@@ -89813,7 +89862,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5596,
+      "index": 5599,
       "id": "std::i32::unchecked_cast",
       "module_path": "std::i32",
       "api_name": "unchecked_cast",
@@ -89829,7 +89878,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5597,
+      "index": 5600,
       "id": "std::i32::unchecked_disjoint_bitor",
       "module_path": "std::i32",
       "api_name": "unchecked_disjoint_bitor",
@@ -89845,7 +89894,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5598,
+      "index": 5601,
       "id": "std::i32::unchecked_div_exact",
       "module_path": "std::i32",
       "api_name": "unchecked_div_exact",
@@ -89861,7 +89910,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5599,
+      "index": 5602,
       "id": "std::i32::unchecked_mul",
       "module_path": "std::i32",
       "api_name": "unchecked_mul",
@@ -89877,7 +89926,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5600,
+      "index": 5603,
       "id": "std::i32::unchecked_neg",
       "module_path": "std::i32",
       "api_name": "unchecked_neg",
@@ -89893,7 +89942,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5601,
+      "index": 5604,
       "id": "std::i32::unchecked_shl",
       "module_path": "std::i32",
       "api_name": "unchecked_shl",
@@ -89909,7 +89958,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5602,
+      "index": 5605,
       "id": "std::i32::unchecked_shl_exact",
       "module_path": "std::i32",
       "api_name": "unchecked_shl_exact",
@@ -89925,7 +89974,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5603,
+      "index": 5606,
       "id": "std::i32::unchecked_shr",
       "module_path": "std::i32",
       "api_name": "unchecked_shr",
@@ -89941,7 +89990,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5604,
+      "index": 5607,
       "id": "std::i32::unchecked_shr_exact",
       "module_path": "std::i32",
       "api_name": "unchecked_shr_exact",
@@ -89957,7 +90006,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5605,
+      "index": 5608,
       "id": "std::i32::unchecked_sub",
       "module_path": "std::i32",
       "api_name": "unchecked_sub",
@@ -89973,7 +90022,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5606,
+      "index": 5609,
       "id": "std::i64::unchecked_add",
       "module_path": "std::i64",
       "api_name": "unchecked_add",
@@ -89989,7 +90038,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5607,
+      "index": 5610,
       "id": "std::i64::unchecked_cast",
       "module_path": "std::i64",
       "api_name": "unchecked_cast",
@@ -90005,7 +90054,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5608,
+      "index": 5611,
       "id": "std::i64::unchecked_disjoint_bitor",
       "module_path": "std::i64",
       "api_name": "unchecked_disjoint_bitor",
@@ -90021,7 +90070,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5609,
+      "index": 5612,
       "id": "std::i64::unchecked_div_exact",
       "module_path": "std::i64",
       "api_name": "unchecked_div_exact",
@@ -90037,7 +90086,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5610,
+      "index": 5613,
       "id": "std::i64::unchecked_mul",
       "module_path": "std::i64",
       "api_name": "unchecked_mul",
@@ -90053,7 +90102,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5611,
+      "index": 5614,
       "id": "std::i64::unchecked_neg",
       "module_path": "std::i64",
       "api_name": "unchecked_neg",
@@ -90069,7 +90118,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5612,
+      "index": 5615,
       "id": "std::i64::unchecked_shl",
       "module_path": "std::i64",
       "api_name": "unchecked_shl",
@@ -90085,7 +90134,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5613,
+      "index": 5616,
       "id": "std::i64::unchecked_shl_exact",
       "module_path": "std::i64",
       "api_name": "unchecked_shl_exact",
@@ -90101,7 +90150,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5614,
+      "index": 5617,
       "id": "std::i64::unchecked_shr",
       "module_path": "std::i64",
       "api_name": "unchecked_shr",
@@ -90117,7 +90166,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5615,
+      "index": 5618,
       "id": "std::i64::unchecked_shr_exact",
       "module_path": "std::i64",
       "api_name": "unchecked_shr_exact",
@@ -90133,7 +90182,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5616,
+      "index": 5619,
       "id": "std::i64::unchecked_sub",
       "module_path": "std::i64",
       "api_name": "unchecked_sub",
@@ -90149,7 +90198,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5617,
+      "index": 5620,
       "id": "std::i8::unchecked_add",
       "module_path": "std::i8",
       "api_name": "unchecked_add",
@@ -90165,7 +90214,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5618,
+      "index": 5621,
       "id": "std::i8::unchecked_cast",
       "module_path": "std::i8",
       "api_name": "unchecked_cast",
@@ -90181,7 +90230,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5619,
+      "index": 5622,
       "id": "std::i8::unchecked_disjoint_bitor",
       "module_path": "std::i8",
       "api_name": "unchecked_disjoint_bitor",
@@ -90197,7 +90246,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5620,
+      "index": 5623,
       "id": "std::i8::unchecked_div_exact",
       "module_path": "std::i8",
       "api_name": "unchecked_div_exact",
@@ -90213,7 +90262,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5621,
+      "index": 5624,
       "id": "std::i8::unchecked_mul",
       "module_path": "std::i8",
       "api_name": "unchecked_mul",
@@ -90229,7 +90278,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5622,
+      "index": 5625,
       "id": "std::i8::unchecked_neg",
       "module_path": "std::i8",
       "api_name": "unchecked_neg",
@@ -90245,7 +90294,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5623,
+      "index": 5626,
       "id": "std::i8::unchecked_shl",
       "module_path": "std::i8",
       "api_name": "unchecked_shl",
@@ -90261,7 +90310,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5624,
+      "index": 5627,
       "id": "std::i8::unchecked_shl_exact",
       "module_path": "std::i8",
       "api_name": "unchecked_shl_exact",
@@ -90277,7 +90326,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5625,
+      "index": 5628,
       "id": "std::i8::unchecked_shr",
       "module_path": "std::i8",
       "api_name": "unchecked_shr",
@@ -90293,7 +90342,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5626,
+      "index": 5629,
       "id": "std::i8::unchecked_shr_exact",
       "module_path": "std::i8",
       "api_name": "unchecked_shr_exact",
@@ -90309,7 +90358,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5627,
+      "index": 5630,
       "id": "std::i8::unchecked_sub",
       "module_path": "std::i8",
       "api_name": "unchecked_sub",
@@ -90325,7 +90374,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5628,
+      "index": 5631,
       "id": "std::isize::unchecked_add",
       "module_path": "std::isize",
       "api_name": "unchecked_add",
@@ -90341,7 +90390,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5629,
+      "index": 5632,
       "id": "std::isize::unchecked_cast",
       "module_path": "std::isize",
       "api_name": "unchecked_cast",
@@ -90357,7 +90406,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5630,
+      "index": 5633,
       "id": "std::isize::unchecked_disjoint_bitor",
       "module_path": "std::isize",
       "api_name": "unchecked_disjoint_bitor",
@@ -90373,7 +90422,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5631,
+      "index": 5634,
       "id": "std::isize::unchecked_div_exact",
       "module_path": "std::isize",
       "api_name": "unchecked_div_exact",
@@ -90389,7 +90438,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5632,
+      "index": 5635,
       "id": "std::isize::unchecked_mul",
       "module_path": "std::isize",
       "api_name": "unchecked_mul",
@@ -90405,7 +90454,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5633,
+      "index": 5636,
       "id": "std::isize::unchecked_neg",
       "module_path": "std::isize",
       "api_name": "unchecked_neg",
@@ -90421,7 +90470,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5634,
+      "index": 5637,
       "id": "std::isize::unchecked_shl",
       "module_path": "std::isize",
       "api_name": "unchecked_shl",
@@ -90437,7 +90486,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5635,
+      "index": 5638,
       "id": "std::isize::unchecked_shl_exact",
       "module_path": "std::isize",
       "api_name": "unchecked_shl_exact",
@@ -90453,7 +90502,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5636,
+      "index": 5639,
       "id": "std::isize::unchecked_shr",
       "module_path": "std::isize",
       "api_name": "unchecked_shr",
@@ -90469,7 +90518,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5637,
+      "index": 5640,
       "id": "std::isize::unchecked_shr_exact",
       "module_path": "std::isize",
       "api_name": "unchecked_shr_exact",
@@ -90485,7 +90534,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5638,
+      "index": 5641,
       "id": "std::isize::unchecked_sub",
       "module_path": "std::isize",
       "api_name": "unchecked_sub",
@@ -90501,39 +90550,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5639,
-      "id": "std::os::unix::io::owned::BorrowedFd::borrow_raw",
-      "module_path": "std::os::unix::io::owned::BorrowedFd",
-      "api_name": "borrow_raw",
-      "kind": "method",
-      "url": "https://doc.rust-lang.org/nightly/std/os/fd/owned/struct.BorrowedFd.html#method.borrow_raw",
-      "safety_html": "<p>The resource pointed to by <code>fd</code> must remain open for the duration of the returned <code>BorrowedFd</code>.</p>",
-      "has_safety": true,
-      "review_html": "",
-      "has_review": false,
-      "diff_html": "",
-      "has_diff": false,
-      "trait_origin": "std::os::unix::io::owned::BorrowedFd::borrow_raw",
-      "auto_tags": ""
-    },
-    {
-      "index": 5640,
-      "id": "std::os::unix::io::raw::FromRawFd::from_raw_fd",
-      "module_path": "std::os::unix::io::raw::FromRawFd",
-      "api_name": "from_raw_fd",
-      "kind": "trait_method",
-      "url": "https://doc.rust-lang.org/nightly/std/os/fd/raw/trait.FromRawFd.html#tymethod.from_raw_fd",
-      "safety_html": "<p>The <code>fd</code> passed in must be an [owned file descriptor][io-safety]; in particular, it must be open.</p>",
-      "has_safety": true,
-      "review_html": "",
-      "has_review": false,
-      "diff_html": "",
-      "has_diff": false,
-      "trait_origin": "std::os::unix::io::raw::FromRawFd::from_raw_fd",
-      "auto_tags": ""
-    },
-    {
-      "index": 5641,
+      "index": 5642,
       "id": "std::os::unix::process::CommandExt::before_exec",
       "module_path": "std::os::unix::process::CommandExt",
       "api_name": "before_exec",
@@ -90549,7 +90566,7 @@
       "auto_tags": "TobeSpecified"
     },
     {
-      "index": 5642,
+      "index": 5643,
       "id": "std::os::unix::process::CommandExt::pre_exec",
       "module_path": "std::os::unix::process::CommandExt",
       "api_name": "pre_exec",
@@ -90565,7 +90582,39 @@
       "auto_tags": ""
     },
     {
-      "index": 5643,
+      "index": 5644,
+      "id": "std::os::wasi::io::owned::BorrowedFd::borrow_raw",
+      "module_path": "std::os::wasi::io::owned::BorrowedFd",
+      "api_name": "borrow_raw",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/std/os/fd/owned/struct.BorrowedFd.html#method.borrow_raw",
+      "safety_html": "<p>The resource pointed to by <code>fd</code> must remain open for the duration of the returned <code>BorrowedFd</code>.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "std::os::wasi::io::owned::BorrowedFd::borrow_raw",
+      "auto_tags": ""
+    },
+    {
+      "index": 5645,
+      "id": "std::os::wasi::io::raw::FromRawFd::from_raw_fd",
+      "module_path": "std::os::wasi::io::raw::FromRawFd",
+      "api_name": "from_raw_fd",
+      "kind": "trait_method",
+      "url": "https://doc.rust-lang.org/nightly/std/os/fd/raw/trait.FromRawFd.html#tymethod.from_raw_fd",
+      "safety_html": "<p>The <code>fd</code> passed in must be an [owned file descriptor][io-safety]; in particular, it must be open.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "std::os::wasi::io::raw::FromRawFd::from_raw_fd",
+      "auto_tags": ""
+    },
+    {
+      "index": 5646,
       "id": "std::os::windows::io::handle::BorrowedHandle::borrow_raw",
       "module_path": "std::os::windows::io::handle::BorrowedHandle",
       "api_name": "borrow_raw",
@@ -90581,7 +90630,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5644,
+      "index": 5647,
       "id": "std::os::windows::io::handle::HandleOrInvalid::from_raw_handle",
       "module_path": "std::os::windows::io::handle::HandleOrInvalid",
       "api_name": "from_raw_handle",
@@ -90597,7 +90646,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5645,
+      "index": 5648,
       "id": "std::os::windows::io::handle::HandleOrNull::from_raw_handle",
       "module_path": "std::os::windows::io::handle::HandleOrNull",
       "api_name": "from_raw_handle",
@@ -90613,7 +90662,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5646,
+      "index": 5649,
       "id": "std::os::windows::io::raw::FromRawHandle::from_raw_handle",
       "module_path": "std::os::windows::io::raw::FromRawHandle",
       "api_name": "from_raw_handle",
@@ -90629,7 +90678,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5647,
+      "index": 5650,
       "id": "std::os::windows::io::raw::FromRawSocket::from_raw_socket",
       "module_path": "std::os::windows::io::raw::FromRawSocket",
       "api_name": "from_raw_socket",
@@ -90645,7 +90694,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5648,
+      "index": 5651,
       "id": "std::os::windows::io::socket::BorrowedSocket::borrow_raw",
       "module_path": "std::os::windows::io::socket::BorrowedSocket",
       "api_name": "borrow_raw",
@@ -90661,7 +90710,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5649,
+      "index": 5652,
       "id": "std::os::windows::process::ProcThreadAttributeListBuilder::raw_attribute",
       "module_path": "std::os::windows::process::ProcThreadAttributeListBuilder",
       "api_name": "raw_attribute",
@@ -90677,7 +90726,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5650,
+      "index": 5653,
       "id": "std::str::as_ascii_unchecked",
       "module_path": "std::str",
       "api_name": "as_ascii_unchecked",
@@ -90693,7 +90742,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5651,
+      "index": 5654,
       "id": "std::str::as_bytes_mut",
       "module_path": "std::str",
       "api_name": "as_bytes_mut",
@@ -90709,7 +90758,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5652,
+      "index": 5655,
       "id": "std::str::from_utf8_unchecked",
       "module_path": "std::str",
       "api_name": "from_utf8_unchecked",
@@ -90725,7 +90774,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5653,
+      "index": 5656,
       "id": "std::str::from_utf8_unchecked_mut",
       "module_path": "std::str",
       "api_name": "from_utf8_unchecked_mut",
@@ -90741,7 +90790,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5654,
+      "index": 5657,
       "id": "std::str::get_unchecked",
       "module_path": "std::str",
       "api_name": "get_unchecked",
@@ -90757,7 +90806,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5655,
+      "index": 5658,
       "id": "std::str::get_unchecked_mut",
       "module_path": "std::str",
       "api_name": "get_unchecked_mut",
@@ -90773,7 +90822,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5656,
+      "index": 5659,
       "id": "std::str::slice_mut_unchecked",
       "module_path": "std::str",
       "api_name": "slice_mut_unchecked",
@@ -90789,7 +90838,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5657,
+      "index": 5660,
       "id": "std::str::slice_unchecked",
       "module_path": "std::str",
       "api_name": "slice_unchecked",
@@ -90805,7 +90854,39 @@
       "auto_tags": ""
     },
     {
-      "index": 5658,
+      "index": 5661,
+      "id": "std::str::split_at_mut_unchecked",
+      "module_path": "std::str",
+      "api_name": "split_at_mut_unchecked",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/std/primitive.str.html#method.split_at_mut_unchecked",
+      "safety_html": "<p>The caller must ensure that <code>mid</code> is a valid byte offset from the start of the string and falls on the boundary of a UTF-8 code point.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "std::str::split_at_mut_unchecked",
+      "auto_tags": ""
+    },
+    {
+      "index": 5662,
+      "id": "std::str::split_at_unchecked",
+      "module_path": "std::str",
+      "api_name": "split_at_unchecked",
+      "kind": "method",
+      "url": "https://doc.rust-lang.org/nightly/std/primitive.str.html#method.split_at_unchecked",
+      "safety_html": "<p>The caller must ensure that <code>mid</code> is a valid byte offset from the start of the string and falls on the boundary of a UTF-8 code point.</p>",
+      "has_safety": true,
+      "review_html": "",
+      "has_review": false,
+      "diff_html": "",
+      "has_diff": false,
+      "trait_origin": "std::str::split_at_unchecked",
+      "auto_tags": ""
+    },
+    {
+      "index": 5663,
       "id": "std::sync::lazy_lock::LazyLock::get_unchecked",
       "module_path": "std::sync::lazy_lock::LazyLock",
       "api_name": "get_unchecked",
@@ -90821,7 +90902,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5659,
+      "index": 5664,
       "id": "std::sync::lazy_lock::LazyLock::get_unchecked_mut",
       "module_path": "std::sync::lazy_lock::LazyLock",
       "api_name": "get_unchecked_mut",
@@ -90837,7 +90918,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5660,
+      "index": 5665,
       "id": "std::sync::once_lock::OnceLock::get_unchecked",
       "module_path": "std::sync::once_lock::OnceLock",
       "api_name": "get_unchecked",
@@ -90853,7 +90934,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5661,
+      "index": 5666,
       "id": "std::sync::once_lock::OnceLock::get_unchecked_mut",
       "module_path": "std::sync::once_lock::OnceLock",
       "api_name": "get_unchecked_mut",
@@ -90869,7 +90950,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5662,
+      "index": 5667,
       "id": "std::thread::builder::Builder::spawn_unchecked",
       "module_path": "std::thread::builder::Builder",
       "api_name": "spawn_unchecked",
@@ -90885,7 +90966,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5663,
+      "index": 5668,
       "id": "std::thread::thread::Thread::from_raw",
       "module_path": "std::thread::thread::Thread",
       "api_name": "from_raw",
@@ -90901,7 +90982,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5664,
+      "index": 5669,
       "id": "std::u128::unchecked_add",
       "module_path": "std::u128",
       "api_name": "unchecked_add",
@@ -90917,7 +90998,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5665,
+      "index": 5670,
       "id": "std::u128::unchecked_cast",
       "module_path": "std::u128",
       "api_name": "unchecked_cast",
@@ -90933,7 +91014,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5666,
+      "index": 5671,
       "id": "std::u128::unchecked_disjoint_bitor",
       "module_path": "std::u128",
       "api_name": "unchecked_disjoint_bitor",
@@ -90949,7 +91030,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5667,
+      "index": 5672,
       "id": "std::u128::unchecked_div_exact",
       "module_path": "std::u128",
       "api_name": "unchecked_div_exact",
@@ -90965,7 +91046,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5668,
+      "index": 5673,
       "id": "std::u128::unchecked_funnel_shl",
       "module_path": "std::u128",
       "api_name": "unchecked_funnel_shl",
@@ -90981,7 +91062,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5669,
+      "index": 5674,
       "id": "std::u128::unchecked_funnel_shr",
       "module_path": "std::u128",
       "api_name": "unchecked_funnel_shr",
@@ -90997,7 +91078,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5670,
+      "index": 5675,
       "id": "std::u128::unchecked_mul",
       "module_path": "std::u128",
       "api_name": "unchecked_mul",
@@ -91013,7 +91094,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5671,
+      "index": 5676,
       "id": "std::u128::unchecked_shl",
       "module_path": "std::u128",
       "api_name": "unchecked_shl",
@@ -91029,7 +91110,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5672,
+      "index": 5677,
       "id": "std::u128::unchecked_shl_exact",
       "module_path": "std::u128",
       "api_name": "unchecked_shl_exact",
@@ -91045,7 +91126,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5673,
+      "index": 5678,
       "id": "std::u128::unchecked_shr",
       "module_path": "std::u128",
       "api_name": "unchecked_shr",
@@ -91061,7 +91142,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5674,
+      "index": 5679,
       "id": "std::u128::unchecked_shr_exact",
       "module_path": "std::u128",
       "api_name": "unchecked_shr_exact",
@@ -91077,7 +91158,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5675,
+      "index": 5680,
       "id": "std::u128::unchecked_sub",
       "module_path": "std::u128",
       "api_name": "unchecked_sub",
@@ -91093,7 +91174,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5676,
+      "index": 5681,
       "id": "std::u16::unchecked_add",
       "module_path": "std::u16",
       "api_name": "unchecked_add",
@@ -91109,7 +91190,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5677,
+      "index": 5682,
       "id": "std::u16::unchecked_cast",
       "module_path": "std::u16",
       "api_name": "unchecked_cast",
@@ -91125,7 +91206,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5678,
+      "index": 5683,
       "id": "std::u16::unchecked_disjoint_bitor",
       "module_path": "std::u16",
       "api_name": "unchecked_disjoint_bitor",
@@ -91141,7 +91222,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5679,
+      "index": 5684,
       "id": "std::u16::unchecked_div_exact",
       "module_path": "std::u16",
       "api_name": "unchecked_div_exact",
@@ -91157,7 +91238,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5680,
+      "index": 5685,
       "id": "std::u16::unchecked_funnel_shl",
       "module_path": "std::u16",
       "api_name": "unchecked_funnel_shl",
@@ -91173,7 +91254,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5681,
+      "index": 5686,
       "id": "std::u16::unchecked_funnel_shr",
       "module_path": "std::u16",
       "api_name": "unchecked_funnel_shr",
@@ -91189,7 +91270,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5682,
+      "index": 5687,
       "id": "std::u16::unchecked_mul",
       "module_path": "std::u16",
       "api_name": "unchecked_mul",
@@ -91205,7 +91286,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5683,
+      "index": 5688,
       "id": "std::u16::unchecked_shl",
       "module_path": "std::u16",
       "api_name": "unchecked_shl",
@@ -91221,7 +91302,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5684,
+      "index": 5689,
       "id": "std::u16::unchecked_shl_exact",
       "module_path": "std::u16",
       "api_name": "unchecked_shl_exact",
@@ -91237,7 +91318,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5685,
+      "index": 5690,
       "id": "std::u16::unchecked_shr",
       "module_path": "std::u16",
       "api_name": "unchecked_shr",
@@ -91253,7 +91334,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5686,
+      "index": 5691,
       "id": "std::u16::unchecked_shr_exact",
       "module_path": "std::u16",
       "api_name": "unchecked_shr_exact",
@@ -91269,7 +91350,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5687,
+      "index": 5692,
       "id": "std::u16::unchecked_sub",
       "module_path": "std::u16",
       "api_name": "unchecked_sub",
@@ -91285,7 +91366,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5688,
+      "index": 5693,
       "id": "std::u32::unchecked_add",
       "module_path": "std::u32",
       "api_name": "unchecked_add",
@@ -91301,7 +91382,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5689,
+      "index": 5694,
       "id": "std::u32::unchecked_cast",
       "module_path": "std::u32",
       "api_name": "unchecked_cast",
@@ -91317,7 +91398,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5690,
+      "index": 5695,
       "id": "std::u32::unchecked_disjoint_bitor",
       "module_path": "std::u32",
       "api_name": "unchecked_disjoint_bitor",
@@ -91333,7 +91414,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5691,
+      "index": 5696,
       "id": "std::u32::unchecked_div_exact",
       "module_path": "std::u32",
       "api_name": "unchecked_div_exact",
@@ -91349,7 +91430,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5692,
+      "index": 5697,
       "id": "std::u32::unchecked_funnel_shl",
       "module_path": "std::u32",
       "api_name": "unchecked_funnel_shl",
@@ -91365,7 +91446,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5693,
+      "index": 5698,
       "id": "std::u32::unchecked_funnel_shr",
       "module_path": "std::u32",
       "api_name": "unchecked_funnel_shr",
@@ -91381,7 +91462,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5694,
+      "index": 5699,
       "id": "std::u32::unchecked_mul",
       "module_path": "std::u32",
       "api_name": "unchecked_mul",
@@ -91397,7 +91478,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5695,
+      "index": 5700,
       "id": "std::u32::unchecked_shl",
       "module_path": "std::u32",
       "api_name": "unchecked_shl",
@@ -91413,7 +91494,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5696,
+      "index": 5701,
       "id": "std::u32::unchecked_shl_exact",
       "module_path": "std::u32",
       "api_name": "unchecked_shl_exact",
@@ -91429,7 +91510,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5697,
+      "index": 5702,
       "id": "std::u32::unchecked_shr",
       "module_path": "std::u32",
       "api_name": "unchecked_shr",
@@ -91445,7 +91526,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5698,
+      "index": 5703,
       "id": "std::u32::unchecked_shr_exact",
       "module_path": "std::u32",
       "api_name": "unchecked_shr_exact",
@@ -91461,7 +91542,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5699,
+      "index": 5704,
       "id": "std::u32::unchecked_sub",
       "module_path": "std::u32",
       "api_name": "unchecked_sub",
@@ -91477,7 +91558,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5700,
+      "index": 5705,
       "id": "std::u64::unchecked_add",
       "module_path": "std::u64",
       "api_name": "unchecked_add",
@@ -91493,7 +91574,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5701,
+      "index": 5706,
       "id": "std::u64::unchecked_cast",
       "module_path": "std::u64",
       "api_name": "unchecked_cast",
@@ -91509,7 +91590,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5702,
+      "index": 5707,
       "id": "std::u64::unchecked_disjoint_bitor",
       "module_path": "std::u64",
       "api_name": "unchecked_disjoint_bitor",
@@ -91525,7 +91606,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5703,
+      "index": 5708,
       "id": "std::u64::unchecked_div_exact",
       "module_path": "std::u64",
       "api_name": "unchecked_div_exact",
@@ -91541,7 +91622,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5704,
+      "index": 5709,
       "id": "std::u64::unchecked_funnel_shl",
       "module_path": "std::u64",
       "api_name": "unchecked_funnel_shl",
@@ -91557,7 +91638,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5705,
+      "index": 5710,
       "id": "std::u64::unchecked_funnel_shr",
       "module_path": "std::u64",
       "api_name": "unchecked_funnel_shr",
@@ -91573,7 +91654,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5706,
+      "index": 5711,
       "id": "std::u64::unchecked_mul",
       "module_path": "std::u64",
       "api_name": "unchecked_mul",
@@ -91589,7 +91670,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5707,
+      "index": 5712,
       "id": "std::u64::unchecked_shl",
       "module_path": "std::u64",
       "api_name": "unchecked_shl",
@@ -91605,7 +91686,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5708,
+      "index": 5713,
       "id": "std::u64::unchecked_shl_exact",
       "module_path": "std::u64",
       "api_name": "unchecked_shl_exact",
@@ -91621,7 +91702,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5709,
+      "index": 5714,
       "id": "std::u64::unchecked_shr",
       "module_path": "std::u64",
       "api_name": "unchecked_shr",
@@ -91637,7 +91718,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5710,
+      "index": 5715,
       "id": "std::u64::unchecked_shr_exact",
       "module_path": "std::u64",
       "api_name": "unchecked_shr_exact",
@@ -91653,7 +91734,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5711,
+      "index": 5716,
       "id": "std::u64::unchecked_sub",
       "module_path": "std::u64",
       "api_name": "unchecked_sub",
@@ -91669,7 +91750,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5712,
+      "index": 5717,
       "id": "std::u8::as_ascii_unchecked",
       "module_path": "std::u8",
       "api_name": "as_ascii_unchecked",
@@ -91685,7 +91766,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5713,
+      "index": 5718,
       "id": "std::u8::unchecked_add",
       "module_path": "std::u8",
       "api_name": "unchecked_add",
@@ -91701,7 +91782,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5714,
+      "index": 5719,
       "id": "std::u8::unchecked_cast",
       "module_path": "std::u8",
       "api_name": "unchecked_cast",
@@ -91717,7 +91798,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5715,
+      "index": 5720,
       "id": "std::u8::unchecked_disjoint_bitor",
       "module_path": "std::u8",
       "api_name": "unchecked_disjoint_bitor",
@@ -91733,7 +91814,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5716,
+      "index": 5721,
       "id": "std::u8::unchecked_div_exact",
       "module_path": "std::u8",
       "api_name": "unchecked_div_exact",
@@ -91749,7 +91830,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5717,
+      "index": 5722,
       "id": "std::u8::unchecked_funnel_shl",
       "module_path": "std::u8",
       "api_name": "unchecked_funnel_shl",
@@ -91765,7 +91846,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5718,
+      "index": 5723,
       "id": "std::u8::unchecked_funnel_shr",
       "module_path": "std::u8",
       "api_name": "unchecked_funnel_shr",
@@ -91781,7 +91862,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5719,
+      "index": 5724,
       "id": "std::u8::unchecked_mul",
       "module_path": "std::u8",
       "api_name": "unchecked_mul",
@@ -91797,7 +91878,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5720,
+      "index": 5725,
       "id": "std::u8::unchecked_shl",
       "module_path": "std::u8",
       "api_name": "unchecked_shl",
@@ -91813,7 +91894,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5721,
+      "index": 5726,
       "id": "std::u8::unchecked_shl_exact",
       "module_path": "std::u8",
       "api_name": "unchecked_shl_exact",
@@ -91829,7 +91910,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5722,
+      "index": 5727,
       "id": "std::u8::unchecked_shr",
       "module_path": "std::u8",
       "api_name": "unchecked_shr",
@@ -91845,7 +91926,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5723,
+      "index": 5728,
       "id": "std::u8::unchecked_shr_exact",
       "module_path": "std::u8",
       "api_name": "unchecked_shr_exact",
@@ -91861,7 +91942,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5724,
+      "index": 5729,
       "id": "std::u8::unchecked_sub",
       "module_path": "std::u8",
       "api_name": "unchecked_sub",
@@ -91877,7 +91958,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5725,
+      "index": 5730,
       "id": "std::usize::unchecked_add",
       "module_path": "std::usize",
       "api_name": "unchecked_add",
@@ -91893,7 +91974,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5726,
+      "index": 5731,
       "id": "std::usize::unchecked_cast",
       "module_path": "std::usize",
       "api_name": "unchecked_cast",
@@ -91909,7 +91990,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5727,
+      "index": 5732,
       "id": "std::usize::unchecked_disjoint_bitor",
       "module_path": "std::usize",
       "api_name": "unchecked_disjoint_bitor",
@@ -91925,7 +92006,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5728,
+      "index": 5733,
       "id": "std::usize::unchecked_div_exact",
       "module_path": "std::usize",
       "api_name": "unchecked_div_exact",
@@ -91941,7 +92022,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5729,
+      "index": 5734,
       "id": "std::usize::unchecked_funnel_shl",
       "module_path": "std::usize",
       "api_name": "unchecked_funnel_shl",
@@ -91957,7 +92038,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5730,
+      "index": 5735,
       "id": "std::usize::unchecked_funnel_shr",
       "module_path": "std::usize",
       "api_name": "unchecked_funnel_shr",
@@ -91973,7 +92054,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5731,
+      "index": 5736,
       "id": "std::usize::unchecked_mul",
       "module_path": "std::usize",
       "api_name": "unchecked_mul",
@@ -91989,7 +92070,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5732,
+      "index": 5737,
       "id": "std::usize::unchecked_shl",
       "module_path": "std::usize",
       "api_name": "unchecked_shl",
@@ -92005,7 +92086,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5733,
+      "index": 5738,
       "id": "std::usize::unchecked_shl_exact",
       "module_path": "std::usize",
       "api_name": "unchecked_shl_exact",
@@ -92021,7 +92102,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5734,
+      "index": 5739,
       "id": "std::usize::unchecked_shr",
       "module_path": "std::usize",
       "api_name": "unchecked_shr",
@@ -92037,7 +92118,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5735,
+      "index": 5740,
       "id": "std::usize::unchecked_shr_exact",
       "module_path": "std::usize",
       "api_name": "unchecked_shr_exact",
@@ -92053,7 +92134,7 @@
       "auto_tags": ""
     },
     {
-      "index": 5736,
+      "index": 5741,
       "id": "std::usize::unchecked_sub",
       "module_path": "std::usize",
       "api_name": "unchecked_sub",
