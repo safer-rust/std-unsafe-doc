@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "toolchain": "nightly",
-  "rustc_version": "rustc 1.102.0-nightly (f5cedb83a 2026-11-07)",
+  "rustc_version": "rustc 1.102.0-nightly (5b7b37aef 2026-11-08)",
   "crates": [
     "core",
     "alloc",
