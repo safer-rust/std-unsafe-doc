@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "toolchain": "nightly",
-  "rustc_version": "rustc 1.102.0-nightly (739adecd4 2026-11-24)",
+  "rustc_version": "rustc 1.102.0-nightly (6c709eb42 2026-11-25)",
   "crates": [
     "core",
     "alloc",
@@ -88332,7 +88332,7 @@
       "api_name": "byte_add",
       "kind": "method",
       "url": "https://doc.rust-lang.org/nightly/core/primitive.pointer.html#method.byte_add",
-      "safety_html": "<p>See <code>add</code>[pointer::add] for documentation and safety requirements.</p><br/><p>See [add][pointer::add] for documentation and safety requirements.</p>",
+      "safety_html": "<p>See [add][pointer::add] for documentation and safety requirements.</p><br/><p>See <code>add</code>[pointer::add] for documentation and safety requirements.</p>",
       "has_safety": true,
       "review_html": "",
       "has_review": false,
